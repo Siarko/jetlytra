@@ -5,23 +5,99 @@
 			"loop": "hold_on_last_frame",
 			"animation_length": 0.5,
 			"bones": {
-				"wingRightCoxa": {
+				"coxaR": {
 					"rotation": {
 						"0.0": {
 							"vector": [0, 0, 0]
 						},
 						"0.5": {
-							"vector": [0, 0, 90]
+							"vector": [0, 0, 87.5]
 						}
 					}
 				},
-				"wingRightFemur": {
+				"femurR": {
 					"rotation": {
 						"0.125": {
 							"vector": [0, 0, 0]
 						},
-						"0.25": {
-							"vector": [0, 0, 150]
+						"0.5": {
+							"vector": [0, 0, 175]
+						}
+					}
+				},
+				"tibiaR": {
+					"rotation": {
+						"0.2083": {
+							"vector": [0, 0, 0]
+						},
+						"0.5": {
+							"vector": [0, 0, 157.9815]
+						}
+					}
+				},
+				"coxaL": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.5": {
+							"vector": [0, 0, -87.5]
+						}
+					}
+				},
+				"femurL": {
+					"rotation": {
+						"0.125": {
+							"vector": [0, 0, 0]
+						},
+						"0.5": {
+							"vector": [0, 0, -175]
+						}
+					}
+				},
+				"tibiaL": {
+					"rotation": {
+						"0.2083": {
+							"vector": [0, 0, 0]
+						},
+						"0.5": {
+							"vector": [0, 0, -157.9815]
+						}
+					}
+				},
+				"webbingL": {
+					"position": {
+						"0.4167": {
+							"vector": [0, 4, 0]
+						},
+						"0.5": {
+							"vector": [-3, 4, 0]
+						}
+					},
+					"scale": {
+						"0.4167": {
+							"vector": [1, 1, 1]
+						},
+						"0.5": {
+							"vector": [2.7, 5.2, 1]
+						}
+					}
+				},
+				"coxaWebbingL": {
+					"position": {
+						"0.4167": {
+							"vector": [0, 0, 0]
+						},
+						"0.5": {
+							"vector": [-4, -6, 0]
+						}
+					},
+					"scale": {
+						"0.4167": {
+							"vector": [1, 1, 1]
+						},
+						"0.5": {
+							"vector": [3, 10.2, 1]
 						}
 					}
 				}
