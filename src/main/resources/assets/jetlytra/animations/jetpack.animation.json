@@ -3,53 +3,25 @@
 	"animations": {
 		"wing_out": {
 			"loop": "hold_on_last_frame",
-			"animation_length": 0.25,
+			"animation_length": 0.5,
 			"bones": {
-				"wingRight": {
+				"wingRightCoxa": {
 					"rotation": {
 						"0.0": {
 							"vector": [0, 0, 0]
 						},
-						"0.25": {
-							"vector": [0, 0, 90],
-							"easing": "easeInOutSine"
-						}
-					}
-				},
-				"wingLeft": {
-					"rotation": {
-						"0.0": {
-							"vector": [0, 0, 0]
-						},
-						"0.25": {
-							"vector": [0, 0, -90]
-						}
-					}
-				}
-			}
-		},
-		"wing_in": {
-			"loop": "hold_on_last_frame",
-			"animation_length": 0.25,
-			"bones": {
-				"wingRight": {
-					"rotation": {
-						"0.0": {
+						"0.5": {
 							"vector": [0, 0, 90]
-						},
-						"0.25": {
-							"vector": [0, 0, 0],
-							"easing": "easeOutSine"
 						}
 					}
 				},
-				"wingLeft": {
+				"wingRightFemur": {
 					"rotation": {
-						"0.0": {
-							"vector": [0, 0, -90]
+						"0.125": {
+							"vector": [0, 0, 0]
 						},
 						"0.25": {
-							"vector": [0, 0, 0]
+							"vector": [0, 0, 150]
 						}
 					}
 				}

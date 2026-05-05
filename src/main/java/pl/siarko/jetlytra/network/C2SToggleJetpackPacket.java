@@ -5,12 +5,15 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import pl.siarko.jetlytra.Jetlytra;
 import pl.siarko.jetlytra.capability.JetpackCapabilityAttacher;
 import pl.siarko.jetlytra.capability.JetpackCapabilityImpl;
 import pl.siarko.jetlytra.flight.FlightState;
+import pl.siarko.jetlytra.item.JetlytraItem;
 import pl.siarko.jetlytra.item.JetlytraItems;
 
 public record C2SToggleJetpackPacket() implements CustomPacketPayload {
@@ -33,19 +36,21 @@ public record C2SToggleJetpackPacket() implements CustomPacketPayload {
             ServerPlayer player = (ServerPlayer) context.player();
 
             // Must be wearing the jetpack to toggle
-            if (!(player.getInventory().armor.get(2).getItem() instanceof pl.siarko.jetlytra.item.JetlytraItem)) {
+            ItemStack stack = player.getItemBySlot(EquipmentSlot.CHEST);
+            if (!(stack.getItem() instanceof JetlytraItem)) {
                 return;
             }
 
             JetpackCapabilityImpl cap = JetpackCapabilityAttacher.get(player);
             FlightState next = cap.getState().isActive() ? FlightState.OFF : FlightState.JETPACK;
             cap.setState(next);
+            stack.set(JetlytraItems.JETPACK_ENABLED, next.isActive());
 
             if (next == FlightState.OFF) {
                 player.setNoGravity(false);
             }
 
-            PacketDistributor.sendToPlayer(player, new S2CSyncStatePacket(next));
+            PacketDistributor.sendToPlayer(player, new S2CSyncStatePacket(next, true));
         });
     }
 }

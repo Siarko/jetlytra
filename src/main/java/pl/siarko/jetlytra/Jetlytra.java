@@ -19,10 +19,13 @@ public class Jetlytra {
 
     public Jetlytra(IEventBus modEventBus, ModContainer modContainer) {
         JetlytraItems.ITEMS.register(modEventBus);
+        JetlytraItems.DATA_COMPONENTS.register(modEventBus);
         JetlytraCreativeTab.CREATIVE_TABS.register(modEventBus);
         modEventBus.addListener(JetpackPackets::register);  // RegisterPayloadHandlersEvent
+        NeoForge.EVENT_BUS.addListener(JetpackCapabilityAttacher::onPlayerLogin);
         NeoForge.EVENT_BUS.addListener(JetpackCapabilityAttacher::onPlayerClone);
         NeoForge.EVENT_BUS.addListener(JetpackCapabilityAttacher::onPlayerLogout);
+        NeoForge.EVENT_BUS.addListener(JetpackCapabilityAttacher::onEquipmentChange);
         NeoForge.EVENT_BUS.addListener(JetpackPhysicsHandler::onPlayerTick);
         LOGGER.info("Jetlytra initializing");
     }

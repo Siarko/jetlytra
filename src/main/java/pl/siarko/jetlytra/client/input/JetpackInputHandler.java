@@ -16,12 +16,30 @@ public class JetpackInputHandler {
     private static final double THRUST_ACCEL = 0.15;
     private static final double MAX_THRUST_VEL = 0.8;
     private static final double SPRINT_BOOST = 1.08;
+    private static final double ELYTRA_BOOST_ACCEL = 0.1;
+    private static final double ELYTRA_BOOST_MAX = 1.5;
     private static final long DOUBLE_TAP_WINDOW_MS = 300;
+    private static final double SWIM_BOOST_ACCEL = 0.08;
+    private static final double SWIM_BOOST_MAX = 0.6;
 
     private static boolean lastThrust = false;
     private static boolean lastCrouch = false;
     private static boolean lastSprint = false;
     private static long lastSprintPressTime = 0;
+
+    private static double hoverLockedY = Double.NaN;
+
+    // Post-tick correction: vanilla water physics physically move the player during the tick.
+    // Restore the Y position recorded in Pre to lock the player in place vertically.
+    public static void onClientTickPost(ClientTickEvent.Post event) {
+        var mc = Minecraft.getInstance();
+        var player = mc.player;
+        if (player == null || Double.isNaN(hoverLockedY)) return;
+        player.setPos(player.getX(), hoverLockedY, player.getZ());
+        Vec3 vel = player.getDeltaMovement();
+        player.setDeltaMovement(vel.x, 0, vel.z);
+        hoverLockedY = Double.NaN;
+    }
 
     public static void onClientTick(ClientTickEvent.Pre event) {
         var mc = Minecraft.getInstance();
@@ -38,6 +56,12 @@ public class JetpackInputHandler {
         // Elytra toggle dedicated keybind
         while (JetpackKeyMappings.TOGGLE_ELYTRA.consumeClick()) {
             PacketDistributor.sendToServer(new C2SElytraTogglePacket());
+        }
+
+        // Swimming boost: accelerate in look direction when jump held while swimming (jetpack must be active)
+        if (ClientJetpackState.getState().isActive() && player.isSwimming() && options.keyJump.isDown()) {
+            Vec3 look = player.getLookAngle();
+            player.setDeltaMovement(look.scale(SWIM_BOOST_MAX));
         }
 
         FlightState state = ClientJetpackState.getState();
@@ -83,6 +107,22 @@ public class JetpackInputHandler {
         } else if (state == FlightState.HOVERING) {
             // Gravity is disabled server-side via setNoGravity(true) — just zero Y
             player.setDeltaMovement(vel.x, 0, vel.z);
+            player.resetFallDistance();
+            // In water, vanilla physics will still move the player; lock Y position for Post correction
+            if (player.isInWater()) {
+                hoverLockedY = player.getY();
+            }
+        }
+
+        // Elytra boost: accelerate in look direction when jump held, capped at firework speed
+        if (state == FlightState.ELYTRA && thrust) {
+            Vec3 look = player.getLookAngle();
+            Vec3 elytraVel = player.getDeltaMovement();
+            player.setDeltaMovement(
+                elytraVel.x + look.x * ELYTRA_BOOST_ACCEL + (look.x * ELYTRA_BOOST_MAX - elytraVel.x) * 0.5,
+                elytraVel.y + look.y * ELYTRA_BOOST_ACCEL + (look.y * ELYTRA_BOOST_MAX - elytraVel.y) * 0.5,
+                elytraVel.z + look.z * ELYTRA_BOOST_ACCEL + (look.z * ELYTRA_BOOST_MAX - elytraVel.z) * 0.5
+            );
             player.resetFallDistance();
         }
 

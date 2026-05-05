@@ -11,14 +11,18 @@ import pl.siarko.jetlytra.Jetlytra;
 import pl.siarko.jetlytra.client.ClientJetpackState;
 import pl.siarko.jetlytra.flight.FlightState;
 
-public record S2CSyncStatePacket(FlightState state) implements CustomPacketPayload {
+public record S2CSyncStatePacket(FlightState state, boolean showMessage) implements CustomPacketPayload {
+
+    public S2CSyncStatePacket(FlightState state) {
+        this(state, false);
+    }
 
     public static final Type<S2CSyncStatePacket> TYPE =
             new Type<>(ResourceLocation.fromNamespaceAndPath(Jetlytra.MODID, "sync_state"));
 
     public static final StreamCodec<FriendlyByteBuf, S2CSyncStatePacket> CODEC = StreamCodec.of(
-            (buf, packet) -> buf.writeEnum(packet.state),
-            buf -> new S2CSyncStatePacket(buf.readEnum(FlightState.class))
+            (buf, packet) -> { buf.writeEnum(packet.state); buf.writeBoolean(packet.showMessage); },
+            buf -> new S2CSyncStatePacket(buf.readEnum(FlightState.class), buf.readBoolean())
     );
 
     @Override
@@ -31,16 +35,17 @@ public record S2CSyncStatePacket(FlightState state) implements CustomPacketPaylo
             FlightState previous = ClientJetpackState.getState();
             ClientJetpackState.setState(packet.state);
 
-            Component message = switch (packet.state) {
-                case OFF -> Component.literal("Jetpack OFF").withStyle(ChatFormatting.RED);
-                case JETPACK -> previous == FlightState.OFF
-                        ? Component.literal("Jetpack ON").withStyle(ChatFormatting.GREEN)
-                        : null; // returning from hover — no message
-                default -> null; // HOVERING, ELYTRA — no message
-            };
-
-            if (message != null) {
-                context.player().displayClientMessage(message, true);
+            if (packet.showMessage && packet.state != previous) {
+                Component message = switch (packet.state) {
+                    case OFF -> Component.literal("Jetpack OFF").withStyle(ChatFormatting.RED);
+                    case JETPACK -> previous == FlightState.OFF
+                            ? Component.literal("Jetpack ON").withStyle(ChatFormatting.GREEN)
+                            : null;
+                    default -> null;
+                };
+                if (message != null) {
+                    context.player().displayClientMessage(message, true);
+                }
             }
         });
     }
