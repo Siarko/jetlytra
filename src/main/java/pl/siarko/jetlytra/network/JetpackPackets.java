@@ -1,0 +1,16 @@
+package pl.siarko.jetlytra.network;
+
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+
+public class JetpackPackets {
+
+    public static void register(RegisterPayloadHandlersEvent event) {
+        PayloadRegistrar registrar = event.registrar("1.0");
+        registrar.playToClient(S2CSyncStatePacket.TYPE, S2CSyncStatePacket.CODEC, S2CSyncStatePacket::handle);
+        registrar.playToServer(C2SToggleJetpackPacket.TYPE, C2SToggleJetpackPacket.CODEC, C2SToggleJetpackPacket::handle);
+        registrar.playToServer(C2SThrustPacket.TYPE, C2SThrustPacket.CODEC, C2SThrustPacket::handle);
+        registrar.playToServer(C2SCrouchPacket.TYPE, C2SCrouchPacket.CODEC, C2SCrouchPacket::handle);
+        registrar.playToServer(C2SElytraTogglePacket.TYPE, C2SElytraTogglePacket.CODEC, C2SElytraTogglePacket::handle);
+    }
+}

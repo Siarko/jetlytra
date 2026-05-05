@@ -1,0 +1,24 @@
+# Build output
+build/
+out/
+
+# Gradle
+.gradle/
+gradle-app.setting
+!gradle/wrapper/gradle-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+
+# NeoForge / Minecraft dev artifacts
+run/
+runs/
+src/generated/
+
+# OS
+.DS_Store
+Thumbs.db
