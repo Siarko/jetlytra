@@ -7,7 +7,6 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import pl.siarko.jetlytra.client.input.JetpackInputHandler;
 import pl.siarko.jetlytra.client.input.JetpackKeyMappings;
 import pl.siarko.jetlytra.client.particle.JetpackParticleHandler;
