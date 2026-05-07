@@ -1,5 +1,7 @@
 {
   "item.jetlytra.jetpack": "Jetlytra",
+  "item.jetlytra.jetpack.enabled": "Jetpack: ON",
+  "item.jetlytra.jetpack.disabled": "Jetpack: OFF",
   "itemGroup.jetlytra.main": "Jetlytra",
   "key.jetlytra.toggle": "Toggle Jetpack",
   "key.categories.jetlytra": "Jetlytra",

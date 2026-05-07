@@ -37,9 +37,9 @@ public record S2CSyncStatePacket(FlightState state, boolean showMessage) impleme
 
             if (packet.showMessage && packet.state != previous) {
                 Component message = switch (packet.state) {
-                    case OFF -> Component.literal("Jetpack OFF").withStyle(ChatFormatting.RED);
+                    case OFF -> Component.translatable("item.jetlytra.jetpack.disabled").withStyle(ChatFormatting.RED);
                     case JETPACK -> previous == FlightState.OFF
-                            ? Component.literal("Jetpack ON").withStyle(ChatFormatting.GREEN)
+                            ? Component.translatable("item.jetlytra.jetpack.enabled").withStyle(ChatFormatting.GREEN)
                             : null;
                     default -> null;
                 };

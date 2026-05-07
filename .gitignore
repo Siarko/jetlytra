@@ -16,6 +16,8 @@ gradle-app.setting
 .vscode/
 .classpath
 .project
+.eclipse/
+.settings/
 
 # NeoForge / Minecraft dev artifacts
 run/

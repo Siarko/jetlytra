@@ -19,4 +19,5 @@ public class ClientJetpackState {
         previous = state;
         state = newState;
     }
+
 }
