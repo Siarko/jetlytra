@@ -18,4 +18,8 @@ public class JetlytraAttachments {
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> THRUST_ACTIVE =
             ATTACHMENT_TYPES.register("thrust_active", () ->
                     AttachmentType.builder(() -> false).build());
+
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> FUEL_TICK_COUNTER =
+            ATTACHMENT_TYPES.register("fuel_tick_counter", () ->
+                    AttachmentType.builder(() -> 0).build());
 }

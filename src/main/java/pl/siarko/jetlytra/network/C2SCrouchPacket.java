@@ -32,7 +32,7 @@ public record C2SCrouchPacket(boolean active) implements CustomPacketPayload {
             FlightState current = player.getData(JetlytraAttachments.FLIGHT_STATE.get());
 
             FlightState next = current;
-            if (packet.active && (current == FlightState.JETPACK || current == FlightState.ELYTRA)) {
+            if (packet.active && (current == FlightState.JETPACK || current == FlightState.ELYTRA) && !player.isInWater()) {
                 next = FlightState.HOVERING;
             } else if (!packet.active && current == FlightState.HOVERING) {
                 next = FlightState.JETPACK;

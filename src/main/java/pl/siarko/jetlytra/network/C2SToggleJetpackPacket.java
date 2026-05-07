@@ -44,6 +44,8 @@ public record C2SToggleJetpackPacket() implements CustomPacketPayload {
 
             if (next == FlightState.OFF) {
                 player.setNoGravity(false);
+                player.setData(JetlytraAttachments.THRUST_ACTIVE.get(), false);
+                player.setData(JetlytraAttachments.FUEL_TICK_COUNTER.get(), 0);
             }
 
             PacketDistributor.sendToPlayer(player, new S2CSyncStatePacket(next, true));

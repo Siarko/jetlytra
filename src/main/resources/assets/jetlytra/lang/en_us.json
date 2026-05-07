@@ -1,9 +1,12 @@
 {
+  "block.jetlytra.jetpack": "Jetlytra",
   "item.jetlytra.jetpack": "Jetlytra",
   "item.jetlytra.jetpack.enabled": "Jetpack: ON",
   "item.jetlytra.jetpack.disabled": "Jetpack: OFF",
   "itemGroup.jetlytra.main": "Jetlytra",
   "key.jetlytra.toggle": "Toggle Jetpack",
   "key.categories.jetlytra": "Jetlytra",
-  "key.jetlytra.toggle_elytra": "Toggle Elytra Mode"
+  "key.jetlytra.toggle_elytra": "Toggle Elytra Mode",
+  "item.jetlytra.jetpack.fuel": "Fuel: %1$sx %2$s",
+  "item.jetlytra.jetpack.no_fuel": "No fuel"
 }

@@ -6,6 +6,7 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.NeoForge;
 import org.slf4j.Logger;
+import pl.siarko.jetlytra.block.JetlytraBlocks;
 import pl.siarko.jetlytra.flight.JetpackPhysicsHandler;
 import pl.siarko.jetlytra.item.JetlytraCreativeTab;
 import pl.siarko.jetlytra.item.JetlytraItems;
@@ -20,6 +21,8 @@ public class Jetlytra {
         JetlytraItems.ITEMS.register(modEventBus);
         JetlytraItems.DATA_COMPONENTS.register(modEventBus);
         JetlytraAttachments.ATTACHMENT_TYPES.register(modEventBus);
+        JetlytraBlocks.BLOCKS.register(modEventBus);
+        JetlytraBlocks.BLOCK_ENTITY_TYPES.register(modEventBus);
 
         JetlytraCreativeTab.CREATIVE_TABS.register(modEventBus);
 

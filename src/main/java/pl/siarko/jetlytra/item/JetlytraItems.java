@@ -8,6 +8,7 @@ import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import pl.siarko.jetlytra.Jetlytra;
+import pl.siarko.jetlytra.flight.FuelData;
 
 import java.util.function.Supplier;
 
@@ -26,6 +27,13 @@ public class JetlytraItems {
             DATA_COMPONENTS.register("jetpack_enabled", () ->
                     DataComponentType.<Boolean>builder()
                             .persistent(Codec.BOOL)
+                            .build()
+            );
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<FuelData>> FUEL_DATA =
+            DATA_COMPONENTS.register("fuel_data", () ->
+                    DataComponentType.<FuelData>builder()
+                            .persistent(FuelData.CODEC)
                             .build()
             );
 

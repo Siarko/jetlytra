@@ -2,14 +2,24 @@ package pl.siarko.jetlytra.item;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import pl.siarko.jetlytra.block.JetpackBlock;
+import pl.siarko.jetlytra.block.JetpackBlockEntity;
+import pl.siarko.jetlytra.block.JetlytraBlocks;
+import pl.siarko.jetlytra.flight.FuelData;
 
 import java.util.List;
 import software.bernie.geckolib.animatable.GeoItem;
@@ -35,12 +45,53 @@ public class JetlytraItem extends ArmorItem implements GeoItem {
     }
 
     @Override
+    public InteractionResult useOn(UseOnContext context) {
+        Level level = context.getLevel();
+        BlockPos clickedPos = context.getClickedPos();
+        Direction face = context.getClickedFace();
+        BlockPos placePos = clickedPos.relative(face);
+
+        if (!context.getPlayer().isShiftKeyDown()) return InteractionResult.PASS;
+
+        if (!level.getBlockState(placePos).canBeReplaced()) return InteractionResult.FAIL;
+
+        if (!level.isClientSide) {
+            Direction facing = context.getHorizontalDirection().getOpposite();
+            BlockState newState = JetlytraBlocks.JETPACK.get().defaultBlockState()
+                    .setValue(JetpackBlock.FACING, facing);
+            level.setBlock(placePos, newState, 3);
+
+            if (level.getBlockEntity(placePos) instanceof JetpackBlockEntity be) {
+                be.readFromItem(context.getItemInHand());
+            }
+
+            if (!context.getPlayer().isCreative()) {
+                context.getItemInHand().shrink(1);
+            }
+        }
+        return InteractionResult.sidedSuccess(level.isClientSide);
+    }
+
+    @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         boolean enabled = Boolean.TRUE.equals(stack.get(JetlytraItems.JETPACK_ENABLED));
         tooltipComponents.add(
             Component.translatable(enabled ? "item.jetlytra.jetpack.enabled" : "item.jetlytra.jetpack.disabled")
                 .withStyle(enabled ? ChatFormatting.GREEN : ChatFormatting.RED)
         );
+
+        FuelData fuel = stack.get(JetlytraItems.FUEL_DATA);
+        if (fuel != null) {
+            tooltipComponents.add(
+                Component.translatable("item.jetlytra.jetpack.fuel", fuel.count(), fuel.type().displayName)
+                    .withStyle(ChatFormatting.GOLD)
+            );
+        } else {
+            tooltipComponents.add(
+                Component.translatable("item.jetlytra.jetpack.no_fuel")
+                    .withStyle(ChatFormatting.DARK_GRAY)
+            );
+        }
     }
 
     @Override
