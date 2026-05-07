@@ -10,8 +10,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import pl.siarko.jetlytra.Jetlytra;
-import pl.siarko.jetlytra.capability.JetpackCapabilityAttacher;
-import pl.siarko.jetlytra.capability.JetpackCapabilityImpl;
+import pl.siarko.jetlytra.JetlytraAttachments;
 import pl.siarko.jetlytra.flight.FlightState;
 import pl.siarko.jetlytra.item.JetlytraItem;
 import pl.siarko.jetlytra.item.JetlytraItems;
@@ -35,15 +34,12 @@ public record C2SToggleJetpackPacket() implements CustomPacketPayload {
         context.enqueueWork(() -> {
             ServerPlayer player = (ServerPlayer) context.player();
 
-            // Must be wearing the jetpack to toggle
             ItemStack stack = player.getItemBySlot(EquipmentSlot.CHEST);
-            if (!(stack.getItem() instanceof JetlytraItem)) {
-                return;
-            }
+            if (!(stack.getItem() instanceof JetlytraItem)) return;
 
-            JetpackCapabilityImpl cap = JetpackCapabilityAttacher.get(player);
-            FlightState next = cap.getState().isActive() ? FlightState.OFF : FlightState.JETPACK;
-            cap.setState(next);
+            FlightState current = player.getData(JetlytraAttachments.FLIGHT_STATE.get());
+            FlightState next = current.isActive() ? FlightState.OFF : FlightState.JETPACK;
+            player.setData(JetlytraAttachments.FLIGHT_STATE.get(), next);
             stack.set(JetlytraItems.JETPACK_ENABLED, next.isActive());
 
             if (next == FlightState.OFF) {

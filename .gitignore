@@ -1,6 +1,7 @@
 # Build output
 build/
 out/
+bin/
 
 # Gradle
 .gradle/
@@ -13,6 +14,8 @@ gradle-app.setting
 *.ipr
 *.iws
 .vscode/
+.classpath
+.project
 
 # NeoForge / Minecraft dev artifacts
 run/

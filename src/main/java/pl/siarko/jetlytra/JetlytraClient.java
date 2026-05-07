@@ -20,7 +20,6 @@ public class JetlytraClient {
 
     public JetlytraClient(IEventBus modEventBus) {
         NeoForge.EVENT_BUS.addListener(JetpackInputHandler::onClientTick);
-        NeoForge.EVENT_BUS.addListener(JetpackInputHandler::onClientTickPost);
         NeoForge.EVENT_BUS.addListener(JetpackParticleHandler::onClientTick);
         NeoForge.EVENT_BUS.addListener(JetlytraClient::onLogout);
     }

@@ -19,7 +19,6 @@ public class JetpackInputHandler {
     private static final double ELYTRA_BOOST_ACCEL = 0.1;
     private static final double ELYTRA_BOOST_MAX = 1.5;
     private static final long DOUBLE_TAP_WINDOW_MS = 300;
-    private static final double SWIM_BOOST_ACCEL = 0.08;
     private static final double SWIM_BOOST_MAX = 0.6;
 
     private static boolean lastThrust = false;
@@ -27,19 +26,6 @@ public class JetpackInputHandler {
     private static boolean lastSprint = false;
     private static long lastSprintPressTime = 0;
 
-    private static double hoverLockedY = Double.NaN;
-
-    // Post-tick correction: vanilla water physics physically move the player during the tick.
-    // Restore the Y position recorded in Pre to lock the player in place vertically.
-    public static void onClientTickPost(ClientTickEvent.Post event) {
-        var mc = Minecraft.getInstance();
-        var player = mc.player;
-        if (player == null || Double.isNaN(hoverLockedY)) return;
-        player.setPos(player.getX(), hoverLockedY, player.getZ());
-        Vec3 vel = player.getDeltaMovement();
-        player.setDeltaMovement(vel.x, 0, vel.z);
-        hoverLockedY = Double.NaN;
-    }
 
     public static void onClientTick(ClientTickEvent.Pre event) {
         var mc = Minecraft.getInstance();
@@ -108,10 +94,6 @@ public class JetpackInputHandler {
             // Gravity is disabled server-side via setNoGravity(true) — just zero Y
             player.setDeltaMovement(vel.x, 0, vel.z);
             player.resetFallDistance();
-            // In water, vanilla physics will still move the player; lock Y position for Post correction
-            if (player.isInWater()) {
-                hoverLockedY = player.getY();
-            }
         }
 
         // Elytra boost: accelerate in look direction when jump held, capped at firework speed

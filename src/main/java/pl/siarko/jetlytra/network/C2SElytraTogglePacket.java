@@ -8,8 +8,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import pl.siarko.jetlytra.Jetlytra;
-import pl.siarko.jetlytra.capability.JetpackCapabilityAttacher;
-import pl.siarko.jetlytra.capability.JetpackCapabilityImpl;
+import pl.siarko.jetlytra.JetlytraAttachments;
 import pl.siarko.jetlytra.flight.FlightState;
 
 public record C2SElytraTogglePacket() implements CustomPacketPayload {
@@ -30,8 +29,7 @@ public record C2SElytraTogglePacket() implements CustomPacketPayload {
     public static void handle(C2SElytraTogglePacket packet, IPayloadContext context) {
         context.enqueueWork(() -> {
             ServerPlayer player = (ServerPlayer) context.player();
-            JetpackCapabilityImpl cap = JetpackCapabilityAttacher.get(player);
-            FlightState current = cap.getState();
+            FlightState current = player.getData(JetlytraAttachments.FLIGHT_STATE.get());
 
             FlightState next = switch (current) {
                 case JETPACK, HOVERING -> FlightState.ELYTRA;
@@ -40,7 +38,7 @@ public record C2SElytraTogglePacket() implements CustomPacketPayload {
             };
 
             if (next != current) {
-                cap.setState(next);
+                player.setData(JetlytraAttachments.FLIGHT_STATE.get(), next);
                 PacketDistributor.sendToPlayer(player, new S2CSyncStatePacket(next));
             }
         });

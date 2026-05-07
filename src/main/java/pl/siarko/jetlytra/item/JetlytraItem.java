@@ -36,7 +36,11 @@ public class JetlytraItem extends ArmorItem implements GeoItem {
 
             @Override
             public <T extends LivingEntity> HumanoidModel<?> getGeoArmorRenderer(
-                    T entity, ItemStack stack, EquipmentSlot slot, HumanoidModel<T> defaultModel) {
+                    T entity,
+                    ItemStack stack,
+                    EquipmentSlot slot,
+                    HumanoidModel<T> defaultModel
+            ) {
                 if (this.renderer == null) {
                     this.renderer = new JetpackArmorRenderer();
                 }

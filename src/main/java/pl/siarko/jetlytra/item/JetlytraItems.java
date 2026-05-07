@@ -12,17 +12,22 @@ import pl.siarko.jetlytra.Jetlytra;
 import java.util.function.Supplier;
 
 public class JetlytraItems {
-    public static final DeferredRegister<Item> ITEMS =
-            DeferredRegister.create(Registries.ITEM, Jetlytra.MODID);
+    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(
+            Registries.ITEM,
+            Jetlytra.MODID
+    );
 
-    public static final DeferredRegister<DataComponentType<?>> DATA_COMPONENTS =
-            DeferredRegister.create(Registries.DATA_COMPONENT_TYPE, Jetlytra.MODID);
+    public static final DeferredRegister<DataComponentType<?>> DATA_COMPONENTS = DeferredRegister.create(
+            Registries.DATA_COMPONENT_TYPE,
+            Jetlytra.MODID
+    );
 
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> JETPACK_ENABLED =
             DATA_COMPONENTS.register("jetpack_enabled", () ->
                     DataComponentType.<Boolean>builder()
                             .persistent(Codec.BOOL)
-                            .build());
+                            .build()
+            );
 
     public static final Supplier<JetlytraItem> JETPACK = ITEMS.register(
             "jetpack",

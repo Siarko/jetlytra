@@ -7,7 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import pl.siarko.jetlytra.Jetlytra;
-import pl.siarko.jetlytra.capability.JetpackCapabilityAttacher;
+import pl.siarko.jetlytra.JetlytraAttachments;
 
 public record C2SThrustPacket(boolean active) implements CustomPacketPayload {
 
@@ -27,7 +27,7 @@ public record C2SThrustPacket(boolean active) implements CustomPacketPayload {
     public static void handle(C2SThrustPacket packet, IPayloadContext context) {
         context.enqueueWork(() -> {
             ServerPlayer player = (ServerPlayer) context.player();
-            JetpackCapabilityAttacher.get(player).setThrustActive(packet.active);
+            player.setData(JetlytraAttachments.THRUST_ACTIVE.get(), packet.active);
         });
     }
 }

@@ -6,7 +6,6 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.NeoForge;
 import org.slf4j.Logger;
-import pl.siarko.jetlytra.capability.JetpackCapabilityAttacher;
 import pl.siarko.jetlytra.flight.JetpackPhysicsHandler;
 import pl.siarko.jetlytra.item.JetlytraCreativeTab;
 import pl.siarko.jetlytra.item.JetlytraItems;
@@ -20,12 +19,14 @@ public class Jetlytra {
     public Jetlytra(IEventBus modEventBus, ModContainer modContainer) {
         JetlytraItems.ITEMS.register(modEventBus);
         JetlytraItems.DATA_COMPONENTS.register(modEventBus);
+        JetlytraAttachments.ATTACHMENT_TYPES.register(modEventBus);
+
         JetlytraCreativeTab.CREATIVE_TABS.register(modEventBus);
-        modEventBus.addListener(JetpackPackets::register);  // RegisterPayloadHandlersEvent
-        NeoForge.EVENT_BUS.addListener(JetpackCapabilityAttacher::onPlayerLogin);
-        NeoForge.EVENT_BUS.addListener(JetpackCapabilityAttacher::onPlayerClone);
-        NeoForge.EVENT_BUS.addListener(JetpackCapabilityAttacher::onPlayerLogout);
-        NeoForge.EVENT_BUS.addListener(JetpackCapabilityAttacher::onEquipmentChange);
+
+        modEventBus.addListener(JetpackPackets::register);
+        NeoForge.EVENT_BUS.addListener(JetpackPlayerEvents::onPlayerLogin);
+        NeoForge.EVENT_BUS.addListener(JetpackPlayerEvents::onPlayerClone);
+        NeoForge.EVENT_BUS.addListener(JetpackPlayerEvents::onEquipmentChange);
         NeoForge.EVENT_BUS.addListener(JetpackPhysicsHandler::onPlayerTick);
         LOGGER.info("Jetlytra initializing");
     }

@@ -14,6 +14,7 @@ public class JetpackParticleHandler {
         Minecraft mc = Minecraft.getInstance();
         Player player = mc.player;
         if (player == null || mc.level == null) return;
+
         FlightState state = ClientJetpackState.getState();
         boolean jumping = mc.options.keyJump.isDown();
         boolean thrusting = state == FlightState.JETPACK && jumping;
@@ -22,11 +23,6 @@ public class JetpackParticleHandler {
         boolean swimBoost = state.isActive() && player.isSwimming() && jumping;
 
         if (!thrusting && !hovering && !elytraBoost && !swimBoost) return;
-
-        // Rate limiting
-        if (hovering && player.tickCount % 2 != 0) return;
-        if (elytraBoost && player.tickCount % 3 != 0) return;
-        if (swimBoost && player.tickCount % 2 != 0) return;
 
         Vec3 look = player.getLookAngle();
         Vec3 right = new Vec3(-look.z, 0, look.x).normalize().scale(0.2);
@@ -37,8 +33,10 @@ public class JetpackParticleHandler {
         boolean inWater = player.isInWater();
 
         if (inWater) {
-            spawnBubbleNozzle(mc, player, base.subtract(right), directional ? look : null);
-            spawnBubbleNozzle(mc, player, base.add(right), directional ? look : null);
+            if(!hovering) {
+                spawnBubbleNozzle(mc, player, base.subtract(right), directional ? look : null);
+                spawnBubbleNozzle(mc, player, base.add(right), directional ? look : null);
+            }
         } else if (directional) {
             spawnBoostNozzle(mc, player, base.subtract(right), look);
             spawnBoostNozzle(mc, player, base.add(right), look);
@@ -55,7 +53,7 @@ public class JetpackParticleHandler {
 
         mc.level.addParticle(ParticleTypes.FLAME,
                 pos.x, pos.y, pos.z, vx, -0.2, vz);
-        mc.level.addParticle(ParticleTypes.LARGE_SMOKE,
+        mc.level.addParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE,
                 pos.x, pos.y, pos.z, vx * 0.5, -0.15, vz * 0.5);
     }
 
