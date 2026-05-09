@@ -1,8 +1,6 @@
 package pl.siarko.jetlytra.network;
 
-import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
@@ -31,22 +29,6 @@ public record S2CSyncStatePacket(FlightState state, boolean showMessage) impleme
     }
 
     public static void handle(S2CSyncStatePacket packet, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            FlightState previous = ClientJetpackState.getState();
-            ClientJetpackState.setState(packet.state);
-
-            if (packet.showMessage && packet.state != previous) {
-                Component message = switch (packet.state) {
-                    case OFF -> Component.translatable("item.jetlytra.jetpack.disabled").withStyle(ChatFormatting.RED);
-                    case JETPACK -> previous == FlightState.OFF
-                            ? Component.translatable("item.jetlytra.jetpack.enabled").withStyle(ChatFormatting.GREEN)
-                            : null;
-                    default -> null;
-                };
-                if (message != null) {
-                    context.player().displayClientMessage(message, true);
-                }
-            }
-        });
+        context.enqueueWork(() -> ClientJetpackState.setState(packet.state));
     }
 }

@@ -16,14 +16,14 @@ import pl.siarko.jetlytra.item.JetlytraItem;
 import pl.siarko.jetlytra.item.JetlytraItems;
 import pl.siarko.jetlytra.item.StoredElytra;
 
-public record C2SActivateElytraPacket() implements CustomPacketPayload {
+public record C2SToggleElytraPacket(ToggleType toggleType) implements CustomPacketPayload {
 
-    public static final Type<C2SActivateElytraPacket> TYPE =
-            new Type<>(ResourceLocation.fromNamespaceAndPath(Jetlytra.MODID, "activate_elytra"));
+    public static final Type<C2SToggleElytraPacket> TYPE =
+            new Type<>(ResourceLocation.fromNamespaceAndPath(Jetlytra.MODID, "elytra_toggle"));
 
-    public static final StreamCodec<FriendlyByteBuf, C2SActivateElytraPacket> CODEC = StreamCodec.of(
-            (buf, packet) -> {},
-            buf -> new C2SActivateElytraPacket()
+    public static final StreamCodec<FriendlyByteBuf, C2SToggleElytraPacket> CODEC = StreamCodec.of(
+            (buf, packet) -> buf.writeVarInt(packet.toggleType.ordinal()),
+            buf -> new C2SToggleElytraPacket(ToggleType.values()[buf.readVarInt()])
     );
 
     @Override
@@ -31,23 +31,27 @@ public record C2SActivateElytraPacket() implements CustomPacketPayload {
         return TYPE;
     }
 
-    public static void handle(C2SActivateElytraPacket packet, IPayloadContext context) {
+    public static void handle(C2SToggleElytraPacket packet, IPayloadContext context) {
         context.enqueueWork(() -> {
             ServerPlayer player = (ServerPlayer) context.player();
             ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
             if (!(chest.getItem() instanceof JetlytraItem)) return;
 
             StoredElytra elytra = chest.get(JetlytraItems.ELYTRA_ITEM);
-            if (elytra == null || elytra.isEmpty()) return;
-
-            if (player.onGround()) return;
-
+            boolean hasElytra = elytra != null && !elytra.isEmpty();
             FlightState current = player.getData(JetlytraAttachments.FLIGHT_STATE.get());
-            if (current == FlightState.ELYTRA) return;
 
-            player.setNoGravity(false);
-            player.setData(JetlytraAttachments.FLIGHT_STATE.get(), FlightState.ELYTRA);
-            PacketDistributor.sendToPlayer(player, new S2CSyncStatePacket(FlightState.ELYTRA));
+            FlightState next = switch (packet.toggleType) {
+                case TOGGLE -> !current.equals(FlightState.ELYTRA) && hasElytra ? FlightState.ELYTRA : FlightState.JETPACK;
+                case DISABLE -> FlightState.JETPACK;
+                case ENABLE -> hasElytra ? FlightState.ELYTRA : current;
+            };
+
+            if (next != current) {
+                player.setNoGravity(false);
+                player.setData(JetlytraAttachments.FLIGHT_STATE.get(), next);
+                PacketDistributor.sendToPlayer(player, new S2CSyncStatePacket(next));
+            }
         });
     }
 }

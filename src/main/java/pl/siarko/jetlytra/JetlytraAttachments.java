@@ -13,7 +13,7 @@ public class JetlytraAttachments {
 
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<FlightState>> FLIGHT_STATE =
             ATTACHMENT_TYPES.register("flight_state", () ->
-                    AttachmentType.builder(() -> FlightState.OFF).build());
+                    AttachmentType.builder(() -> FlightState.JETPACK).build());
 
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> THRUST_ACTIVE =
             ATTACHMENT_TYPES.register("thrust_active", () ->

@@ -4,8 +4,8 @@ import pl.siarko.jetlytra.flight.FlightState;
 
 // Holds the local client's view of jetpack state, updated by S2CSyncStatePacket
 public class ClientJetpackState {
-    private static FlightState previous = FlightState.OFF;
-    private static FlightState state = FlightState.OFF;
+    private static FlightState previous = FlightState.JETPACK;
+    private static FlightState state = FlightState.JETPACK;
 
     public static FlightState getState() {
         return state;

@@ -10,23 +10,20 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import pl.siarko.jetlytra.block.JetlytraBlocks;
-import pl.siarko.jetlytra.client.ClientJetpackState;
 import pl.siarko.jetlytra.client.input.JetpackInputHandler;
 import pl.siarko.jetlytra.client.input.JetpackKeyMappings;
 import pl.siarko.jetlytra.client.input.KeyStateTracker;
 import pl.siarko.jetlytra.client.render.JetpackBlockEntityRenderer;
-import pl.siarko.jetlytra.flight.FlightState;
 
 @Mod(value = Jetlytra.MODID, dist = Dist.CLIENT)
 @EventBusSubscriber(modid = Jetlytra.MODID, value = Dist.CLIENT)
 public class JetlytraClient {
 
     public JetlytraClient(IEventBus modEventBus) {
-        JetpackInputHandler jetpackInputHandler = new JetpackInputHandler(
-                new KeyStateTracker()
-        );
+        KeyStateTracker keyStateTracker = new KeyStateTracker();
+        JetpackInputHandler jetpackInputHandler = new JetpackInputHandler(keyStateTracker);
         NeoForge.EVENT_BUS.addListener(jetpackInputHandler::onClientTick);
-        NeoForge.EVENT_BUS.addListener(JetlytraClient::onLogout);
+        NeoForge.EVENT_BUS.addListener((ClientPlayerNetworkEvent.LoggingOut event) -> keyStateTracker.reset());
         modEventBus.addListener(JetlytraClient::onRegisterRenderers);
     }
 
@@ -40,7 +37,4 @@ public class JetlytraClient {
         JetpackKeyMappings.register(event);
     }
 
-    private static void onLogout(ClientPlayerNetworkEvent.LoggingOut event) {
-        ClientJetpackState.setState(FlightState.OFF);
-    }
 }

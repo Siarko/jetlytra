@@ -34,31 +34,35 @@ public record C2SCrouchPacket(boolean active) implements CustomPacketPayload {
             ServerPlayer player = (ServerPlayer) context.player();
             ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
             boolean jetpackEnabled = Boolean.TRUE.equals(chest.get(JetlytraItems.JETPACK_ENABLED));
-
+            boolean hasFuel = chest.has(JetlytraItems.FUEL_DATA);
+            boolean jetpackAvailable = jetpackEnabled && hasFuel;
             FlightState current = player.getData(JetlytraAttachments.FLIGHT_STATE.get());
-            FlightState next = current;
-            if (packet.active) {
-                if (current == FlightState.ELYTRA && player.isInWater()) {
-                    // Exit elytra while underwater
-                    FlightState exitTo = jetpackEnabled ? FlightState.JETPACK : FlightState.OFF;
-                    player.setData(JetlytraAttachments.THRUST_ACTIVE.get(), false);
-                    player.setData(JetlytraAttachments.FUEL_TICK_COUNTER.get(), 0);
-                    player.setNoGravity(false);
-                    player.setData(JetlytraAttachments.FLIGHT_STATE.get(), exitTo);
-                    PacketDistributor.sendToPlayer(player, new S2CSyncStatePacket(exitTo));
-                    return;
+
+            FlightState nextState = null;
+            if(packet.active) {
+                if (current.equals(FlightState.ELYTRA)) {
+                    if (player.isInWater()) {
+                        nextState = FlightState.JETPACK;
+                    } else if (jetpackAvailable) {
+                        nextState = FlightState.HOVERING;
+                    }
+                }else if(jetpackAvailable){
+                    nextState = FlightState.HOVERING;
                 }
-                if (!player.isInWater()
-                        && (current == FlightState.JETPACK || (current == FlightState.ELYTRA && jetpackEnabled))) {
-                    next = FlightState.HOVERING;
+            }else{
+                if (current.equals(FlightState.HOVERING)) {
+                    nextState = FlightState.JETPACK;
                 }
-            } else if (!packet.active && current == FlightState.HOVERING) {
-                next = FlightState.JETPACK;
             }
 
-            if (next != current) {
-                player.setData(JetlytraAttachments.FLIGHT_STATE.get(), next);
-                PacketDistributor.sendToPlayer(player, new S2CSyncStatePacket(next));
+            if(nextState != null) {
+                if(nextState.equals(FlightState.HOVERING)) {
+                    player.setData(JetlytraAttachments.THRUST_ACTIVE.get(), true);
+                } else if (current.equals(FlightState.HOVERING)) {
+                    player.setData(JetlytraAttachments.THRUST_ACTIVE.get(), false);
+                }
+                player.setData(JetlytraAttachments.FLIGHT_STATE.get(), nextState);
+                PacketDistributor.sendToPlayer(player, new S2CSyncStatePacket(nextState));
             }
         });
     }

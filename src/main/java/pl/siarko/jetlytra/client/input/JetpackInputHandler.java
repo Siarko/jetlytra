@@ -1,7 +1,6 @@
 package pl.siarko.jetlytra.client.input;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -10,13 +9,10 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import pl.siarko.jetlytra.client.ClientJetpackState;
 import pl.siarko.jetlytra.client.particle.JetpackParticleHandler;
+import pl.siarko.jetlytra.client.particle.ParticleSpawnType;
 import pl.siarko.jetlytra.flight.FlightState;
 import pl.siarko.jetlytra.item.JetlytraItems;
-import pl.siarko.jetlytra.network.C2SActivateElytraPacket;
-import pl.siarko.jetlytra.network.C2SCrouchPacket;
-import pl.siarko.jetlytra.network.C2SElytraTogglePacket;
-import pl.siarko.jetlytra.network.C2SThrustPacket;
-import pl.siarko.jetlytra.network.C2SToggleJetpackPacket;
+import pl.siarko.jetlytra.network.*;
 
 public class JetpackInputHandler {
 
@@ -48,114 +44,110 @@ public class JetpackInputHandler {
 
         ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
         boolean jetpackEnabled = Boolean.TRUE.equals(chest.get(JetlytraItems.JETPACK_ENABLED));
-        FlightState state = ClientJetpackState.getState();
         boolean hasFuel = chest.has(JetlytraItems.FUEL_DATA);
+        boolean jetpackAvailable = jetpackEnabled && hasFuel;
 
-        handleToggleActions(player, state, jetpackEnabled, hasFuel);
+        FlightState state = ClientJetpackState.getState();
 
-        if (state == FlightState.OFF) {
-            //keyStateTracker.reset();
-            return;
-        }
+        handleToggleActions(player, state, jetpackAvailable);
 
-        sendStateChangePackets(state, jetpackEnabled, hasFuel);
-        if(hasFuel){
-            applyPhysics(player, state, jetpackEnabled);
+        sendStateChangePackets(player, state, jetpackAvailable);
+        if (jetpackAvailable) {
+            applyPhysics(player, state);
         }
     }
 
     // Discrete one-shot actions: keybind toggles and fall+jump elytra activation.
-    private void handleToggleActions(Player player, FlightState state, boolean jetpackEnabled, boolean hasFuel) {
+    private void handleToggleActions(Player player, FlightState state, boolean jetpackAvailable) {
         while (JetpackKeyMappings.TOGGLE_JETPACK.consumeClick()) {
             PacketDistributor.sendToServer(new C2SToggleJetpackPacket());
         }
 
         while (JetpackKeyMappings.TOGGLE_ELYTRA.consumeClick()) {
-            if (state == FlightState.OFF) {
-                PacketDistributor.sendToServer(new C2SActivateElytraPacket());
-                System.out.println("[JETLYTRA][HT] Send activate elytra");
-            } else if (jetpackEnabled) {
-                PacketDistributor.sendToServer(new C2SElytraTogglePacket());
-                System.out.println("[JETLYTRA][HT] Send toggle elytra");
-            }
+            PacketDistributor.sendToServer(new C2SToggleElytraPacket(ToggleType.TOGGLE));
         }
 
         KeyState jump = keyStateTracker.getJump();
-        if (jump.changed() && jump.isActive() && (state == FlightState.OFF || !hasFuel)) {
-            boolean airborne = !player.onGround() && !player.isSwimming();
+        boolean airborne = !player.onGround() && !player.isInWater();
+        if (jump.isJustPressed() && !jetpackAvailable && state != FlightState.ELYTRA) {
             boolean notRisingFast = player.getDeltaMovement().y <= 0.1;
             if (airborne && notRisingFast) {
-                PacketDistributor.sendToServer(new C2SActivateElytraPacket());
-                System.out.println("[JETLYTRA][HT] Send space-enable elytra");
+                PacketDistributor.sendToServer(new C2SToggleElytraPacket(ToggleType.ENABLE));
             }
         }
     }
 
     // Sends packets when held-key states change (thrust, crouch, sprint double-tap).
-    private void sendStateChangePackets(FlightState state, boolean jetpackEnabled, boolean hasFuel) {
+    private void sendStateChangePackets(Player player, FlightState state, boolean jetpackAvailable) {
         if (keyStateTracker.getJump().changed()) {
-            if(hasFuel) {
-                PacketDistributor.sendToServer(new C2SThrustPacket(keyStateTracker.getJump().isActive()));
-                System.out.println("[JETLYTRA][SC] Send Thrust "+keyStateTracker.getJump().isActive());
-            }
+            PacketDistributor.sendToServer(new C2SThrustPacket(
+                    keyStateTracker.getJump().isActive() && jetpackAvailable
+            ));
         }
 
         if (keyStateTracker.getCrouch().changed()) {
-            PacketDistributor.sendToServer(new C2SCrouchPacket(keyStateTracker.getCrouch().isActive()));
-            System.out.println("[JETLYTRA][SC] Send Crouch");
+            PacketDistributor.sendToServer(new C2SCrouchPacket(
+                    keyStateTracker.getCrouch().isActive() && jetpackAvailable
+            ));
         }
 
         KeyState sprint = keyStateTracker.getSprint();
+        boolean airborne = !player.onGround() && !player.isInWater();
         if (sprint.changed() && sprint.isActive()) {
             long now = System.currentTimeMillis();
-            if (now - lastSprintPressTime < DOUBLE_TAP_WINDOW_MS
-                    && jetpackEnabled
-                    && (state == FlightState.JETPACK || state == FlightState.HOVERING)) {
-                PacketDistributor.sendToServer(new C2SElytraTogglePacket());
-                System.out.println("[JETLYTRA][SC] Send Elytra toggle");
+            if (
+                    now - lastSprintPressTime < DOUBLE_TAP_WINDOW_MS
+                            && jetpackAvailable && airborne
+                            && (state != FlightState.ELYTRA)
+            ) {
+                PacketDistributor.sendToServer(new C2SToggleElytraPacket(ToggleType.ENABLE));
             }
             lastSprintPressTime = now;
         }
     }
 
     // Applies client-side movement physics for all active flight states.
-    private void applyPhysics(Player player, FlightState state, boolean jetpackEnabled) {
+    private void applyPhysics(Player player, FlightState state) {
+
         boolean jump = keyStateTracker.getJump().isActive();
-        boolean sprint = keyStateTracker.getSprint().isActive();
-        boolean thrusting  = state == FlightState.JETPACK  && jump;
-        boolean hovering   = state == FlightState.HOVERING;
-        boolean elytraBoost = state == FlightState.ELYTRA  && jump && jetpackEnabled;
-        boolean swimBoost  = state.isActive() && player.isSwimming() && jump && jetpackEnabled;
 
-        if (swimBoost) {
-            player.setDeltaMovement(player.getLookAngle().scale(SWIM_BOOST_MAX));
-        }
+        boolean thrusting = state == FlightState.JETPACK && jump;
+        boolean hovering = state == FlightState.HOVERING;
+        boolean elytraBoost = state == FlightState.ELYTRA && jump;
+        boolean swimBoost = player.isSwimming() && jump;
+        Vec3 deltaMovement = player.getDeltaMovement();
 
-        Vec3 vel = player.getDeltaMovement();
-        if (thrusting) {
-            player.setDeltaMovement(vel.x, Math.min(vel.y + THRUST_ACCEL, MAX_THRUST_VEL), vel.z);
-            player.resetFallDistance();
-        } else if (hovering) {
-            player.setDeltaMovement(vel.x, 0, vel.z);
-            player.resetFallDistance();
-        }
-
+        ParticleSpawnType particleSpawnType = null;
         if (elytraBoost) {
             Vec3 look = player.getLookAngle();
             Vec3 ev = player.getDeltaMovement();
             player.setDeltaMovement(
-                ev.x + look.x * ELYTRA_BOOST_ACCEL + (look.x * ELYTRA_BOOST_MAX - ev.x) * 0.5,
-                ev.y + look.y * ELYTRA_BOOST_ACCEL + (look.y * ELYTRA_BOOST_MAX - ev.y) * 0.5,
-                ev.z + look.z * ELYTRA_BOOST_ACCEL + (look.z * ELYTRA_BOOST_MAX - ev.z) * 0.5
+                    ev.x + look.x * ELYTRA_BOOST_ACCEL + (look.x * ELYTRA_BOOST_MAX - ev.x) * 0.5,
+                    ev.y + look.y * ELYTRA_BOOST_ACCEL + (look.y * ELYTRA_BOOST_MAX - ev.y) * 0.5,
+                    ev.z + look.z * ELYTRA_BOOST_ACCEL + (look.z * ELYTRA_BOOST_MAX - ev.z) * 0.5
             );
+            particleSpawnType = ParticleSpawnType.BOOSTING;
+        } else if (hovering) {
+            player.setDeltaMovement(deltaMovement.x, 0, deltaMovement.z);
             player.resetFallDistance();
+            particleSpawnType = ParticleSpawnType.HOVERING;
+        } else if (swimBoost) {
+            player.setDeltaMovement(player.getLookAngle().scale(SWIM_BOOST_MAX));
+            particleSpawnType = ParticleSpawnType.BOOSTING;
+        } else if (thrusting) {
+            player.setDeltaMovement(deltaMovement.x, Math.min(deltaMovement.y + THRUST_ACCEL, MAX_THRUST_VEL), deltaMovement.z);
+            player.resetFallDistance();
+            particleSpawnType = ParticleSpawnType.THRUSTING;
         }
 
-        if (sprint && (state == FlightState.JETPACK || state == FlightState.HOVERING)) {
+        boolean sprint = keyStateTracker.getSprint().isActive();
+        if (sprint && thrusting) {
             Vec3 boosted = player.getDeltaMovement();
             player.setDeltaMovement(boosted.x * SPRINT_BOOST, boosted.y, boosted.z * SPRINT_BOOST);
         }
 
-        JetpackParticleHandler.spawnExhaustParticles(player, thrusting, hovering, elytraBoost, swimBoost);
+        if(particleSpawnType != null) {
+            JetpackParticleHandler.spawnExhaustParticles(particleSpawnType, player);
+        }
     }
 }

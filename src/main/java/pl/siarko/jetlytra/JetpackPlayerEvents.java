@@ -9,7 +9,6 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import pl.siarko.jetlytra.flight.FlightState;
 import pl.siarko.jetlytra.item.JetlytraItem;
-import pl.siarko.jetlytra.item.JetlytraItems;
 import pl.siarko.jetlytra.network.S2CSyncStatePacket;
 
 public class JetpackPlayerEvents {
@@ -17,20 +16,16 @@ public class JetpackPlayerEvents {
     public static void onPlayerClone(PlayerEvent.Clone event) {
         Player clone = event.getEntity();
         ItemStack stack = clone.getItemBySlot(EquipmentSlot.CHEST);
-        if (stack.getItem() instanceof JetlytraItem && isStackEnabled(stack)) {
+        if (stack.getItem() instanceof JetlytraItem) {
             clone.setData(JetlytraAttachments.FLIGHT_STATE.get(), FlightState.JETPACK);
         }
     }
 
     public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
-        ItemStack stack = player.getItemBySlot(EquipmentSlot.CHEST);
-        FlightState restored = FlightState.OFF;
-        if (stack.getItem() instanceof JetlytraItem && isStackEnabled(stack)) {
-            restored = FlightState.JETPACK;
-        }
-        player.setData(JetlytraAttachments.FLIGHT_STATE.get(), restored);
-        PacketDistributor.sendToPlayer(player, new S2CSyncStatePacket(restored));
+        if (!(player.getItemBySlot(EquipmentSlot.CHEST).getItem() instanceof JetlytraItem)) return;
+        player.setData(JetlytraAttachments.FLIGHT_STATE.get(), FlightState.JETPACK);
+        PacketDistributor.sendToPlayer(player, new S2CSyncStatePacket(FlightState.JETPACK));
     }
 
     public static void onEquipmentChange(LivingEquipmentChangeEvent event) {
@@ -43,19 +38,11 @@ public class JetpackPlayerEvents {
         // Only react to actual item type transitions, not damage/component changes on the same item
         if (wasJetpack == isJetpack) return;
 
-        FlightState next;
-        if (isJetpack && isStackEnabled(event.getTo())) {
-            next = FlightState.JETPACK;
-        } else {
-            next = FlightState.OFF;
-        }
+        FlightState next = FlightState.JETPACK;
+
         player.setNoGravity(false);
         player.setData(JetlytraAttachments.FLIGHT_STATE.get(), next);
         player.setData(JetlytraAttachments.THRUST_ACTIVE.get(), false);
         PacketDistributor.sendToPlayer(player, new S2CSyncStatePacket(next));
-    }
-
-    private static boolean isStackEnabled(ItemStack stack) {
-        return Boolean.TRUE.equals(stack.get(JetlytraItems.JETPACK_ENABLED));
     }
 }

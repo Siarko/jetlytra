@@ -11,7 +11,6 @@ public class JetpackPackets {
         registrar.playToServer(C2SToggleJetpackPacket.TYPE, C2SToggleJetpackPacket.CODEC, C2SToggleJetpackPacket::handle);
         registrar.playToServer(C2SThrustPacket.TYPE, C2SThrustPacket.CODEC, C2SThrustPacket::handle);
         registrar.playToServer(C2SCrouchPacket.TYPE, C2SCrouchPacket.CODEC, C2SCrouchPacket::handle);
-        registrar.playToServer(C2SElytraTogglePacket.TYPE, C2SElytraTogglePacket.CODEC, C2SElytraTogglePacket::handle);
-        registrar.playToServer(C2SActivateElytraPacket.TYPE, C2SActivateElytraPacket.CODEC, C2SActivateElytraPacket::handle);
+        registrar.playToServer(C2SToggleElytraPacket.TYPE, C2SToggleElytraPacket.CODEC, C2SToggleElytraPacket::handle);
     }
 }

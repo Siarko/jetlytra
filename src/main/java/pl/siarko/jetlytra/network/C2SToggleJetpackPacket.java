@@ -9,11 +9,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import pl.siarko.jetlytra.Jetlytra;
 import pl.siarko.jetlytra.JetlytraAttachments;
-import pl.siarko.jetlytra.flight.FlightState;
 import pl.siarko.jetlytra.item.JetlytraItem;
 import pl.siarko.jetlytra.item.JetlytraItems;
 
@@ -39,35 +37,17 @@ public record C2SToggleJetpackPacket() implements CustomPacketPayload {
             ItemStack stack = player.getItemBySlot(EquipmentSlot.CHEST);
             if (!(stack.getItem() instanceof JetlytraItem)) return;
 
-            FlightState current = player.getData(JetlytraAttachments.FLIGHT_STATE.get());
-
-            // While gliding, only toggle the enabled flag — don't interrupt flight
-            if (current == FlightState.ELYTRA) {
-                boolean nowEnabled = !Boolean.TRUE.equals(stack.get(JetlytraItems.JETPACK_ENABLED));
-                stack.set(JetlytraItems.JETPACK_ENABLED, nowEnabled);
-                if (!nowEnabled) {
-                    player.setData(JetlytraAttachments.THRUST_ACTIVE.get(), false);
-                    player.setData(JetlytraAttachments.FUEL_TICK_COUNTER.get(), 0);
-                }
-                player.displayClientMessage(
-                    Component.translatable(nowEnabled ? "item.jetlytra.jetpack.enabled" : "item.jetlytra.jetpack.disabled")
-                        .withStyle(nowEnabled ? ChatFormatting.GREEN : ChatFormatting.RED),
-                    true
-                );
-                return;
-            }
-
-            FlightState next = current.isActive() ? FlightState.OFF : FlightState.JETPACK;
-            player.setData(JetlytraAttachments.FLIGHT_STATE.get(), next);
-            stack.set(JetlytraItems.JETPACK_ENABLED, next.isActive());
-
-            if (next == FlightState.OFF) {
-                player.setNoGravity(false);
+            boolean newState = !Boolean.TRUE.equals(stack.get(JetlytraItems.JETPACK_ENABLED));
+            stack.set(JetlytraItems.JETPACK_ENABLED, newState);
+            if (!newState) {
                 player.setData(JetlytraAttachments.THRUST_ACTIVE.get(), false);
                 player.setData(JetlytraAttachments.FUEL_TICK_COUNTER.get(), 0);
             }
-
-            PacketDistributor.sendToPlayer(player, new S2CSyncStatePacket(next, true));
+            player.displayClientMessage(
+                Component.translatable(newState ? "item.jetlytra.jetpack.enabled" : "item.jetlytra.jetpack.disabled")
+                    .withStyle(newState ? ChatFormatting.GREEN : ChatFormatting.RED),
+                true
+            );
         });
     }
 }

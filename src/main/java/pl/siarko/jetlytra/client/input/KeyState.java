@@ -16,4 +16,8 @@ public class KeyState {
     public boolean isActive() {
         return state;
     }
+
+    public boolean isJustPressed() {
+        return changed() && isActive();
+    }
 }

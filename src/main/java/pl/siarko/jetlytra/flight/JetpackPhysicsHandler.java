@@ -19,59 +19,26 @@ public class JetpackPhysicsHandler {
 
         FlightState state = player.getData(JetlytraAttachments.FLIGHT_STATE.get());
 
-        if (state == FlightState.OFF) return;
-
         ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
         if (!(chest.getItem() instanceof JetlytraItem)) {
-            transitionOff(player);
+            reset(player);
             return;
         }
 
-        boolean jetpackEnabled = Boolean.TRUE.equals(chest.get(JetlytraItems.JETPACK_ENABLED));
-
-        // On landing, restore to JETPACK if enabled, otherwise cut to OFF
         if (state != FlightState.JETPACK && player.onGround()) {
-            if (jetpackEnabled) {
-                player.setData(JetlytraAttachments.FLIGHT_STATE.get(), FlightState.JETPACK);
-                player.setNoGravity(false);
-                PacketDistributor.sendToPlayer(player, new S2CSyncStatePacket(FlightState.JETPACK));
-            } else {
-                transitionOff(player);
-            }
+            reset(player);
             return;
         }
 
-        // Hovering in water breaks swimming/sinking — cancel it
-        if (state == FlightState.HOVERING && player.isInWater()) {
-            if (jetpackEnabled) {
-                player.setData(JetlytraAttachments.FLIGHT_STATE.get(), FlightState.JETPACK);
-                player.setNoGravity(false);
-                PacketDistributor.sendToPlayer(player, new S2CSyncStatePacket(FlightState.JETPACK));
-            } else {
-                transitionOff(player);
-            }
-            return;
-        }
-
-        // Disable gravity while hovering, restore otherwise
         player.setNoGravity(state == FlightState.HOVERING);
-
         // Suppress fall damage only when actively thrusting or hovering
         boolean thrusting = player.getData(JetlytraAttachments.THRUST_ACTIVE.get());
         if (state == FlightState.HOVERING || (state == FlightState.JETPACK && thrusting)) {
             player.resetFallDistance();
         }
 
-        // Fuel consumption: drain 1 unit per second; elytra boost also drains when jetpack is on
-        boolean consuming = jetpackEnabled && (
-                (state == FlightState.JETPACK && thrusting)
-                || state == FlightState.HOVERING
-                || (state == FlightState.ELYTRA && thrusting)
-                || (state.isActive() && player.isSwimming())
-        );
-
-        if (consuming && !drainFuel(player)) {
-            transitionOff(player);
+        if (thrusting && !drainFuel(player)) {
+            reset(player);
         }
     }
 
@@ -97,11 +64,11 @@ public class JetpackPhysicsHandler {
         return true;
     }
 
-    private static void transitionOff(ServerPlayer player) {
-        player.setData(JetlytraAttachments.FLIGHT_STATE.get(), FlightState.OFF);
+    private static void reset(ServerPlayer player) {
+        player.setData(JetlytraAttachments.FLIGHT_STATE.get(), FlightState.JETPACK);
         player.setData(JetlytraAttachments.THRUST_ACTIVE.get(), false);
         player.setData(JetlytraAttachments.FUEL_TICK_COUNTER.get(), 0);
         player.setNoGravity(false);
-        PacketDistributor.sendToPlayer(player, new S2CSyncStatePacket(FlightState.OFF));
+        PacketDistributor.sendToPlayer(player, new S2CSyncStatePacket(FlightState.JETPACK));
     }
 }
