@@ -1,11 +1,9 @@
 package pl.siarko.jetlytra.block;
 
-import com.mojang.serialization.DynamicOps;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -15,6 +13,7 @@ import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import pl.siarko.jetlytra.flight.FuelData;
 import pl.siarko.jetlytra.item.JetlytraItems;
+import pl.siarko.jetlytra.item.StoredElytra;
 
 import javax.annotation.Nullable;
 
@@ -23,6 +22,7 @@ public class JetpackBlockEntity extends BlockEntity implements GeoBlockEntity {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     private boolean jetpackEnabled = false;
     @Nullable private FuelData fuelData = null;
+    private ItemStack elytraItem = ItemStack.EMPTY;
 
     public JetpackBlockEntity(BlockPos pos, BlockState state) {
         super(JetlytraBlocks.JETPACK_BE.get(), pos, state);
@@ -31,6 +31,8 @@ public class JetpackBlockEntity extends BlockEntity implements GeoBlockEntity {
     public void readFromItem(ItemStack stack) {
         jetpackEnabled = Boolean.TRUE.equals(stack.get(JetlytraItems.JETPACK_ENABLED));
         fuelData = stack.get(JetlytraItems.FUEL_DATA);
+        StoredElytra stored = stack.get(JetlytraItems.ELYTRA_ITEM);
+        elytraItem = (stored != null && !stored.isEmpty()) ? stored.stack().copy() : ItemStack.EMPTY;
         setChanged();
     }
 
@@ -45,6 +47,11 @@ public class JetpackBlockEntity extends BlockEntity implements GeoBlockEntity {
         } else {
             stack.remove(JetlytraItems.FUEL_DATA);
         }
+        if (!elytraItem.isEmpty()) {
+            stack.set(JetlytraItems.ELYTRA_ITEM, new StoredElytra(elytraItem.copy()));
+        } else {
+            stack.remove(JetlytraItems.ELYTRA_ITEM);
+        }
     }
 
     @Nullable
@@ -57,6 +64,15 @@ public class JetpackBlockEntity extends BlockEntity implements GeoBlockEntity {
         setChanged();
     }
 
+    public ItemStack getElytraItem() {
+        return elytraItem;
+    }
+
+    public void setElytraItem(ItemStack stack) {
+        this.elytraItem = stack;
+        setChanged();
+    }
+
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
@@ -64,6 +80,9 @@ public class JetpackBlockEntity extends BlockEntity implements GeoBlockEntity {
         if (fuelData != null) {
             FuelData.CODEC.encodeStart(NbtOps.INSTANCE, fuelData).result()
                     .ifPresent(t -> tag.put("fuel_data", t));
+        }
+        if (!elytraItem.isEmpty()) {
+            tag.put("elytra_item", elytraItem.save(registries));
         }
     }
 
@@ -76,6 +95,9 @@ public class JetpackBlockEntity extends BlockEntity implements GeoBlockEntity {
         } else {
             fuelData = null;
         }
+        elytraItem = tag.contains("elytra_item", CompoundTag.TAG_COMPOUND)
+                ? ItemStack.parseOptional(registries, tag.getCompound("elytra_item"))
+                : ItemStack.EMPTY;
     }
 
     @Override

@@ -92,6 +92,15 @@ public class JetlytraItem extends ArmorItem implements GeoItem {
                     .withStyle(ChatFormatting.DARK_GRAY)
             );
         }
+
+        StoredElytra elytra = stack.get(JetlytraItems.ELYTRA_ITEM);
+        if (elytra != null && !elytra.isEmpty()) {
+            tooltipComponents.add(
+                Component.translatable("item.jetlytra.jetpack.elytra_stored",
+                        elytra.stack().getHoverName())
+                    .withStyle(ChatFormatting.GOLD)
+            );
+        }
     }
 
     @Override

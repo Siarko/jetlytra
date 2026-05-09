@@ -13,7 +13,7 @@ import pl.siarko.jetlytra.block.JetlytraBlocks;
 import pl.siarko.jetlytra.client.ClientJetpackState;
 import pl.siarko.jetlytra.client.input.JetpackInputHandler;
 import pl.siarko.jetlytra.client.input.JetpackKeyMappings;
-import pl.siarko.jetlytra.client.particle.JetpackParticleHandler;
+import pl.siarko.jetlytra.client.input.KeyStateTracker;
 import pl.siarko.jetlytra.client.render.JetpackBlockEntityRenderer;
 import pl.siarko.jetlytra.flight.FlightState;
 
@@ -22,8 +22,10 @@ import pl.siarko.jetlytra.flight.FlightState;
 public class JetlytraClient {
 
     public JetlytraClient(IEventBus modEventBus) {
-        NeoForge.EVENT_BUS.addListener(JetpackInputHandler::onClientTick);
-        NeoForge.EVENT_BUS.addListener(JetpackParticleHandler::onClientTick);
+        JetpackInputHandler jetpackInputHandler = new JetpackInputHandler(
+                new KeyStateTracker()
+        );
+        NeoForge.EVENT_BUS.addListener(jetpackInputHandler::onClientTick);
         NeoForge.EVENT_BUS.addListener(JetlytraClient::onLogout);
         modEventBus.addListener(JetlytraClient::onRegisterRenderers);
     }

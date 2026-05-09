@@ -3,6 +3,7 @@ package pl.siarko.jetlytra.item;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.item.ArmorMaterials;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -27,6 +28,7 @@ public class JetlytraItems {
             DATA_COMPONENTS.register("jetpack_enabled", () ->
                     DataComponentType.<Boolean>builder()
                             .persistent(Codec.BOOL)
+                            .networkSynchronized(ByteBufCodecs.BOOL)
                             .build()
             );
 
@@ -34,6 +36,14 @@ public class JetlytraItems {
             DATA_COMPONENTS.register("fuel_data", () ->
                     DataComponentType.<FuelData>builder()
                             .persistent(FuelData.CODEC)
+                            .networkSynchronized(FuelData.STREAM_CODEC)
+                            .build()
+            );
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<StoredElytra>> ELYTRA_ITEM =
+            DATA_COMPONENTS.register("elytra_item", () ->
+                    DataComponentType.<StoredElytra>builder()
+                            .persistent(StoredElytra.CODEC)
                             .build()
             );
 

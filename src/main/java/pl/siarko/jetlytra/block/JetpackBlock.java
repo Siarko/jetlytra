@@ -7,6 +7,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ElytraItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -79,6 +80,17 @@ public class JetpackBlock extends BaseEntityBlock {
 
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        if (player.isShiftKeyDown()) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+
+        if (stack.getItem() instanceof ElytraItem) {
+            if (level.isClientSide) return ItemInteractionResult.SUCCESS;
+            if (!(level.getBlockEntity(pos) instanceof JetpackBlockEntity be)) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            if (!be.getElytraItem().isEmpty()) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            be.setElytraItem(stack.copyWithCount(1));
+            if (!player.isCreative()) stack.shrink(1);
+            return ItemInteractionResult.SUCCESS;
+        }
+
         var fuelType = FuelType.fromItem(stack.getItem());
         if (fuelType.isEmpty()) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         if (level.isClientSide) return ItemInteractionResult.SUCCESS;
@@ -104,17 +116,27 @@ public class JetpackBlock extends BaseEntityBlock {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
-        if (!player.isShiftKeyDown()) return InteractionResult.PASS;
+        if (player.isShiftKeyDown()) {
+            if (level.isClientSide) return InteractionResult.SUCCESS;
+            if (!(level.getBlockEntity(pos) instanceof JetpackBlockEntity be)) return InteractionResult.PASS;
+            ItemStack stack = new ItemStack(JetlytraItems.JETPACK.get());
+            be.writeToItem(stack);
+            level.removeBlock(pos, false);
+            if (!player.getInventory().add(stack)) {
+                player.drop(stack, false);
+            }
+            return InteractionResult.SUCCESS;
+        }
+
+        // Non-sneak empty-hand: retrieve stored elytra
+        if (!player.getMainHandItem().isEmpty()) return InteractionResult.PASS;
         if (level.isClientSide) return InteractionResult.SUCCESS;
-
         if (!(level.getBlockEntity(pos) instanceof JetpackBlockEntity be)) return InteractionResult.PASS;
-
-        ItemStack stack = new ItemStack(JetlytraItems.JETPACK.get());
-        be.writeToItem(stack);
-        level.removeBlock(pos, false);
-
-        if (!player.getInventory().add(stack)) {
-            player.drop(stack, false);
+        ItemStack elytra = be.getElytraItem();
+        if (elytra.isEmpty()) return InteractionResult.PASS;
+        be.setElytraItem(ItemStack.EMPTY);
+        if (!player.getInventory().add(elytra)) {
+            player.drop(elytra, false);
         }
         return InteractionResult.SUCCESS;
     }

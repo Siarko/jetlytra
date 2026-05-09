@@ -14,7 +14,7 @@ import pl.siarko.jetlytra.flight.FlightState;
 public record S2CSyncStatePacket(FlightState state, boolean showMessage) implements CustomPacketPayload {
 
     public S2CSyncStatePacket(FlightState state) {
-        this(state, false);
+        this(state, true);
     }
 
     public static final Type<S2CSyncStatePacket> TYPE =

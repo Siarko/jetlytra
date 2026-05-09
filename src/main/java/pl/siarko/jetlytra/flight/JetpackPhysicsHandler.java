@@ -10,6 +10,7 @@ import pl.siarko.jetlytra.item.JetlytraItem;
 import pl.siarko.jetlytra.item.JetlytraItems;
 import pl.siarko.jetlytra.network.S2CSyncStatePacket;
 
+
 public class JetpackPhysicsHandler {
 
     public static void onPlayerTick(PlayerTickEvent.Pre event) {
@@ -20,24 +21,35 @@ public class JetpackPhysicsHandler {
 
         if (state == FlightState.OFF) return;
 
-        // Verify jetpack is still equipped
-        if (!(player.getItemBySlot(EquipmentSlot.CHEST).getItem() instanceof JetlytraItem)) {
+        ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
+        if (!(chest.getItem() instanceof JetlytraItem)) {
             transitionOff(player);
             return;
         }
 
+        boolean jetpackEnabled = Boolean.TRUE.equals(chest.get(JetlytraItems.JETPACK_ENABLED));
+
+        // On landing, restore to JETPACK if enabled, otherwise cut to OFF
         if (state != FlightState.JETPACK && player.onGround()) {
-            player.setData(JetlytraAttachments.FLIGHT_STATE.get(), FlightState.JETPACK);
-            player.setNoGravity(false);
-            PacketDistributor.sendToPlayer(player, new S2CSyncStatePacket(FlightState.JETPACK));
+            if (jetpackEnabled) {
+                player.setData(JetlytraAttachments.FLIGHT_STATE.get(), FlightState.JETPACK);
+                player.setNoGravity(false);
+                PacketDistributor.sendToPlayer(player, new S2CSyncStatePacket(FlightState.JETPACK));
+            } else {
+                transitionOff(player);
+            }
             return;
         }
 
         // Hovering in water breaks swimming/sinking — cancel it
         if (state == FlightState.HOVERING && player.isInWater()) {
-            player.setData(JetlytraAttachments.FLIGHT_STATE.get(), FlightState.JETPACK);
-            player.setNoGravity(false);
-            PacketDistributor.sendToPlayer(player, new S2CSyncStatePacket(FlightState.JETPACK));
+            if (jetpackEnabled) {
+                player.setData(JetlytraAttachments.FLIGHT_STATE.get(), FlightState.JETPACK);
+                player.setNoGravity(false);
+                PacketDistributor.sendToPlayer(player, new S2CSyncStatePacket(FlightState.JETPACK));
+            } else {
+                transitionOff(player);
+            }
             return;
         }
 
@@ -50,10 +62,13 @@ public class JetpackPhysicsHandler {
             player.resetFallDistance();
         }
 
-        // Fuel consumption: drain 1 unit per second while actively flying
-        boolean consuming = (state == FlightState.JETPACK && thrusting)
+        // Fuel consumption: drain 1 unit per second; elytra boost also drains when jetpack is on
+        boolean consuming = jetpackEnabled && (
+                (state == FlightState.JETPACK && thrusting)
                 || state == FlightState.HOVERING
-                || (state.isActive() && player.isSwimming());
+                || (state == FlightState.ELYTRA && thrusting)
+                || (state.isActive() && player.isSwimming())
+        );
 
         if (consuming && !drainFuel(player)) {
             transitionOff(player);

@@ -5,11 +5,14 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import pl.siarko.jetlytra.Jetlytra;
 import pl.siarko.jetlytra.JetlytraAttachments;
 import pl.siarko.jetlytra.flight.FlightState;
+import pl.siarko.jetlytra.item.JetlytraItems;
 
 public record C2SCrouchPacket(boolean active) implements CustomPacketPayload {
 
@@ -29,11 +32,26 @@ public record C2SCrouchPacket(boolean active) implements CustomPacketPayload {
     public static void handle(C2SCrouchPacket packet, IPayloadContext context) {
         context.enqueueWork(() -> {
             ServerPlayer player = (ServerPlayer) context.player();
-            FlightState current = player.getData(JetlytraAttachments.FLIGHT_STATE.get());
+            ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
+            boolean jetpackEnabled = Boolean.TRUE.equals(chest.get(JetlytraItems.JETPACK_ENABLED));
 
+            FlightState current = player.getData(JetlytraAttachments.FLIGHT_STATE.get());
             FlightState next = current;
-            if (packet.active && (current == FlightState.JETPACK || current == FlightState.ELYTRA) && !player.isInWater()) {
-                next = FlightState.HOVERING;
+            if (packet.active) {
+                if (current == FlightState.ELYTRA && player.isInWater()) {
+                    // Exit elytra while underwater
+                    FlightState exitTo = jetpackEnabled ? FlightState.JETPACK : FlightState.OFF;
+                    player.setData(JetlytraAttachments.THRUST_ACTIVE.get(), false);
+                    player.setData(JetlytraAttachments.FUEL_TICK_COUNTER.get(), 0);
+                    player.setNoGravity(false);
+                    player.setData(JetlytraAttachments.FLIGHT_STATE.get(), exitTo);
+                    PacketDistributor.sendToPlayer(player, new S2CSyncStatePacket(exitTo));
+                    return;
+                }
+                if (!player.isInWater()
+                        && (current == FlightState.JETPACK || (current == FlightState.ELYTRA && jetpackEnabled))) {
+                    next = FlightState.HOVERING;
+                }
             } else if (!packet.active && current == FlightState.HOVERING) {
                 next = FlightState.JETPACK;
             }

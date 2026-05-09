@@ -16,14 +16,14 @@ import pl.siarko.jetlytra.item.JetlytraItem;
 import pl.siarko.jetlytra.item.JetlytraItems;
 import pl.siarko.jetlytra.item.StoredElytra;
 
-public record C2SElytraTogglePacket() implements CustomPacketPayload {
+public record C2SActivateElytraPacket() implements CustomPacketPayload {
 
-    public static final Type<C2SElytraTogglePacket> TYPE =
-            new Type<>(ResourceLocation.fromNamespaceAndPath(Jetlytra.MODID, "elytra_toggle"));
+    public static final Type<C2SActivateElytraPacket> TYPE =
+            new Type<>(ResourceLocation.fromNamespaceAndPath(Jetlytra.MODID, "activate_elytra"));
 
-    public static final StreamCodec<FriendlyByteBuf, C2SElytraTogglePacket> CODEC = StreamCodec.of(
+    public static final StreamCodec<FriendlyByteBuf, C2SActivateElytraPacket> CODEC = StreamCodec.of(
             (buf, packet) -> {},
-            buf -> new C2SElytraTogglePacket()
+            buf -> new C2SActivateElytraPacket()
     );
 
     @Override
@@ -31,28 +31,23 @@ public record C2SElytraTogglePacket() implements CustomPacketPayload {
         return TYPE;
     }
 
-    public static void handle(C2SElytraTogglePacket packet, IPayloadContext context) {
+    public static void handle(C2SActivateElytraPacket packet, IPayloadContext context) {
         context.enqueueWork(() -> {
             ServerPlayer player = (ServerPlayer) context.player();
             ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
             if (!(chest.getItem() instanceof JetlytraItem)) return;
 
             StoredElytra elytra = chest.get(JetlytraItems.ELYTRA_ITEM);
-            boolean hasElytra = elytra != null && !elytra.isEmpty();
-            boolean jetpackEnabled = Boolean.TRUE.equals(chest.get(JetlytraItems.JETPACK_ENABLED));
+            if (elytra == null || elytra.isEmpty()) return;
+
+            if (player.onGround()) return;
 
             FlightState current = player.getData(JetlytraAttachments.FLIGHT_STATE.get());
-            FlightState next = switch (current) {
-                case JETPACK, HOVERING -> (hasElytra && jetpackEnabled) ? FlightState.ELYTRA : current;
-                case ELYTRA -> jetpackEnabled ? FlightState.JETPACK : current;
-                default -> current; // OFF — ignore
-            };
+            if (current == FlightState.ELYTRA) return;
 
-            if (next != current) {
-                player.setNoGravity(false);
-                player.setData(JetlytraAttachments.FLIGHT_STATE.get(), next);
-                PacketDistributor.sendToPlayer(player, new S2CSyncStatePacket(next));
-            }
+            player.setNoGravity(false);
+            player.setData(JetlytraAttachments.FLIGHT_STATE.get(), FlightState.ELYTRA);
+            PacketDistributor.sendToPlayer(player, new S2CSyncStatePacket(FlightState.ELYTRA));
         });
     }
 }

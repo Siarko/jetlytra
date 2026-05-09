@@ -1,6 +1,9 @@
 package pl.siarko.jetlytra.flight;
 
 import com.mojang.serialization.Codec;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
@@ -16,6 +19,9 @@ public enum FuelType {
             s -> FuelType.valueOf(s.toUpperCase(Locale.ROOT)),
             t -> t.name().toLowerCase(Locale.ROOT)
     );
+
+    public static final StreamCodec<ByteBuf, FuelType> STREAM_CODEC =
+            ByteBufCodecs.VAR_INT.map(i -> FuelType.values()[i], Enum::ordinal);
 
     public final String displayName;
     private final Supplier<Item> itemSupplier;

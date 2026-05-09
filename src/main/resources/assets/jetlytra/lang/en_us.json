@@ -8,5 +8,6 @@
   "key.categories.jetlytra": "Jetlytra",
   "key.jetlytra.toggle_elytra": "Toggle Elytra Mode",
   "item.jetlytra.jetpack.fuel": "Fuel: %1$sx %2$s",
-  "item.jetlytra.jetpack.no_fuel": "No fuel"
+  "item.jetlytra.jetpack.no_fuel": "No fuel",
+  "item.jetlytra.jetpack.elytra_stored": "Elytra: %s"
 }
