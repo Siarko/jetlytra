@@ -28,6 +28,7 @@ import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.animation.Animation;
 import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import pl.siarko.jetlytra.client.render.JetpackArmorRenderer;
@@ -124,17 +125,40 @@ public class JetlytraItem extends ArmorItem implements GeoItem {
         });
     }
 
-    private static final RawAnimation WING_OUT = RawAnimation.begin().then("wing_out", Animation.LoopType.HOLD_ON_LAST_FRAME);
-    private static final RawAnimation WING_IN = RawAnimation.begin().then("wing_in", Animation.LoopType.HOLD_ON_LAST_FRAME);
+    private static final RawAnimation INIT_STATE = RawAnimation.begin().then("init_state", Animation.LoopType.HOLD_ON_LAST_FRAME);
+    private static final RawAnimation WINGS_OUT = RawAnimation.begin().then("wings_out", Animation.LoopType.HOLD_ON_LAST_FRAME);
+    private static final RawAnimation WINGS_IN = RawAnimation.begin().then("wings_in", Animation.LoopType.HOLD_ON_LAST_FRAME);
+    private static final RawAnimation BOOST = RawAnimation.begin()
+            .then("boost_activate", Animation.LoopType.PLAY_ONCE)
+            .then("boost_active", Animation.LoopType.LOOP);
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "wing_controller", 5, state -> {
-            if (ClientJetpackState.getState() == FlightState.ELYTRA) {
-                return state.setAndContinue(WING_OUT);
-            } else {
-                return state.setAndContinue(WING_IN);
+        controllers.add(new AnimationController<>(this, "wing_controller", 0, state -> {
+            RawAnimation current = state.getController().getCurrentRawAnimation();
+
+            if (current == null) {
+                return state.setAndContinue(INIT_STATE);
             }
+
+            boolean elytraActive = ClientJetpackState.getState() == FlightState.ELYTRA;
+
+            if (elytraActive) {
+                return state.setAndContinue(WINGS_OUT);
+            }
+
+            if (current == WINGS_OUT) {
+                return state.setAndContinue(WINGS_IN);
+            }
+
+            return PlayState.CONTINUE;
+        }));
+
+        controllers.add(new AnimationController<>(this, "boost_controller", 0, state -> {
+            if (ClientJetpackState.isThrustActive()) {
+                return state.setAndContinue(BOOST);
+            }
+            return PlayState.STOP;
         }));
     }
 

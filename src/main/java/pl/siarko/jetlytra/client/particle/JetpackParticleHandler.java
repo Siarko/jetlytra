@@ -22,9 +22,10 @@ public class JetpackParticleHandler {
         FuelType fuelType = fuelData.type();
 
         Vec3 look = player.getLookAngle();
-        Vec3 right = new Vec3(-look.z, 0, look.x).normalize().scale(0.2);
-        Vec3 back = look.scale(-0.4);
-        Vec3 base = player.position().add(0, -0.3, 0).add(back);
+        float yawRad = (float) Math.toRadians(player.yBodyRot);
+        Vec3 front = new Vec3(-Math.sin(yawRad), 0, Math.cos(yawRad));
+        Vec3 right = new Vec3(Math.cos(yawRad), 0, Math.sin(yawRad)).scale(0.2);
+        Vec3 base = player.position().subtract(front.scale(0.4)).add(0,0.4,0);
 
         boolean directional = particleSpawnType == ParticleSpawnType.BOOSTING;
         boolean hovering = particleSpawnType == ParticleSpawnType.HOVERING;
@@ -38,6 +39,9 @@ public class JetpackParticleHandler {
             spawnBoostNozzle(mc, player, fuelType, base.subtract(right), look);
             spawnBoostNozzle(mc, player, fuelType, base.add(right), look);
         } else {
+            if(hovering) {
+                base = base.subtract(front.scale(0.25));
+            }
             spawnNozzle(mc, player, fuelType, base.subtract(right));
             spawnNozzle(mc, player, fuelType, base.add(right));
         }

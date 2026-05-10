@@ -6,6 +6,7 @@ import pl.siarko.jetlytra.flight.FlightState;
 public class ClientJetpackState {
     private static FlightState previous = FlightState.JETPACK;
     private static FlightState state = FlightState.JETPACK;
+    private static boolean thrustActive = false;
 
     public static FlightState getState() {
         return state;
@@ -18,6 +19,14 @@ public class ClientJetpackState {
     public static void setState(FlightState newState) {
         previous = state;
         state = newState;
+    }
+
+    public static boolean isThrustActive() {
+        return thrustActive;
+    }
+
+    public static void setThrustActive(boolean active) {
+        thrustActive = active;
     }
 
 }

@@ -9,7 +9,10 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import software.bernie.geckolib.animatable.GeoBlockEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animation.Animation;
 import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import pl.siarko.jetlytra.flight.FuelData;
 import pl.siarko.jetlytra.item.JetlytraItems;
@@ -100,9 +103,12 @@ public class JetpackBlockEntity extends BlockEntity implements GeoBlockEntity {
                 : ItemStack.EMPTY;
     }
 
+    private static final RawAnimation INIT_STATE = RawAnimation.begin().then("init_state", Animation.LoopType.HOLD_ON_LAST_FRAME);
+
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        // Static display — no animations
+        controllers.add(new AnimationController<>(this, "wing_controller", 0, state ->
+                state.setAndContinue(INIT_STATE)));
     }
 
     @Override

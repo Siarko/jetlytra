@@ -54,6 +54,8 @@ public class JetpackInputHandler {
         sendStateChangePackets(player, state, jetpackAvailable);
         if (jetpackAvailable) {
             applyPhysics(player, state);
+        } else {
+            ClientJetpackState.setThrustActive(false);
         }
     }
 
@@ -146,6 +148,7 @@ public class JetpackInputHandler {
             player.setDeltaMovement(boosted.x * SPRINT_BOOST, boosted.y, boosted.z * SPRINT_BOOST);
         }
 
+        ClientJetpackState.setThrustActive(particleSpawnType != null);
         if(particleSpawnType != null) {
             JetpackParticleHandler.spawnExhaustParticles(particleSpawnType, player);
         }
