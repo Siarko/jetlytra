@@ -28,12 +28,21 @@ public class JetpackBlockEntityRenderer extends GeoBlockRenderer<JetpackBlockEnt
         Direction facing = animatable.getBlockState().getValue(JetpackBlock.FACING);
         double wx, wz;
         switch (facing) {
-            case NORTH -> { wx = -OFFSET_X; wz = -OFFSET_Z; }
-            case WEST  -> { wx =  OFFSET_Z; wz = -OFFSET_X; }
-            case EAST  -> { wx = -OFFSET_Z; wz =  OFFSET_X; }
-            default    -> { wx =  OFFSET_X; wz =  OFFSET_Z; }  // SOUTH
+            case NORTH -> { wx = OFFSET_X; wz =  -OFFSET_Z; }
+            case WEST  -> { wx = -OFFSET_Z; wz =  OFFSET_X; }
+            case EAST  -> { wx = OFFSET_Z; wz =  -OFFSET_X; }
+            default    -> { wx = -OFFSET_X; wz =  OFFSET_Z; }  // SOUTH
         }
         poseStack.translate(wx, OFFSET_Y, wz);
+
+        boolean hasElytra = !animatable.getElytraItem().isEmpty();
+        model.getBone("wings").ifPresent(bone -> bone.setHidden(!hasElytra));
+
         super.preRender(poseStack, animatable, model, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, color);
+    }
+
+    @Override
+    protected void rotateBlock(Direction facing, PoseStack poseStack) {
+        super.rotateBlock(facing.getOpposite(), poseStack);
     }
 }
