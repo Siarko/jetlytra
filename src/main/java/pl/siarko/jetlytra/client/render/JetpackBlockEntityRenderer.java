@@ -1,15 +1,23 @@
 package pl.siarko.jetlytra.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.Direction;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
+import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoBlockRenderer;
+import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
 import pl.siarko.jetlytra.block.JetpackBlock;
 import pl.siarko.jetlytra.block.JetpackBlockEntity;
+import pl.siarko.jetlytra.flight.FuelData;
 
 public class JetpackBlockEntityRenderer extends GeoBlockRenderer<JetpackBlockEntity> {
+
+    private static final String FUEL_DISPLAY_BONE = "fuel_display";
 
     // Offsets in block-local space (relative to facing direction), in blocks.
     // OFFSET_X = right/left, OFFSET_Z = forward/back, OFFSET_Y = up/down.
@@ -17,8 +25,32 @@ public class JetpackBlockEntityRenderer extends GeoBlockRenderer<JetpackBlockEnt
     public static final double OFFSET_Y = -0.7;
     public static final double OFFSET_Z = -0.1;
 
+    private static final float ITEM_SCALE = 0.1f;
+
     public JetpackBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
         super(new JetpackBlockGeoModel());
+        addRenderLayer(new BlockAndItemGeoLayer<>(this) {
+            @Override
+            protected ItemStack getStackForBone(GeoBone bone, JetpackBlockEntity animatable) {
+                if (!bone.getName().equals(FUEL_DISPLAY_BONE)) return ItemStack.EMPTY;
+                FuelData fuelData = animatable.getFuelData();
+                return fuelData != null ? new ItemStack(fuelData.type().getItem()) : ItemStack.EMPTY;
+            }
+
+            @Override
+            protected ItemDisplayContext getTransformTypeForStack(GeoBone bone, ItemStack stack, JetpackBlockEntity animatable) {
+                return ItemDisplayContext.FIXED;
+            }
+
+            @Override
+            protected void renderStackForBone(PoseStack poseStack, GeoBone bone, ItemStack stack, JetpackBlockEntity animatable,
+                                              MultiBufferSource bufferSource, float partialTick, int packedLight, int packedOverlay) {
+                // Add any extra transforms here (scale, rotation offset, etc.) before delegating
+                poseStack.mulPose(Axis.XP.rotationDegrees(90));
+                poseStack.scale(ITEM_SCALE, ITEM_SCALE, ITEM_SCALE);
+                super.renderStackForBone(poseStack, bone, stack, animatable, bufferSource, partialTick, packedLight, packedOverlay);
+            }
+        });
     }
 
     @Override

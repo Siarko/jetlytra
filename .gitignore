@@ -23,6 +23,7 @@ gradle-app.setting
 run/
 runs/
 src/generated/
+sources/
 
 # OS
 .DS_Store

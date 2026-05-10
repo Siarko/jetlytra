@@ -30,6 +30,8 @@ import software.bernie.geckolib.animation.Animation;
 import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
+import software.bernie.geckolib.constant.DataTickets;
+import software.bernie.geckolib.loading.math.MathParser;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import pl.siarko.jetlytra.client.render.JetpackArmorRenderer;
 import pl.siarko.jetlytra.client.ClientJetpackState;
@@ -126,6 +128,7 @@ public class JetlytraItem extends ArmorItem implements GeoItem {
     }
 
     private static final RawAnimation INIT_STATE = RawAnimation.begin().then("init_state", Animation.LoopType.HOLD_ON_LAST_FRAME);
+    private static final RawAnimation FUEL_BAR = RawAnimation.begin().then("fuel_bar", Animation.LoopType.LOOP);
     private static final RawAnimation WINGS_OPEN_STATE = RawAnimation.begin().then("wings_open_state", Animation.LoopType.HOLD_ON_LAST_FRAME);
     private static final RawAnimation WINGS_OUT = RawAnimation.begin().then("wings_out", Animation.LoopType.HOLD_ON_LAST_FRAME);
     private static final RawAnimation WINGS_IN = RawAnimation.begin().then("wings_in", Animation.LoopType.HOLD_ON_LAST_FRAME);
@@ -161,6 +164,13 @@ public class JetlytraItem extends ArmorItem implements GeoItem {
                 return state.setAndContinue(BOOST);
             }
             return PlayState.STOP;
+        }));
+
+        controllers.add(new AnimationController<>(this, "fuel_gauge_controller", 0, state -> {
+            FuelData fuel = state.getData(DataTickets.ITEMSTACK).get(JetlytraItems.FUEL_DATA);
+            double scale = fuel != null ? fuel.count() / (double) FuelData.MAX_COUNT * 6.4 : 0.0;
+            MathParser.setVariable("v.fuel_gauge_scale", () -> scale);
+            return state.setAndContinue(FUEL_BAR);
         }));
     }
 

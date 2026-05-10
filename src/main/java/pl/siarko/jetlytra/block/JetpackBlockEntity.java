@@ -16,6 +16,7 @@ import software.bernie.geckolib.animation.Animation;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.RawAnimation;
+import software.bernie.geckolib.loading.math.MathParser;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import pl.siarko.jetlytra.flight.FuelData;
 import pl.siarko.jetlytra.item.JetlytraItems;
@@ -68,6 +69,7 @@ public class JetpackBlockEntity extends BlockEntity implements GeoBlockEntity {
     public void setFuelData(@Nullable FuelData fuel) {
         this.fuelData = fuel;
         setChanged();
+        if (level != null) level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
     }
 
     public ItemStack getElytraItem() {
@@ -118,11 +120,18 @@ public class JetpackBlockEntity extends BlockEntity implements GeoBlockEntity {
     }
 
     private static final RawAnimation INIT_STATE = RawAnimation.begin().then("init_state", Animation.LoopType.HOLD_ON_LAST_FRAME);
+    private static final RawAnimation FUEL_BAR = RawAnimation.begin().then("fuel_bar", Animation.LoopType.LOOP);
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, "wing_controller", 0, state ->
                 state.setAndContinue(INIT_STATE)));
+
+        controllers.add(new AnimationController<>(this, "fuel_gauge_controller", 0, state -> {
+            double scale = fuelData != null ? fuelData.count() / (double) FuelData.MAX_COUNT * 6.4 : 0.0;
+            MathParser.setVariable("v.fuel_gauge_scale", () -> scale);
+            return state.setAndContinue(FUEL_BAR);
+        }));
     }
 
     @Override
