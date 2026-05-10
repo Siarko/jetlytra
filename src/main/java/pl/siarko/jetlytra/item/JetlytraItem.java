@@ -126,6 +126,7 @@ public class JetlytraItem extends ArmorItem implements GeoItem {
     }
 
     private static final RawAnimation INIT_STATE = RawAnimation.begin().then("init_state", Animation.LoopType.HOLD_ON_LAST_FRAME);
+    private static final RawAnimation WINGS_OPEN_STATE = RawAnimation.begin().then("wings_open_state", Animation.LoopType.HOLD_ON_LAST_FRAME);
     private static final RawAnimation WINGS_OUT = RawAnimation.begin().then("wings_out", Animation.LoopType.HOLD_ON_LAST_FRAME);
     private static final RawAnimation WINGS_IN = RawAnimation.begin().then("wings_in", Animation.LoopType.HOLD_ON_LAST_FRAME);
     private static final RawAnimation BOOST = RawAnimation.begin()
@@ -138,7 +139,8 @@ public class JetlytraItem extends ArmorItem implements GeoItem {
             RawAnimation current = state.getController().getCurrentRawAnimation();
 
             if (current == null) {
-                return state.setAndContinue(INIT_STATE);
+                boolean elytraActive = ClientJetpackState.getState() == FlightState.ELYTRA;
+                return state.setAndContinue(elytraActive ? WINGS_OPEN_STATE : INIT_STATE);
             }
 
             boolean elytraActive = ClientJetpackState.getState() == FlightState.ELYTRA;

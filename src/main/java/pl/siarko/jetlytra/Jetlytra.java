@@ -4,7 +4,9 @@ import com.mojang.logging.LogUtils;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.NeoForge;
+import pl.siarko.jetlytra.config.JetlytraClientConfig;
 import org.slf4j.Logger;
 import pl.siarko.jetlytra.block.JetlytraBlocks;
 import pl.siarko.jetlytra.flight.JetpackPhysicsHandler;
@@ -31,6 +33,6 @@ public class Jetlytra {
         NeoForge.EVENT_BUS.addListener(JetpackPlayerEvents::onPlayerClone);
         NeoForge.EVENT_BUS.addListener(JetpackPlayerEvents::onEquipmentChange);
         NeoForge.EVENT_BUS.addListener(JetpackPhysicsHandler::onPlayerTick);
-        LOGGER.info("Jetlytra initializing");
+        modContainer.registerConfig(ModConfig.Type.CLIENT, JetlytraClientConfig.SPEC);
     }
 }

@@ -1,6 +1,17 @@
 {
 	"format_version": "1.8.0",
 	"animations": {
+		"wings_open_state": {
+			"loop": "hold_on_last_frame",
+			"bones": {
+				"coxaR": { "rotation": { "vector": [0, 0, 0] } },
+				"femurR": { "rotation": { "vector": [0, 0, 0] } },
+				"tibiaR": { "rotation": { "vector": [0, 0, 0] } },
+				"coxaL": { "rotation": { "vector": [0, 0, 0] } },
+				"femurL": { "rotation": { "vector": [0, 0, 0] } },
+				"tibiaL": { "rotation": { "vector": [0, 0, 0] } }
+			}
+		},
 		"init_state": {
 			"loop": "hold_on_last_frame",
 			"bones": {
