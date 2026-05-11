@@ -3,11 +3,13 @@ package pl.siarko.jetlytra.flight;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import pl.siarko.jetlytra.JetlytraAttachments;
 import pl.siarko.jetlytra.item.JetlytraItem;
 import pl.siarko.jetlytra.item.JetlytraItems;
+import pl.siarko.jetlytra.item.StoredElytra;
 import pl.siarko.jetlytra.network.S2CSyncStatePacket;
 
 
@@ -39,6 +41,28 @@ public class JetpackPhysicsHandler {
 
         if (thrusting && !drainFuel(player)) {
             reset(player);
+        }
+
+        if (state == FlightState.ELYTRA && player.tickCount % 20 == 0) {
+            applyElytraDamage(player, chest);
+        }
+    }
+
+    private static void applyElytraDamage(ServerPlayer player, ItemStack jetlytraStack) {
+        StoredElytra stored = jetlytraStack.get(JetlytraItems.ELYTRA_ITEM);
+        if (stored == null || stored.isEmpty()) return;
+
+        ItemStack elytra = stored.stack().copy();
+        if (!elytra.isDamageableItem()) return;
+
+        int damage = EnchantmentHelper.processDurabilityChange(player.serverLevel(), elytra, 1);
+        if (damage > 0) {
+            int newDamage = Math.min(elytra.getDamageValue() + damage, elytra.getMaxDamage());
+            elytra.setDamageValue(newDamage);
+            jetlytraStack.set(JetlytraItems.ELYTRA_ITEM, new StoredElytra(elytra));
+            if (newDamage >= elytra.getMaxDamage()) {
+                reset(player);
+            }
         }
     }
 

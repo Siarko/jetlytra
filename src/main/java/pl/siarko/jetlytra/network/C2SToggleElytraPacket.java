@@ -38,7 +38,8 @@ public record C2SToggleElytraPacket(ToggleType toggleType) implements CustomPack
             if (!(chest.getItem() instanceof JetlytraItem)) return;
 
             StoredElytra elytra = chest.get(JetlytraItems.ELYTRA_ITEM);
-            boolean hasElytra = elytra != null && !elytra.isEmpty();
+            boolean hasElytra = elytra != null && !elytra.isEmpty()
+                    && elytra.stack().getDamageValue() < elytra.stack().getMaxDamage();
             FlightState current = player.getData(JetlytraAttachments.FLIGHT_STATE.get());
 
             FlightState next = switch (packet.toggleType) {

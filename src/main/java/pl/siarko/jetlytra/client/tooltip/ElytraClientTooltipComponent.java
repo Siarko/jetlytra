@@ -57,6 +57,7 @@ public class ElytraClientTooltipComponent implements ClientTooltipComponent {
 
     @Override
     public void renderImage(@NotNull Font font, int x, int y, GuiGraphics guiGraphics) {
+        guiGraphics.fill(x - 1, y - 1, x + ICON_SIZE + 1, y + ICON_SIZE + 1, 0xFF3A3A3A);
         guiGraphics.renderItem(elytraStack, x, y);
         guiGraphics.renderItemDecorations(font, elytraStack, x, y);
 
