@@ -12,8 +12,10 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
+import pl.siarko.jetlytra.client.tooltip.ElytraTooltipData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import pl.siarko.jetlytra.block.JetpackBlock;
@@ -22,6 +24,7 @@ import pl.siarko.jetlytra.block.JetlytraBlocks;
 import pl.siarko.jetlytra.flight.FuelData;
 
 import java.util.List;
+import java.util.Optional;
 import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.client.GeoRenderProvider;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -96,14 +99,13 @@ public class JetlytraItem extends ArmorItem implements GeoItem {
             );
         }
 
-        StoredElytra elytra = stack.get(JetlytraItems.ELYTRA_ITEM);
-        if (elytra != null && !elytra.isEmpty()) {
-            tooltipComponents.add(
-                Component.translatable("item.jetlytra.jetpack.elytra_stored",
-                        elytra.stack().getHoverName())
-                    .withStyle(ChatFormatting.GOLD)
-            );
-        }
+    }
+
+    @Override
+    public Optional<TooltipComponent> getTooltipImage(ItemStack stack) {
+        StoredElytra stored = stack.get(JetlytraItems.ELYTRA_ITEM);
+        if (stored == null || stored.isEmpty()) return Optional.empty();
+        return Optional.of(new ElytraTooltipData(stored.stack()));
     }
 
     @Override

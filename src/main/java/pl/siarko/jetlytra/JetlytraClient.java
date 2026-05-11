@@ -8,8 +8,10 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
-import net.neoforged.neoforge.client.event.RenderGuiEvent;
+import pl.siarko.jetlytra.client.tooltip.ElytraClientTooltipComponent;
+import pl.siarko.jetlytra.client.tooltip.ElytraTooltipData;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
 import pl.siarko.jetlytra.block.JetlytraBlocks;
@@ -35,6 +37,11 @@ public class JetlytraClient {
                 IConfigScreenFactory.class,
                 (mc, parent) -> new JetlytraConfigScreen(parent)
         );
+    }
+
+    @SubscribeEvent
+    public static void onRegisterTooltipFactories(RegisterClientTooltipComponentFactoriesEvent event) {
+        event.register(ElytraTooltipData.class, ElytraClientTooltipComponent::new);
     }
 
     @SubscribeEvent
