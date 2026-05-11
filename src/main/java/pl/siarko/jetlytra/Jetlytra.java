@@ -33,6 +33,7 @@ public class Jetlytra {
         NeoForge.EVENT_BUS.addListener(JetpackPlayerEvents::onPlayerClone);
         NeoForge.EVENT_BUS.addListener(JetpackPlayerEvents::onEquipmentChange);
         NeoForge.EVENT_BUS.addListener(JetpackPhysicsHandler::onPlayerTick);
+        NeoForge.EVENT_BUS.addListener(JetpackMendingHandler::onXpChange);
         modContainer.registerConfig(ModConfig.Type.CLIENT, JetlytraClientConfig.SPEC);
     }
 }
