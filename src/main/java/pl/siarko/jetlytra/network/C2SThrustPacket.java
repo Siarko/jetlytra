@@ -31,9 +31,7 @@ public record C2SThrustPacket(boolean active) implements CustomPacketPayload {
         context.enqueueWork(() -> {
             ServerPlayer player = (ServerPlayer) context.player();
             ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
-            boolean jetpackEnabled = Boolean.TRUE.equals(chest.get(JetlytraItems.JETPACK_ENABLED));
-            boolean hasFuel = chest.has(JetlytraItems.FUEL_DATA);
-            if(jetpackEnabled && hasFuel) {
+            if(JetlytraItems.isJetpackAvailable(chest)) {
                 player.setData(JetlytraAttachments.THRUST_ACTIVE.get(), packet.active);
                 chest.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, packet.active);
             }

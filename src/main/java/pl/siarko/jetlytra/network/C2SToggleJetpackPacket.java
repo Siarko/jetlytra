@@ -12,6 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import pl.siarko.jetlytra.Jetlytra;
 import pl.siarko.jetlytra.JetlytraAttachments;
+import pl.siarko.jetlytra.flight.FlightState;
 import pl.siarko.jetlytra.item.JetlytraItem;
 import pl.siarko.jetlytra.item.JetlytraItems;
 
@@ -40,8 +41,12 @@ public record C2SToggleJetpackPacket() implements CustomPacketPayload {
             boolean newState = !Boolean.TRUE.equals(stack.get(JetlytraItems.JETPACK_ENABLED));
             stack.set(JetlytraItems.JETPACK_ENABLED, newState);
             if (!newState) {
+                player.setData(JetlytraAttachments.FLIGHT_STATE.get(), FlightState.JETPACK);
                 player.setData(JetlytraAttachments.THRUST_ACTIVE.get(), false);
                 player.setData(JetlytraAttachments.FUEL_TICK_COUNTER.get(), 0);
+                player.setNoGravity(false);
+                stack.set(JetlytraItems.FLIGHT_STATE_COMPONENT, FlightState.JETPACK);
+                stack.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, false);
             }
             player.displayClientMessage(
                 Component.translatable(newState ? "item.jetlytra.jetpack.enabled" : "item.jetlytra.jetpack.disabled")

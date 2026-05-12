@@ -32,33 +32,17 @@ public record C2SCrouchPacket(boolean active) implements CustomPacketPayload {
         context.enqueueWork(() -> {
             ServerPlayer player = (ServerPlayer) context.player();
             ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
-            boolean jetpackEnabled = Boolean.TRUE.equals(chest.get(JetlytraItems.JETPACK_ENABLED));
-            boolean hasFuel = chest.has(JetlytraItems.FUEL_DATA);
-            boolean jetpackAvailable = jetpackEnabled && hasFuel;
             FlightState current = player.getData(JetlytraAttachments.FLIGHT_STATE.get());
+            FlightState nextState = nextCrouchState(
+                    packet.active, current,
+                    JetlytraItems.isJetpackAvailable(chest),
+                    player.isInWater(), player.onGround());
 
-            FlightState nextState = null;
-            if(packet.active) {
-                if (current.equals(FlightState.ELYTRA)) {
-                    if (player.isInWater()) {
-                        nextState = FlightState.JETPACK;
-                    } else if (jetpackAvailable) {
-                        nextState = FlightState.HOVERING;
-                    }
-                } else if (jetpackAvailable && !player.isInWater() && !player.onGround()) {
-                    nextState = FlightState.HOVERING;
-                }
-            }else{
-                if (current.equals(FlightState.HOVERING)) {
-                    nextState = FlightState.JETPACK;
-                }
-            }
-
-            if(nextState != null) {
-                if(nextState.equals(FlightState.HOVERING)) {
+            if (nextState != null) {
+                if (nextState == FlightState.HOVERING) {
                     player.setData(JetlytraAttachments.THRUST_ACTIVE.get(), true);
                     chest.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, true);
-                } else if (current.equals(FlightState.HOVERING)) {
+                } else if (current == FlightState.HOVERING) {
                     player.setData(JetlytraAttachments.THRUST_ACTIVE.get(), false);
                     chest.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, false);
                 }
@@ -66,5 +50,17 @@ public record C2SCrouchPacket(boolean active) implements CustomPacketPayload {
                 chest.set(JetlytraItems.FLIGHT_STATE_COMPONENT, nextState);
             }
         });
+    }
+
+    private static FlightState nextCrouchState(boolean active, FlightState current,
+                                               boolean jetpackAvailable, boolean inWater, boolean onGround) {
+        if (!active) {
+            return current == FlightState.HOVERING ? FlightState.JETPACK : null;
+        }
+        if (current == FlightState.ELYTRA) {
+            if (inWater) return FlightState.JETPACK;
+            return jetpackAvailable ? FlightState.HOVERING : null;
+        }
+        return jetpackAvailable && !inWater && !onGround ? FlightState.HOVERING : null;
     }
 }

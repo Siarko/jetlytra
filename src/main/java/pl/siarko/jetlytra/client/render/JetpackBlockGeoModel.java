@@ -7,24 +7,19 @@ import pl.siarko.jetlytra.block.JetpackBlockEntity;
 
 public class JetpackBlockGeoModel extends GeoModel<JetpackBlockEntity> {
 
-    private ResourceLocation jetpackPath(JetpackBlockEntity animatable, String folder, String file) {
-        String sub = animatable.getTier().isEmpty() ? "" : animatable.getTier() + "/";
-        return ResourceLocation.fromNamespaceAndPath("jetlytra", folder + "/" + sub + file);
-    }
-
     @Override
     public ResourceLocation getModelResource(JetpackBlockEntity animatable) {
-        return jetpackPath(animatable, "geo", "jetpack.geo.json");
+        return JetpackGeoModel.assetPath(animatable.getTier(), "geo", "jetpack.geo.json");
     }
 
     @Override
     public ResourceLocation getTextureResource(JetpackBlockEntity animatable) {
-        return jetpackPath(animatable, "textures/geo", "jetpack.png");
+        return JetpackGeoModel.assetPath(animatable.getTier(), "textures/geo", "jetpack.png");
     }
 
     @Override
     public ResourceLocation getAnimationResource(JetpackBlockEntity animatable) {
-        return ResourceLocation.fromNamespaceAndPath("jetlytra", "animations/jetpack.animation.json");
+        return JetpackGeoModel.ANIMATION;
     }
 
     @Override

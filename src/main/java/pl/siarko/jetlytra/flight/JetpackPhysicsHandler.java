@@ -70,7 +70,7 @@ public class JetpackPhysicsHandler {
         if (fuel == null || fuel.count() <= 0) return false;
 
         int counter = player.getData(JetlytraAttachments.FUEL_TICK_COUNTER.get()) + 1;
-        if (counter < 20) {
+        if (counter < fuel.type().ticksPerUnit) {
             player.setData(JetlytraAttachments.FUEL_TICK_COUNTER.get(), counter);
             return true;
         }

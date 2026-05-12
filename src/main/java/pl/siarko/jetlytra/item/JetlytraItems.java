@@ -6,6 +6,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.item.ArmorMaterials;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import pl.siarko.jetlytra.Jetlytra;
@@ -61,6 +62,10 @@ public class JetlytraItems {
                             .networkSynchronized(ByteBufCodecs.BOOL)
                             .build()
             );
+
+    public static boolean isJetpackAvailable(ItemStack stack) {
+        return Boolean.TRUE.equals(stack.get(JETPACK_ENABLED)) && stack.has(FUEL_DATA);
+    }
 
     public static final Supplier<JetlytraItem> JETPACK = ITEMS.register(
             "jetpack",

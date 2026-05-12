@@ -42,9 +42,7 @@ public class JetpackInputHandler {
         keyStateTracker.update(mc);
 
         ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
-        boolean jetpackEnabled = Boolean.TRUE.equals(chest.get(JetlytraItems.JETPACK_ENABLED));
-        boolean hasFuel = chest.has(JetlytraItems.FUEL_DATA);
-        boolean jetpackAvailable = jetpackEnabled && hasFuel;
+        boolean jetpackAvailable = JetlytraItems.isJetpackAvailable(chest);
 
         FlightState state = chest.getOrDefault(JetlytraItems.FLIGHT_STATE_COMPONENT, FlightState.JETPACK);
 

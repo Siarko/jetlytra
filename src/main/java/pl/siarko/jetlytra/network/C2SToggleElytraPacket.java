@@ -50,7 +50,9 @@ public record C2SToggleElytraPacket(ToggleType toggleType) implements CustomPack
             if (next != current) {
                 player.setNoGravity(false);
                 player.setData(JetlytraAttachments.FLIGHT_STATE.get(), next);
+                player.setData(JetlytraAttachments.THRUST_ACTIVE.get(), false);
                 chest.set(JetlytraItems.FLIGHT_STATE_COMPONENT, next);
+                chest.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, false);
             }
         });
     }

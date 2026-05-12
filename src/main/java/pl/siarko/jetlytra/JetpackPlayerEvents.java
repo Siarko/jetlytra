@@ -17,6 +17,8 @@ public class JetpackPlayerEvents {
         ItemStack stack = clone.getItemBySlot(EquipmentSlot.CHEST);
         if (stack.getItem() instanceof JetlytraItem) {
             clone.setData(JetlytraAttachments.FLIGHT_STATE.get(), FlightState.JETPACK);
+            stack.set(JetlytraItems.FLIGHT_STATE_COMPONENT, FlightState.JETPACK);
+            stack.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, false);
         }
     }
 
