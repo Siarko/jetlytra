@@ -5,12 +5,10 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
 import pl.siarko.jetlytra.JetlytraAttachments;
 import pl.siarko.jetlytra.item.JetlytraItem;
 import pl.siarko.jetlytra.item.JetlytraItems;
 import pl.siarko.jetlytra.item.StoredElytra;
-import pl.siarko.jetlytra.network.S2CSyncStatePacket;
 
 
 public class JetpackPhysicsHandler {
@@ -93,6 +91,10 @@ public class JetpackPhysicsHandler {
         player.setData(JetlytraAttachments.THRUST_ACTIVE.get(), false);
         player.setData(JetlytraAttachments.FUEL_TICK_COUNTER.get(), 0);
         player.setNoGravity(false);
-        PacketDistributor.sendToPlayer(player, new S2CSyncStatePacket(FlightState.JETPACK));
+        ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
+        if (chest.getItem() instanceof JetlytraItem) {
+            chest.set(JetlytraItems.FLIGHT_STATE_COMPONENT, FlightState.JETPACK);
+            chest.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, false);
+        }
     }
 }

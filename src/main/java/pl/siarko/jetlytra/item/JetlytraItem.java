@@ -37,7 +37,6 @@ import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.loading.math.MathParser;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import pl.siarko.jetlytra.client.render.JetpackArmorRenderer;
-import pl.siarko.jetlytra.client.ClientJetpackState;
 import pl.siarko.jetlytra.flight.FlightState;
 
 import java.util.function.Consumer;
@@ -148,13 +147,12 @@ public class JetlytraItem extends ArmorItem implements GeoItem {
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, "wing_controller", 0, state -> {
             RawAnimation current = state.getController().getCurrentRawAnimation();
+            FlightState flightState = state.getData(DataTickets.ITEMSTACK).getOrDefault(JetlytraItems.FLIGHT_STATE_COMPONENT, FlightState.JETPACK);
+            boolean elytraActive = flightState == FlightState.ELYTRA;
 
             if (current == null) {
-                boolean elytraActive = ClientJetpackState.getState() == FlightState.ELYTRA;
                 return state.setAndContinue(elytraActive ? WINGS_OPEN_STATE : INIT_STATE);
             }
-
-            boolean elytraActive = ClientJetpackState.getState() == FlightState.ELYTRA;
 
             if (elytraActive) {
                 return state.setAndContinue(WINGS_OUT);
@@ -168,7 +166,9 @@ public class JetlytraItem extends ArmorItem implements GeoItem {
         }));
 
         controllers.add(new AnimationController<>(this, "boost_controller", 0, state -> {
-            if (ClientJetpackState.isThrustActive()) {
+            boolean thrustActive = state.getData(DataTickets.ITEMSTACK)
+                    .getOrDefault(JetlytraItems.THRUST_ACTIVE_COMPONENT, false);
+            if (thrustActive) {
                 return state.setAndContinue(BOOST);
             }
             return PlayState.STOP;

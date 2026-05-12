@@ -35,6 +35,7 @@ public record C2SThrustPacket(boolean active) implements CustomPacketPayload {
             boolean hasFuel = chest.has(JetlytraItems.FUEL_DATA);
             if(jetpackEnabled && hasFuel) {
                 player.setData(JetlytraAttachments.THRUST_ACTIVE.get(), packet.active);
+                chest.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, packet.active);
             }
         });
     }

@@ -7,7 +7,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import pl.siarko.jetlytra.Jetlytra;
 import pl.siarko.jetlytra.JetlytraAttachments;
@@ -51,7 +50,7 @@ public record C2SToggleElytraPacket(ToggleType toggleType) implements CustomPack
             if (next != current) {
                 player.setNoGravity(false);
                 player.setData(JetlytraAttachments.FLIGHT_STATE.get(), next);
-                PacketDistributor.sendToPlayer(player, new S2CSyncStatePacket(next));
+                chest.set(JetlytraItems.FLIGHT_STATE_COMPONENT, next);
             }
         });
     }

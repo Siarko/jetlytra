@@ -6,10 +6,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.event.entity.living.LivingEquipmentChangeEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
 import pl.siarko.jetlytra.flight.FlightState;
 import pl.siarko.jetlytra.item.JetlytraItem;
-import pl.siarko.jetlytra.network.S2CSyncStatePacket;
+import pl.siarko.jetlytra.item.JetlytraItems;
 
 public class JetpackPlayerEvents {
 
@@ -23,9 +22,10 @@ public class JetpackPlayerEvents {
 
     public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
-        if (!(player.getItemBySlot(EquipmentSlot.CHEST).getItem() instanceof JetlytraItem)) return;
+        ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
+        if (!(chest.getItem() instanceof JetlytraItem)) return;
         player.setData(JetlytraAttachments.FLIGHT_STATE.get(), FlightState.JETPACK);
-        PacketDistributor.sendToPlayer(player, new S2CSyncStatePacket(FlightState.JETPACK));
+        chest.set(JetlytraItems.FLIGHT_STATE_COMPONENT, FlightState.JETPACK);
     }
 
     public static void onEquipmentChange(LivingEquipmentChangeEvent event) {
@@ -38,11 +38,11 @@ public class JetpackPlayerEvents {
         // Only react to actual item type transitions, not damage/component changes on the same item
         if (wasJetpack == isJetpack) return;
 
-        FlightState next = FlightState.JETPACK;
-
         player.setNoGravity(false);
-        player.setData(JetlytraAttachments.FLIGHT_STATE.get(), next);
+        player.setData(JetlytraAttachments.FLIGHT_STATE.get(), FlightState.JETPACK);
         player.setData(JetlytraAttachments.THRUST_ACTIVE.get(), false);
-        PacketDistributor.sendToPlayer(player, new S2CSyncStatePacket(next));
+        if (isJetpack) {
+            event.getTo().set(JetlytraItems.FLIGHT_STATE_COMPONENT, FlightState.JETPACK);
+        }
     }
 }

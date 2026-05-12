@@ -9,6 +9,7 @@ import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import pl.siarko.jetlytra.Jetlytra;
+import pl.siarko.jetlytra.flight.FlightState;
 import pl.siarko.jetlytra.flight.FuelData;
 
 import java.util.function.Supplier;
@@ -44,6 +45,20 @@ public class JetlytraItems {
             DATA_COMPONENTS.register("elytra_item", () ->
                     DataComponentType.<StoredElytra>builder()
                             .persistent(StoredElytra.CODEC)
+                            .build()
+            );
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<FlightState>> FLIGHT_STATE_COMPONENT =
+            DATA_COMPONENTS.register("flight_state", () ->
+                    DataComponentType.<FlightState>builder()
+                            .networkSynchronized(FlightState.STREAM_CODEC)
+                            .build()
+            );
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> THRUST_ACTIVE_COMPONENT =
+            DATA_COMPONENTS.register("thrust_active", () ->
+                    DataComponentType.<Boolean>builder()
+                            .networkSynchronized(ByteBufCodecs.BOOL)
                             .build()
             );
 

@@ -7,7 +7,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import pl.siarko.jetlytra.Jetlytra;
 import pl.siarko.jetlytra.JetlytraAttachments;
@@ -46,7 +45,7 @@ public record C2SCrouchPacket(boolean active) implements CustomPacketPayload {
                     } else if (jetpackAvailable) {
                         nextState = FlightState.HOVERING;
                     }
-                }else if(jetpackAvailable){
+                } else if (jetpackAvailable && !player.isInWater() && !player.onGround()) {
                     nextState = FlightState.HOVERING;
                 }
             }else{
@@ -58,11 +57,13 @@ public record C2SCrouchPacket(boolean active) implements CustomPacketPayload {
             if(nextState != null) {
                 if(nextState.equals(FlightState.HOVERING)) {
                     player.setData(JetlytraAttachments.THRUST_ACTIVE.get(), true);
+                    chest.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, true);
                 } else if (current.equals(FlightState.HOVERING)) {
                     player.setData(JetlytraAttachments.THRUST_ACTIVE.get(), false);
+                    chest.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, false);
                 }
                 player.setData(JetlytraAttachments.FLIGHT_STATE.get(), nextState);
-                PacketDistributor.sendToPlayer(player, new S2CSyncStatePacket(nextState));
+                chest.set(JetlytraItems.FLIGHT_STATE_COMPONENT, nextState);
             }
         });
     }

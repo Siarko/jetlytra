@@ -7,7 +7,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
-import pl.siarko.jetlytra.client.ClientJetpackState;
 import pl.siarko.jetlytra.client.particle.JetpackParticleHandler;
 import pl.siarko.jetlytra.client.particle.ParticleSpawnType;
 import pl.siarko.jetlytra.flight.FlightState;
@@ -47,15 +46,15 @@ public class JetpackInputHandler {
         boolean hasFuel = chest.has(JetlytraItems.FUEL_DATA);
         boolean jetpackAvailable = jetpackEnabled && hasFuel;
 
-        FlightState state = ClientJetpackState.getState();
+        FlightState state = chest.getOrDefault(JetlytraItems.FLIGHT_STATE_COMPONENT, FlightState.JETPACK);
 
         handleToggleActions(player, state, jetpackAvailable);
 
         sendStateChangePackets(player, state, jetpackAvailable);
         if (jetpackAvailable) {
-            applyPhysics(player, state);
+            applyPhysics(player, state, chest);
         } else {
-            ClientJetpackState.setThrustActive(false);
+            chest.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, false);
         }
     }
 
@@ -88,9 +87,7 @@ public class JetpackInputHandler {
         }
 
         if (keyStateTracker.getCrouch().changed()) {
-            PacketDistributor.sendToServer(new C2SCrouchPacket(
-                    keyStateTracker.getCrouch().isActive() && jetpackAvailable
-            ));
+            PacketDistributor.sendToServer(new C2SCrouchPacket(keyStateTracker.getCrouch().isActive()));
         }
 
         KeyState sprint = keyStateTracker.getSprint();
@@ -109,7 +106,7 @@ public class JetpackInputHandler {
     }
 
     // Applies client-side movement physics for all active flight states.
-    private void applyPhysics(Player player, FlightState state) {
+    private void applyPhysics(Player player, FlightState state, ItemStack chest) {
 
         boolean jump = keyStateTracker.getJump().isActive();
 
@@ -148,7 +145,7 @@ public class JetpackInputHandler {
             player.setDeltaMovement(boosted.x * SPRINT_BOOST, boosted.y, boosted.z * SPRINT_BOOST);
         }
 
-        ClientJetpackState.setThrustActive(particleSpawnType != null);
+        chest.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, particleSpawnType != null);
         if(particleSpawnType != null) {
             JetpackParticleHandler.spawnExhaustParticles(particleSpawnType, player);
         }
