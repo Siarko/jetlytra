@@ -119,7 +119,7 @@ public class JetpackBlock extends BaseEntityBlock {
         if (player.isShiftKeyDown()) {
             if (level.isClientSide) return InteractionResult.SUCCESS;
             if (!(level.getBlockEntity(pos) instanceof JetpackBlockEntity be)) return InteractionResult.PASS;
-            ItemStack stack = new ItemStack(JetlytraItems.JETPACK.get());
+            ItemStack stack = be.createBaseStack();
             be.writeToItem(stack);
             level.removeBlock(pos, false);
             if (!player.getInventory().add(stack)) {
@@ -145,7 +145,7 @@ public class JetpackBlock extends BaseEntityBlock {
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         if (!level.isClientSide && !player.isCreative()) {
             if (level.getBlockEntity(pos) instanceof JetpackBlockEntity be) {
-                ItemStack drop = new ItemStack(JetlytraItems.JETPACK.get());
+                ItemStack drop = be.createBaseStack();
                 be.writeToItem(drop);
                 popResource(level, pos, drop);
             }

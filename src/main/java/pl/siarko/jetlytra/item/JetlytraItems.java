@@ -49,6 +49,24 @@ public class JetlytraItems {
 
     public static final Supplier<JetlytraItem> JETPACK = ITEMS.register(
             "jetpack",
-            () -> new JetlytraItem(ArmorMaterials.GOLD, new Item.Properties().durability(1000))
+            () -> new JetlytraItem(ArmorMaterials.IRON, "", new Item.Properties().durability(1000))
     );
+
+    public static final Supplier<JetlytraItem> JETPACK_DIAMOND = ITEMS.register(
+            "jetpack_diamond",
+            () -> new JetlytraItem(ArmorMaterials.DIAMOND, "diamond", new Item.Properties().durability(1000))
+    );
+
+    public static final Supplier<JetlytraItem> JETPACK_NETHERITE = ITEMS.register(
+            "jetpack_netherite",
+            () -> new JetlytraItem(ArmorMaterials.NETHERITE, "netherite", new Item.Properties().durability(1000).fireResistant())
+    );
+
+    public static JetlytraItem getItemForTier(String tier) {
+        return switch (tier) {
+            case "diamond"   -> JETPACK_DIAMOND.get();
+            case "netherite" -> JETPACK_NETHERITE.get();
+            default          -> JETPACK.get();
+        };
+    }
 }

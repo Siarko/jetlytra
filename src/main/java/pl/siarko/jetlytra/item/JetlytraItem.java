@@ -45,9 +45,15 @@ import java.util.function.Consumer;
 public class JetlytraItem extends ArmorItem implements GeoItem {
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    private final String tier;
 
-    public JetlytraItem(Holder<ArmorMaterial> material, Properties properties) {
+    public JetlytraItem(Holder<ArmorMaterial> material, String tier, Properties properties) {
         super(material, Type.CHESTPLATE, properties);
+        this.tier = tier;
+    }
+
+    public String getTier() {
+        return tier;
     }
 
     @Override

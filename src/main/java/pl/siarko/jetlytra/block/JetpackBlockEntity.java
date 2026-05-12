@@ -19,6 +19,7 @@ import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.loading.math.MathParser;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import pl.siarko.jetlytra.flight.FuelData;
+import pl.siarko.jetlytra.item.JetlytraItem;
 import pl.siarko.jetlytra.item.JetlytraItems;
 import pl.siarko.jetlytra.item.StoredElytra;
 
@@ -30,6 +31,7 @@ public class JetpackBlockEntity extends BlockEntity implements GeoBlockEntity {
     private boolean jetpackEnabled = false;
     @Nullable private FuelData fuelData = null;
     private ItemStack elytraItem = ItemStack.EMPTY;
+    private String tier = "";
 
     public JetpackBlockEntity(BlockPos pos, BlockState state) {
         super(JetlytraBlocks.JETPACK_BE.get(), pos, state);
@@ -40,7 +42,16 @@ public class JetpackBlockEntity extends BlockEntity implements GeoBlockEntity {
         fuelData = stack.get(JetlytraItems.FUEL_DATA);
         StoredElytra stored = stack.get(JetlytraItems.ELYTRA_ITEM);
         elytraItem = (stored != null && !stored.isEmpty()) ? stored.stack().copy() : ItemStack.EMPTY;
+        if (stack.getItem() instanceof JetlytraItem item) tier = item.getTier();
         setChanged();
+    }
+
+    public String getTier() {
+        return tier;
+    }
+
+    public ItemStack createBaseStack() {
+        return new ItemStack(JetlytraItems.getItemForTier(tier));
     }
 
     public void writeToItem(ItemStack stack) {
@@ -86,6 +97,7 @@ public class JetpackBlockEntity extends BlockEntity implements GeoBlockEntity {
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.putBoolean("jetpack_enabled", jetpackEnabled);
+        if (!tier.isEmpty()) tag.putString("tier", tier);
         if (fuelData != null) {
             FuelData.CODEC.encodeStart(NbtOps.INSTANCE, fuelData).result()
                     .ifPresent(t -> tag.put("fuel_data", t));
@@ -99,6 +111,7 @@ public class JetpackBlockEntity extends BlockEntity implements GeoBlockEntity {
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         jetpackEnabled = tag.getBoolean("jetpack_enabled");
+        tier = tag.contains("tier") ? tag.getString("tier") : "";
         if (tag.contains("fuel_data")) {
             fuelData = FuelData.CODEC.parse(NbtOps.INSTANCE, tag.get("fuel_data")).result().orElse(null);
         } else {

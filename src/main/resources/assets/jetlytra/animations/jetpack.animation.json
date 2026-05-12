@@ -43,6 +43,11 @@
 					"scale": {
 						"vector": [0, 1, 0]
 					}
+				},
+				"jets": {
+					"position": {
+						"vector": [0, -0.1, 0]
+					}
 				}
 			}
 		},

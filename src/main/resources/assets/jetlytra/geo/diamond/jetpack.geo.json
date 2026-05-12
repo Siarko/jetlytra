@@ -3,7 +3,7 @@
 	"minecraft:geometry": [
 		{
 			"description": {
-				"identifier": "geometry.jetpack",
+				"identifier": "geometry.jetpack_diamond",
 				"texture_width": 64,
 				"texture_height": 64,
 				"visible_bounds_width": 6,
@@ -29,30 +29,7 @@
 					"parent": "bipedBody",
 					"pivot": [0, 24, 0],
 					"cubes": [
-						{
-							"origin": [1.8, 12.5, -2.5],
-							"size": [2, 12, 5],
-							"uv": {
-								"north": {"uv": [0, 1], "uv_size": [2, 12]},
-								"east": {"uv": [2, 1], "uv_size": [1, 12]},
-								"south": {"uv": [3, 1], "uv_size": [2, 12]},
-								"west": {"uv": [5, 1], "uv_size": [1, 12]},
-								"up": {"uv": [5, 1], "uv_size": [-2, -1]},
-								"down": {"uv": [5, 14], "uv_size": [-2, -1]}
-							}
-						},
-						{
-							"origin": [-3.8, 12.5, -2.5],
-							"size": [2, 12, 5],
-							"uv": {
-								"north": {"uv": [0, 1], "uv_size": [2, 12]},
-								"east": {"uv": [5, 1], "uv_size": [1, 12]},
-								"south": {"uv": [3, 1], "uv_size": [2, 12]},
-								"west": {"uv": [2, 1], "uv_size": [1, 12]},
-								"up": {"uv": [5, 1], "uv_size": [-2, -1]},
-								"down": {"uv": [5, 14], "uv_size": [-2, -1]}
-							}
-						}
+						{"origin": [-4.2, 12.5, -2.6], "size": [8.4, 12, 5], "uv": [38, 12]}
 					]
 				},
 				{
@@ -258,10 +235,10 @@
 							"uv": {
 								"north": {"uv": [2, 16], "uv_size": [6, 1]},
 								"east": {"uv": [0, 16], "uv_size": [1, 1]},
-								"south": {"uv": [2, 14], "uv_size": [6, 1]},
+								"south": {"uv": [11, 16], "uv_size": [6, 1]},
 								"west": {"uv": [9, 16], "uv_size": [1, 1]},
 								"up": {"uv": [2, 15], "uv_size": [6, 1]},
-								"down": {"uv": [11, 15], "uv_size": [6, -1]}
+								"down": {"uv": [2, 16], "uv_size": [6, -1]}
 							}
 						}
 					]
@@ -538,7 +515,10 @@
 				{
 					"name": "armorRightArm",
 					"parent": "bipedRightArm",
-					"pivot": [-5, 22, 0]
+					"pivot": [-5, 22, 0],
+					"cubes": [
+						{"origin": [-8.5, 18, -2.3], "size": [4.9, 6.7, 4.6], "uv": [48, 30]}
+					]
 				},
 				{
 					"name": "bipedLeftArm",
@@ -547,7 +527,21 @@
 				{
 					"name": "armorLeftArm",
 					"parent": "bipedLeftArm",
-					"pivot": [5, 22, 0]
+					"pivot": [5, 22, 0],
+					"cubes": [
+						{
+							"origin": [3.5, 18, -2.3],
+							"size": [4.9, 6.7, 4.6],
+							"uv": {
+								"north": {"uv": [56, 34], "uv_size": [-4, 6]},
+								"east": {"uv": [48, 34], "uv_size": [4, 6]},
+								"south": {"uv": [64, 34], "uv_size": [-4, 6]},
+								"west": {"uv": [60, 34], "uv_size": [-4, 6]},
+								"up": {"uv": [52, 34], "uv_size": [4, -4]},
+								"down": {"uv": [56, 34], "uv_size": [4, -4]}
+							}
+						}
+					]
 				},
 				{
 					"name": "bipedLeftLeg",
