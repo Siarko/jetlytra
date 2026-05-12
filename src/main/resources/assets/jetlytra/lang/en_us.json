@@ -11,5 +11,6 @@
   "item.jetlytra.jetpack.no_fuel": "No fuel",
   "item.jetlytra.jetpack.elytra_stored": "Elytra: %s",
   "item.jetlytra.jetpack_diamond": "Diamond Jetlytra",
-  "item.jetlytra.jetpack_netherite": "Netherite Jetlytra"
+  "item.jetlytra.jetpack_netherite": "Netherite Jetlytra",
+  "item.jetlytra.thruster": "Jetlytra Thruster"
 }

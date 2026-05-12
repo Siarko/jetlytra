@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:smithing_transform",
+  "template": {"item": "minecraft:diamond"},
+  "base": {"item": "jetlytra:jetpack"},
+  "addition": {"item": "minecraft:diamond_chestplate"},
+  "result": {"id": "jetlytra:jetpack_diamond"}
+}

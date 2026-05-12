@@ -17,6 +17,7 @@ public class JetlytraCreativeTab {
                     .title(Component.translatable("itemGroup.jetlytra.main"))
                     .icon(() -> JetlytraItems.JETPACK.get().getDefaultInstance())
                     .displayItems((params, output) -> {
+                        output.accept(JetlytraItems.THRUSTER.get());
                         output.accept(JetlytraItems.JETPACK.get());
                         output.accept(JetlytraItems.JETPACK_DIAMOND.get());
                         output.accept(JetlytraItems.JETPACK_NETHERITE.get());

@@ -1,0 +1,28 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:mod_loaded",
+        "modid": "create"
+      }
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "LIL",
+    "ITI",
+    "HBH"
+  ],
+  "key": {
+    "L": {"item": "minecraft:leather"},
+    "I": {"item": "minecraft:iron_ingot"},
+    "T": {"item": "minecraft:tinted_glass"},
+    "H": {"item": "jetlytra:thruster"},
+    "B": {"item": "minecraft:barrel"}
+  },
+  "result": {
+    "id": "jetlytra:jetpack",
+    "count": 1
+  }
+}

@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "jetlytra:item/jetpack"
+    "layer0": "jetlytra:item/thruster"
   }
 }
