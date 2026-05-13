@@ -77,9 +77,11 @@ public class JetpackPhysicsHandler {
         int remaining = fuel.count() - 1;
         if (remaining <= 0) {
             stack.remove(JetlytraItems.FUEL_DATA);
+            JetlytraItem.syncFuelDamage(stack);
             return false;
         }
         stack.set(JetlytraItems.FUEL_DATA, new FuelData(fuel.typeId(), remaining));
+        JetlytraItem.syncFuelDamage(stack);
         return true;
     }
 

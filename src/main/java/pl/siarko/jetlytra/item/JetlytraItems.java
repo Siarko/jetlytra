@@ -2,12 +2,13 @@ package pl.siarko.jetlytra.item;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.item.ArmorMaterials;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.Unbreakable;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import pl.siarko.jetlytra.Jetlytra;
@@ -82,17 +83,27 @@ public class JetlytraItems {
 
     public static final Supplier<JetlytraItem> JETPACK = ITEMS.register(
             "jetpack",
-            () -> new JetlytraItem(ArmorMaterials.IRON, "", new Item.Properties().durability(1000))
+            () -> new JetlytraItem(ArmorMaterials.IRON, "", new Item.Properties()
+                    .durability(FuelData.MAX_COUNT)
+                    .component(DataComponents.DAMAGE, FuelData.MAX_COUNT)
+                    .component(DataComponents.UNBREAKABLE, new Unbreakable(false)))
     );
 
     public static final Supplier<JetlytraItem> JETPACK_DIAMOND = ITEMS.register(
             "jetpack_diamond",
-            () -> new JetlytraItem(ArmorMaterials.DIAMOND, "diamond", new Item.Properties().durability(1000))
+            () -> new JetlytraItem(ArmorMaterials.DIAMOND, "diamond", new Item.Properties()
+                    .durability(FuelData.MAX_COUNT)
+                    .component(DataComponents.DAMAGE, FuelData.MAX_COUNT)
+                    .component(DataComponents.UNBREAKABLE, new Unbreakable(false)))
     );
 
     public static final Supplier<JetlytraItem> JETPACK_NETHERITE = ITEMS.register(
             "jetpack_netherite",
-            () -> new JetlytraItem(ArmorMaterials.NETHERITE, "netherite", new Item.Properties().durability(1000).fireResistant())
+            () -> new JetlytraItem(ArmorMaterials.NETHERITE, "netherite", new Item.Properties()
+                    .durability(FuelData.MAX_COUNT)
+                    .component(DataComponents.DAMAGE, FuelData.MAX_COUNT)
+                    .component(DataComponents.UNBREAKABLE, new Unbreakable(false))
+                    .fireResistant())
     );
 
     public static JetlytraItem getItemForTier(String tier) {

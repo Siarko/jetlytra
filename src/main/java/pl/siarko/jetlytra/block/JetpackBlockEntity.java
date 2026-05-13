@@ -74,6 +74,7 @@ public class JetpackBlockEntity extends BlockEntity implements GeoBlockEntity {
         } else {
             stack.remove(JetlytraItems.FUEL_DATA);
         }
+        JetlytraItem.syncFuelDamage(stack);
         if (!elytraItem.isEmpty()) {
             stack.set(JetlytraItems.ELYTRA_ITEM, new StoredElytra(elytraItem.copy()));
         } else {

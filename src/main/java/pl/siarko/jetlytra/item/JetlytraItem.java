@@ -5,6 +5,7 @@ import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -99,6 +100,19 @@ public class JetlytraItem extends ArmorItem implements GeoItem {
             );
         }
 
+    }
+
+    @Override
+    public boolean isBarVisible(ItemStack stack) {
+        FuelData fuel = stack.get(JetlytraItems.FUEL_DATA);
+        int fuelCount = (fuel != null) ? fuel.count() : 0;
+        return fuelCount < FuelData.MAX_COUNT;
+    }
+
+    public static void syncFuelDamage(ItemStack stack) {
+        FuelData fuel = stack.get(JetlytraItems.FUEL_DATA);
+        int damage = (fuel == null || fuel.count() <= 0) ? FuelData.MAX_COUNT : FuelData.MAX_COUNT - fuel.count();
+        stack.set(DataComponents.DAMAGE, damage);
     }
 
     @Override
