@@ -34,7 +34,7 @@ public class JetpackBlock extends BaseEntityBlock {
 
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
-    private static final VoxelShape SHAPE = Block.box(2, 0, 2, 14, 16, 14);
+    private static final VoxelShape SHAPE = Block.box(2, 0, 3, 14, 13, 12);
 
     private static final MapCodec<JetpackBlock> CODEC = simpleCodec(p -> new JetpackBlock());
 
@@ -47,7 +47,7 @@ public class JetpackBlock extends BaseEntityBlock {
     }
 
     @Override
-    public MapCodec<? extends BaseEntityBlock> codec() {
+    public @NotNull MapCodec<? extends BaseEntityBlock> codec() {
         return CODEC;
     }
 
@@ -63,23 +63,36 @@ public class JetpackBlock extends BaseEntityBlock {
     }
 
     @Override
-    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public @NotNull VoxelShape getShape(
+            @NotNull BlockState state,
+            @NotNull BlockGetter level,
+            @NotNull BlockPos pos,
+            @NotNull CollisionContext context
+    ) {
         return SHAPE;
     }
 
     @Override
-    public RenderShape getRenderShape(BlockState state) {
+    public @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
         return RenderShape.ENTITYBLOCK_ANIMATED;
     }
 
     @Nullable
     @Override
-    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+    public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
         return new JetpackBlockEntity(pos, state);
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    protected @NotNull ItemInteractionResult useItemOn(
+            @NotNull ItemStack stack,
+            @NotNull BlockState state,
+            @NotNull Level level,
+            @NotNull BlockPos pos,
+            Player player,
+            @NotNull InteractionHand hand,
+            @NotNull BlockHitResult hit
+    ) {
         if (player.isShiftKeyDown()) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 
         if (stack.getItem() instanceof ElytraItem) {
@@ -115,7 +128,7 @@ public class JetpackBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+    protected @NotNull InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         if (player.isShiftKeyDown()) {
             if (level.isClientSide) return InteractionResult.SUCCESS;
             if (!(level.getBlockEntity(pos) instanceof JetpackBlockEntity be)) return InteractionResult.PASS;
