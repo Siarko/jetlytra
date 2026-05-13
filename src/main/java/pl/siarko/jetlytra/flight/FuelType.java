@@ -14,9 +14,9 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 public enum FuelType {
-    BLAZE_ROD("Blaze Rod", () -> Items.BLAZE_ROD, 20,
+    BLAZE_ROD("Blaze Rod", () -> Items.BLAZE_ROD, 20, 1.0f,
             ParticleTypes.FLAME, ParticleTypes.CAMPFIRE_COSY_SMOKE, ParticleTypes.FLAME),
-    BREEZE_ROD("Breeze Rod", () -> Items.BREEZE_ROD, 20,
+    BREEZE_ROD("Breeze Rod", () -> Items.BREEZE_ROD, 20, 1.3f,
             ParticleTypes.SMALL_GUST, ParticleTypes.WHITE_SMOKE, ParticleTypes.GUST);
 
     public static final Codec<FuelType> CODEC = Codec.STRING.xmap(
@@ -30,15 +30,17 @@ public enum FuelType {
     public final String displayName;
     private final Supplier<Item> itemSupplier;
     public final int ticksPerUnit;
+    public final float accelerationMultiplier;
     public final SimpleParticleType exhaustParticle;
     public final SimpleParticleType trailParticle;
     public final SimpleParticleType boostParticle;
 
-    FuelType(String displayName, Supplier<Item> itemSupplier, int ticksPerUnit,
+    FuelType(String displayName, Supplier<Item> itemSupplier, int ticksPerUnit, float accelerationMultiplier,
              SimpleParticleType exhaustParticle, SimpleParticleType trailParticle, SimpleParticleType boostParticle) {
         this.displayName = displayName;
         this.itemSupplier = itemSupplier;
         this.ticksPerUnit = ticksPerUnit;
+        this.accelerationMultiplier = accelerationMultiplier;
         this.exhaustParticle = exhaustParticle;
         this.trailParticle = trailParticle;
         this.boostParticle = boostParticle;

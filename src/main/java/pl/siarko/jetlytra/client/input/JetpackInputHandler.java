@@ -10,6 +10,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import pl.siarko.jetlytra.client.particle.JetpackParticleHandler;
 import pl.siarko.jetlytra.client.particle.ParticleSpawnType;
 import pl.siarko.jetlytra.flight.FlightState;
+import pl.siarko.jetlytra.flight.FuelData;
 import pl.siarko.jetlytra.item.JetlytraItems;
 import pl.siarko.jetlytra.network.*;
 
@@ -118,14 +119,18 @@ public class JetpackInputHandler {
         boolean swimBoost = player.isSwimming() && jump;
         Vec3 deltaMovement = player.getDeltaMovement();
 
+        FuelData fuelData = chest.get(JetlytraItems.FUEL_DATA);
+        float accel = fuelData != null ? fuelData.type().accelerationMultiplier : 1.0f;
+
         ParticleSpawnType particleSpawnType = null;
         if (elytraBoost) {
             Vec3 look = player.getLookAngle();
             Vec3 ev = player.getDeltaMovement();
+            double boostMax = ELYTRA_BOOST_MAX * accel;
             player.setDeltaMovement(
-                    ev.x + look.x * ELYTRA_BOOST_ACCEL + (look.x * ELYTRA_BOOST_MAX - ev.x) * 0.5,
-                    ev.y + look.y * ELYTRA_BOOST_ACCEL + (look.y * ELYTRA_BOOST_MAX - ev.y) * 0.5,
-                    ev.z + look.z * ELYTRA_BOOST_ACCEL + (look.z * ELYTRA_BOOST_MAX - ev.z) * 0.5
+                    ev.x + look.x * ELYTRA_BOOST_ACCEL * accel + (look.x * boostMax - ev.x) * 0.5,
+                    ev.y + look.y * ELYTRA_BOOST_ACCEL * accel + (look.y * boostMax - ev.y) * 0.5,
+                    ev.z + look.z * ELYTRA_BOOST_ACCEL * accel + (look.z * boostMax - ev.z) * 0.5
             );
             particleSpawnType = ParticleSpawnType.BOOSTING;
         } else if (hovering) {
@@ -134,10 +139,10 @@ public class JetpackInputHandler {
             player.resetFallDistance();
             particleSpawnType = jump ? ParticleSpawnType.THRUSTING : ParticleSpawnType.HOVERING;
         } else if (swimBoost) {
-            player.setDeltaMovement(player.getLookAngle().scale(SWIM_BOOST_MAX));
+            player.setDeltaMovement(player.getLookAngle().scale(SWIM_BOOST_MAX * accel));
             particleSpawnType = ParticleSpawnType.BOOSTING;
         } else if (thrusting) {
-            player.setDeltaMovement(deltaMovement.x, Math.min(deltaMovement.y + THRUST_ACCEL, MAX_THRUST_VEL), deltaMovement.z);
+            player.setDeltaMovement(deltaMovement.x, Math.min(deltaMovement.y + THRUST_ACCEL * accel, MAX_THRUST_VEL * accel), deltaMovement.z);
             player.resetFallDistance();
             particleSpawnType = ParticleSpawnType.THRUSTING;
         }
