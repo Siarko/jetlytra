@@ -24,9 +24,9 @@ import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.NotNull;
 import pl.siarko.jetlytra.flight.FuelData;
 import pl.siarko.jetlytra.flight.FuelType;
-import pl.siarko.jetlytra.item.JetlytraItems;
 
 import javax.annotation.Nullable;
 
@@ -142,7 +142,26 @@ public class JetpackBlock extends BaseEntityBlock {
     }
 
     @Override
-    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+    public boolean hasAnalogOutputSignal(@NotNull BlockState state) {
+        return true;
+    }
+
+    @Override
+    public int getAnalogOutputSignal(@NotNull BlockState state, Level level, @NotNull BlockPos pos) {
+        if (!(level.getBlockEntity(pos) instanceof JetpackBlockEntity be)) return 0;
+        FuelData fuel = be.getFuelData();
+        if (fuel == null || fuel.count() == 0) return 0;
+        if (fuel.count() >= FuelData.MAX_COUNT) return 15;
+        return (int) Math.ceil(fuel.count() * 14.0 / FuelData.MAX_COUNT);
+    }
+
+    @Override
+    public @NotNull BlockState playerWillDestroy(
+            Level level,
+            @NotNull BlockPos pos,
+            @NotNull BlockState state,
+            @NotNull Player player
+    ) {
         if (!level.isClientSide && !player.isCreative()) {
             if (level.getBlockEntity(pos) instanceof JetpackBlockEntity be) {
                 ItemStack drop = be.createBaseStack();

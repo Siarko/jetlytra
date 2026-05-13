@@ -29,6 +29,7 @@ public class Jetlytra {
         JetlytraCreativeTab.CREATIVE_TABS.register(modEventBus);
 
         modEventBus.addListener(JetpackPackets::register);
+        modEventBus.addListener(JetlytraCapabilities::register);
         NeoForge.EVENT_BUS.addListener(JetpackPlayerEvents::onPlayerLogin);
         NeoForge.EVENT_BUS.addListener(JetpackPlayerEvents::onPlayerClone);
         NeoForge.EVENT_BUS.addListener(JetpackPlayerEvents::onEquipmentChange);

@@ -10,6 +10,7 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 import software.bernie.geckolib.animatable.GeoBlockEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.Animation;
@@ -27,9 +28,17 @@ import javax.annotation.Nullable;
 
 public class JetpackBlockEntity extends BlockEntity implements GeoBlockEntity {
 
+    private static final RawAnimation INIT_STATE = RawAnimation.begin().then("init_state", Animation.LoopType.HOLD_ON_LAST_FRAME);
+    private static final RawAnimation FUEL_BAR = RawAnimation.begin().then("fuel_bar", Animation.LoopType.LOOP);
+
+    private final JetpackFuelItemHandler itemHandler = new JetpackFuelItemHandler(this);
+
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+
     private boolean jetpackEnabled = false;
-    @Nullable private FuelData fuelData = null;
+
+    @Nullable
+    private FuelData fuelData = null;
     private ItemStack elytraItem = ItemStack.EMPTY;
     private String tier = "";
 
@@ -94,7 +103,7 @@ public class JetpackBlockEntity extends BlockEntity implements GeoBlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+    protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
         super.saveAdditional(tag, registries);
         tag.putBoolean("jetpack_enabled", jetpackEnabled);
         if (!tier.isEmpty()) tag.putString("tier", tier);
@@ -108,7 +117,7 @@ public class JetpackBlockEntity extends BlockEntity implements GeoBlockEntity {
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+    protected void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
         super.loadAdditional(tag, registries);
         jetpackEnabled = tag.getBoolean("jetpack_enabled");
         tier = tag.contains("tier") ? tag.getString("tier") : "";
@@ -123,7 +132,7 @@ public class JetpackBlockEntity extends BlockEntity implements GeoBlockEntity {
     }
 
     @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+    public @NotNull CompoundTag getUpdateTag(HolderLookup.@NotNull Provider registries) {
         return saveWithoutMetadata(registries);
     }
 
@@ -131,9 +140,6 @@ public class JetpackBlockEntity extends BlockEntity implements GeoBlockEntity {
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
     }
-
-    private static final RawAnimation INIT_STATE = RawAnimation.begin().then("init_state", Animation.LoopType.HOLD_ON_LAST_FRAME);
-    private static final RawAnimation FUEL_BAR = RawAnimation.begin().then("fuel_bar", Animation.LoopType.LOOP);
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
@@ -150,5 +156,9 @@ public class JetpackBlockEntity extends BlockEntity implements GeoBlockEntity {
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
         return cache;
+    }
+
+    public JetpackFuelItemHandler getItemHandler() {
+        return itemHandler;
     }
 }
