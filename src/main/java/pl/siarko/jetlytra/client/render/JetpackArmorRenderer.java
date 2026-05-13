@@ -12,6 +12,8 @@ import net.minecraft.world.item.ItemStack;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.renderer.GeoArmorRenderer;
 import pl.siarko.jetlytra.item.JetlytraItem;
+import pl.siarko.jetlytra.item.JetlytraItems;
+import pl.siarko.jetlytra.item.StoredElytra;
 
 public class JetpackArmorRenderer extends GeoArmorRenderer<JetlytraItem> {
 
@@ -32,10 +34,11 @@ public class JetpackArmorRenderer extends GeoArmorRenderer<JetlytraItem> {
     public void preRender(PoseStack poseStack, JetlytraItem animatable, BakedGeoModel model,
                           MultiBufferSource bufferSource, VertexConsumer buffer,
                           boolean isReRender, float partialTick, int packedLight, int packedOverlay, int color) {
-        // Reset wings visibility — the block entity renderer mutates the shared cached bone,
-        // which bleeds into this renderer when both use the same geo model path (same tier).
-        // Wing fold/unfold is handled by animations, not setHidden, so wings are always visible here.
-        model.getBone("wings").ifPresent(bone -> bone.setHidden(false));
+        // Counter bone state bleed from the block entity renderer (they share the same cached model).
+        // Show wings only when an elytra is actually stored in the jetpack.
+        StoredElytra stored = currentStack != null ? currentStack.get(JetlytraItems.ELYTRA_ITEM) : null;
+        boolean hasElytra = stored != null && !stored.isEmpty();
+        model.getBone("wings").ifPresent(bone -> bone.setHidden(!hasElytra));
         super.preRender(poseStack, animatable, model, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, color);
     }
 }
