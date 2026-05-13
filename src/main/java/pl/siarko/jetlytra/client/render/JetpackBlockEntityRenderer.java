@@ -34,7 +34,8 @@ public class JetpackBlockEntityRenderer extends GeoBlockRenderer<JetpackBlockEnt
             protected ItemStack getStackForBone(GeoBone bone, JetpackBlockEntity animatable) {
                 if (!bone.getName().equals(FUEL_DISPLAY_BONE)) return ItemStack.EMPTY;
                 FuelData fuelData = animatable.getFuelData();
-                return fuelData != null ? new ItemStack(fuelData.type().getItem()) : ItemStack.EMPTY;
+                if (fuelData == null) return ItemStack.EMPTY;
+                return fuelData.getDefinition().map(d -> new ItemStack(d.item())).orElse(ItemStack.EMPTY);
             }
 
             @Override

@@ -64,6 +64,13 @@ public class JetlytraItems {
                             .build()
             );
 
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> FUEL_TICK_COMPONENT =
+            DATA_COMPONENTS.register("fuel_tick", () ->
+                    DataComponentType.<Integer>builder()
+                            .persistent(Codec.INT)
+                            .build()
+            );
+
     public static boolean isJetpackAvailable(ItemStack stack) {
         return Boolean.TRUE.equals(stack.get(JETPACK_ENABLED)) && stack.has(FUEL_DATA);
     }

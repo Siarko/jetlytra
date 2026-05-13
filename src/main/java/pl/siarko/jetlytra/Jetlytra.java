@@ -6,10 +6,15 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.AddReloadListenerEvent;
+import net.neoforged.neoforge.event.OnDatapackSyncEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 import pl.siarko.jetlytra.config.JetlytraClientConfig;
 import org.slf4j.Logger;
 import pl.siarko.jetlytra.block.JetlytraBlocks;
+import pl.siarko.jetlytra.flight.FuelTypeRegistry;
 import pl.siarko.jetlytra.flight.JetpackPhysicsHandler;
+import pl.siarko.jetlytra.network.S2CFuelTypeSyncPacket;
 import pl.siarko.jetlytra.item.JetlytraCreativeTab;
 import pl.siarko.jetlytra.item.JetlytraItems;
 import pl.siarko.jetlytra.network.JetpackPackets;
@@ -22,7 +27,6 @@ public class Jetlytra {
     public Jetlytra(IEventBus modEventBus, ModContainer modContainer) {
         JetlytraItems.ITEMS.register(modEventBus);
         JetlytraItems.DATA_COMPONENTS.register(modEventBus);
-        JetlytraAttachments.ATTACHMENT_TYPES.register(modEventBus);
         JetlytraBlocks.BLOCKS.register(modEventBus);
         JetlytraBlocks.BLOCK_ENTITY_TYPES.register(modEventBus);
 
@@ -30,6 +34,15 @@ public class Jetlytra {
 
         modEventBus.addListener(JetpackPackets::register);
         modEventBus.addListener(JetlytraCapabilities::register);
+        NeoForge.EVENT_BUS.addListener((AddReloadListenerEvent e) -> e.addListener(new FuelTypeRegistry()));
+        NeoForge.EVENT_BUS.addListener((OnDatapackSyncEvent e) -> {
+            S2CFuelTypeSyncPacket packet = new S2CFuelTypeSyncPacket(FuelTypeRegistry.getDefinitions());
+            if (e.getPlayer() != null) {
+                PacketDistributor.sendToPlayer(e.getPlayer(), packet);
+            } else {
+                e.getPlayerList().getPlayers().forEach(p -> PacketDistributor.sendToPlayer(p, packet));
+            }
+        });
         NeoForge.EVENT_BUS.addListener(JetpackPlayerEvents::onPlayerLogin);
         NeoForge.EVENT_BUS.addListener(JetpackPlayerEvents::onPlayerClone);
         NeoForge.EVENT_BUS.addListener(JetpackPlayerEvents::onEquipmentChange);

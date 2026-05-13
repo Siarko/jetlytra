@@ -120,7 +120,7 @@ public class JetpackInputHandler {
         Vec3 deltaMovement = player.getDeltaMovement();
 
         FuelData fuelData = chest.get(JetlytraItems.FUEL_DATA);
-        float accel = fuelData != null ? fuelData.type().accelerationMultiplier : 1.0f;
+        float accel = fuelData != null ? fuelData.getDefinition().map(d -> d.accelerationMultiplier()).orElse(1.0f) : 1.0f;
 
         ParticleSpawnType particleSpawnType = null;
         if (elytraBoost) {

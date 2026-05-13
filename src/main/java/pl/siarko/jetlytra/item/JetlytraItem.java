@@ -87,8 +87,9 @@ public class JetlytraItem extends ArmorItem implements GeoItem {
 
         FuelData fuel = stack.get(JetlytraItems.FUEL_DATA);
         if (fuel != null) {
+            String fuelName = fuel.getDefinition().map(d -> d.displayName()).orElse("?");
             tooltipComponents.add(
-                Component.translatable("item.jetlytra.jetpack.fuel", fuel.count(), fuel.type().displayName)
+                Component.translatable("item.jetlytra.jetpack.fuel", fuel.count(), fuelName)
                     .withStyle(ChatFormatting.GOLD)
             );
         } else {

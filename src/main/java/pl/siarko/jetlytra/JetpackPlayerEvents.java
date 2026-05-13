@@ -16,7 +16,6 @@ public class JetpackPlayerEvents {
         Player clone = event.getEntity();
         ItemStack stack = clone.getItemBySlot(EquipmentSlot.CHEST);
         if (stack.getItem() instanceof JetlytraItem) {
-            clone.setData(JetlytraAttachments.FLIGHT_STATE.get(), FlightState.JETPACK);
             stack.set(JetlytraItems.FLIGHT_STATE_COMPONENT, FlightState.JETPACK);
             stack.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, false);
         }
@@ -26,8 +25,8 @@ public class JetpackPlayerEvents {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
         if (!(chest.getItem() instanceof JetlytraItem)) return;
-        player.setData(JetlytraAttachments.FLIGHT_STATE.get(), FlightState.JETPACK);
         chest.set(JetlytraItems.FLIGHT_STATE_COMPONENT, FlightState.JETPACK);
+        chest.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, false);
     }
 
     public static void onEquipmentChange(LivingEquipmentChangeEvent event) {
@@ -41,10 +40,9 @@ public class JetpackPlayerEvents {
         if (wasJetpack == isJetpack) return;
 
         player.setNoGravity(false);
-        player.setData(JetlytraAttachments.FLIGHT_STATE.get(), FlightState.JETPACK);
-        player.setData(JetlytraAttachments.THRUST_ACTIVE.get(), false);
         if (isJetpack) {
             event.getTo().set(JetlytraItems.FLIGHT_STATE_COMPONENT, FlightState.JETPACK);
+            event.getTo().set(JetlytraItems.THRUST_ACTIVE_COMPONENT, false);
         }
     }
 }

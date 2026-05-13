@@ -5,7 +5,6 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import pl.siarko.jetlytra.JetlytraAttachments;
 import pl.siarko.jetlytra.item.JetlytraItem;
 import pl.siarko.jetlytra.item.JetlytraItems;
 import pl.siarko.jetlytra.item.StoredElytra;
@@ -17,31 +16,30 @@ public class JetpackPhysicsHandler {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         if (player.level().isClientSide()) return;
 
-        FlightState state = player.getData(JetlytraAttachments.FLIGHT_STATE.get());
-
         ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
         if (!(chest.getItem() instanceof JetlytraItem)) {
-            reset(player);
+            reset(player, chest);
             return;
         }
 
+        FlightState state = chest.getOrDefault(JetlytraItems.FLIGHT_STATE_COMPONENT, FlightState.JETPACK);
+
         if (state != FlightState.JETPACK && player.onGround()) {
-            reset(player);
+            reset(player, chest);
             return;
         }
 
         player.setNoGravity(state == FlightState.HOVERING);
-        // Suppress fall damage only when actively thrusting or hovering
-        boolean thrusting = player.getData(JetlytraAttachments.THRUST_ACTIVE.get());
+        boolean thrusting = Boolean.TRUE.equals(chest.get(JetlytraItems.THRUST_ACTIVE_COMPONENT));
         if (state == FlightState.HOVERING || (state == FlightState.JETPACK && thrusting)) {
             player.resetFallDistance();
         }
 
-        if (thrusting && !drainFuel(player)) {
-            reset(player);
+        if (thrusting && !drainFuel(chest)) {
+            reset(player, chest);
         }
 
-        if (state == FlightState.ELYTRA && player.tickCount % 20 == 0) {
+        if (state == FlightState.ELYTRA && player.tickCount % 20 == 0 && player.getDeltaMovement().lengthSqr() > 0.01) {
             applyElytraDamage(player, chest);
         }
     }
@@ -59,42 +57,38 @@ public class JetpackPhysicsHandler {
             elytra.setDamageValue(newDamage);
             jetlytraStack.set(JetlytraItems.ELYTRA_ITEM, new StoredElytra(elytra));
             if (newDamage >= elytra.getMaxDamage()) {
-                reset(player);
+                reset(player, jetlytraStack);
             }
         }
     }
 
-    private static boolean drainFuel(ServerPlayer player) {
-        ItemStack stack = player.getItemBySlot(EquipmentSlot.CHEST);
+    private static boolean drainFuel(ItemStack stack) {
         FuelData fuel = stack.get(JetlytraItems.FUEL_DATA);
         if (fuel == null || fuel.count() <= 0) return false;
 
-        int counter = player.getData(JetlytraAttachments.FUEL_TICK_COUNTER.get()) + 1;
-        if (counter < fuel.type().ticksPerUnit) {
-            player.setData(JetlytraAttachments.FUEL_TICK_COUNTER.get(), counter);
+        int counter = stack.getOrDefault(JetlytraItems.FUEL_TICK_COMPONENT, 0) + 1;
+        if (counter < fuel.getDefinition().map(FuelTypeDefinition::ticksPerUnit).orElse(20)) {
+            stack.set(JetlytraItems.FUEL_TICK_COMPONENT, counter);
             return true;
         }
 
-        // Full second elapsed — drain one unit
-        player.setData(JetlytraAttachments.FUEL_TICK_COUNTER.get(), 0);
+        // Full unit elapsed — drain one unit
+        stack.set(JetlytraItems.FUEL_TICK_COMPONENT, 0);
         int remaining = fuel.count() - 1;
         if (remaining <= 0) {
             stack.remove(JetlytraItems.FUEL_DATA);
             return false;
         }
-        stack.set(JetlytraItems.FUEL_DATA, new FuelData(fuel.type(), remaining));
+        stack.set(JetlytraItems.FUEL_DATA, new FuelData(fuel.typeId(), remaining));
         return true;
     }
 
-    private static void reset(ServerPlayer player) {
-        player.setData(JetlytraAttachments.FLIGHT_STATE.get(), FlightState.JETPACK);
-        player.setData(JetlytraAttachments.THRUST_ACTIVE.get(), false);
-        player.setData(JetlytraAttachments.FUEL_TICK_COUNTER.get(), 0);
+    static void reset(ServerPlayer player, ItemStack chest) {
         player.setNoGravity(false);
-        ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
         if (chest.getItem() instanceof JetlytraItem) {
             chest.set(JetlytraItems.FLIGHT_STATE_COMPONENT, FlightState.JETPACK);
             chest.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, false);
+            chest.set(JetlytraItems.FUEL_TICK_COMPONENT, 0);
         }
     }
 }

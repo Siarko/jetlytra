@@ -9,7 +9,6 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import pl.siarko.jetlytra.Jetlytra;
-import pl.siarko.jetlytra.JetlytraAttachments;
 import pl.siarko.jetlytra.flight.FlightState;
 import pl.siarko.jetlytra.item.JetlytraItems;
 
@@ -32,7 +31,7 @@ public record C2SCrouchPacket(boolean active) implements CustomPacketPayload {
         context.enqueueWork(() -> {
             ServerPlayer player = (ServerPlayer) context.player();
             ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
-            FlightState current = player.getData(JetlytraAttachments.FLIGHT_STATE.get());
+            FlightState current = chest.getOrDefault(JetlytraItems.FLIGHT_STATE_COMPONENT, FlightState.JETPACK);
             FlightState nextState = nextCrouchState(
                     packet.active, current,
                     JetlytraItems.isJetpackAvailable(chest),
@@ -40,13 +39,10 @@ public record C2SCrouchPacket(boolean active) implements CustomPacketPayload {
 
             if (nextState != null) {
                 if (nextState == FlightState.HOVERING) {
-                    player.setData(JetlytraAttachments.THRUST_ACTIVE.get(), true);
                     chest.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, true);
                 } else if (current == FlightState.HOVERING) {
-                    player.setData(JetlytraAttachments.THRUST_ACTIVE.get(), false);
                     chest.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, false);
                 }
-                player.setData(JetlytraAttachments.FLIGHT_STATE.get(), nextState);
                 chest.set(JetlytraItems.FLIGHT_STATE_COMPONENT, nextState);
             }
         });

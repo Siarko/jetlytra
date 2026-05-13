@@ -9,7 +9,6 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import pl.siarko.jetlytra.Jetlytra;
-import pl.siarko.jetlytra.JetlytraAttachments;
 import pl.siarko.jetlytra.item.JetlytraItems;
 
 public record C2SThrustPacket(boolean active) implements CustomPacketPayload {
@@ -31,8 +30,7 @@ public record C2SThrustPacket(boolean active) implements CustomPacketPayload {
         context.enqueueWork(() -> {
             ServerPlayer player = (ServerPlayer) context.player();
             ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
-            if(JetlytraItems.isJetpackAvailable(chest)) {
-                player.setData(JetlytraAttachments.THRUST_ACTIVE.get(), packet.active);
+            if (JetlytraItems.isJetpackAvailable(chest)) {
                 chest.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, packet.active);
             }
         });

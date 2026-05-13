@@ -25,8 +25,9 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
+import net.minecraft.resources.ResourceLocation;
 import pl.siarko.jetlytra.flight.FuelData;
-import pl.siarko.jetlytra.flight.FuelType;
+import pl.siarko.jetlytra.flight.FuelTypeRegistry;
 
 import javax.annotation.Nullable;
 
@@ -104,16 +105,16 @@ public class JetpackBlock extends BaseEntityBlock {
             return ItemInteractionResult.SUCCESS;
         }
 
-        var fuelType = FuelType.fromItem(stack.getItem());
-        if (fuelType.isEmpty()) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        var typeId = FuelTypeRegistry.idFromItem(stack.getItem());
+        if (typeId.isEmpty()) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         if (level.isClientSide) return ItemInteractionResult.SUCCESS;
 
         if (!(level.getBlockEntity(pos) instanceof JetpackBlockEntity be)) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 
         FuelData current = be.getFuelData();
-        FuelType type = fuelType.get();
+        ResourceLocation type = typeId.get();
 
-        if (current != null && current.type() != type) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        if (current != null && !current.typeId().equals(type)) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 
         int currentCount = current != null ? current.count() : 0;
         int canAdd = FuelData.MAX_COUNT - currentCount;

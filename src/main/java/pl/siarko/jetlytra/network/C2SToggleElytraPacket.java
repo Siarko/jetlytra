@@ -9,7 +9,6 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import pl.siarko.jetlytra.Jetlytra;
-import pl.siarko.jetlytra.JetlytraAttachments;
 import pl.siarko.jetlytra.flight.FlightState;
 import pl.siarko.jetlytra.item.JetlytraItem;
 import pl.siarko.jetlytra.item.JetlytraItems;
@@ -39,7 +38,7 @@ public record C2SToggleElytraPacket(ToggleType toggleType) implements CustomPack
             StoredElytra elytra = chest.get(JetlytraItems.ELYTRA_ITEM);
             boolean hasElytra = elytra != null && !elytra.isEmpty()
                     && elytra.stack().getDamageValue() < elytra.stack().getMaxDamage();
-            FlightState current = player.getData(JetlytraAttachments.FLIGHT_STATE.get());
+            FlightState current = chest.getOrDefault(JetlytraItems.FLIGHT_STATE_COMPONENT, FlightState.JETPACK);
 
             FlightState next = switch (packet.toggleType) {
                 case TOGGLE -> !current.equals(FlightState.ELYTRA) && hasElytra ? FlightState.ELYTRA : FlightState.JETPACK;
@@ -49,8 +48,6 @@ public record C2SToggleElytraPacket(ToggleType toggleType) implements CustomPack
 
             if (next != current) {
                 player.setNoGravity(false);
-                player.setData(JetlytraAttachments.FLIGHT_STATE.get(), next);
-                player.setData(JetlytraAttachments.THRUST_ACTIVE.get(), false);
                 chest.set(JetlytraItems.FLIGHT_STATE_COMPONENT, next);
                 chest.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, false);
             }
