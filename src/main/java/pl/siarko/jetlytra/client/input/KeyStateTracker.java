@@ -15,8 +15,14 @@ public class KeyStateTracker {
     }
 
     public void update(Minecraft mc) {
-        jump.update(mc.options.keyJump.isDown());
-        crouch.update(mc.options.keyShift.isDown());
+        // player.input.jumping includes controller state (set by Controlify's DualInput),
+        // whereas mc.options.keyJump.isDown() only reflects the physical keyboard.
+        boolean inputJump = mc.options.keyJump.isDown()
+                || (mc.player != null && mc.player.input.jumping);
+        boolean inputCrouch = mc.options.keyShift.isDown()
+                || (mc.player != null && mc.player.input.shiftKeyDown);
+        jump.update(inputJump);
+        crouch.update(inputCrouch);
         sprint.update(mc.options.keySprint.isDown());
     }
 

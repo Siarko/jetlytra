@@ -12,5 +12,9 @@
   "item.jetlytra.jetpack.elytra_stored": "Elytra: %s",
   "item.jetlytra.jetpack_diamond": "Diamond Jetlytra",
   "item.jetlytra.jetpack_netherite": "Netherite Jetlytra",
-  "item.jetlytra.thruster": "Jetlytra Thruster"
+  "item.jetlytra.thruster": "Jetlytra Thruster",
+  "controlify.binding.jetlytra.trigger_thrust": "Alternative Thrust",
+  "controlify.binding.jetlytra.trigger_thrust.desc": "Applies thrust while airborne or swimming. On the ground, it's ignored",
+  "controlify.binding.jetlytra.toggle_elytra": "Toggle Elytra Mode",
+  "controlify.binding.jetlytra.toggle_elytra.desc": "Toggles elytra glide mode while airborne."
 }

@@ -1,0 +1,10 @@
+{
+  "defaults": {
+    "jetlytra:trigger_thrust": {
+      "axis": "controlify:axis/left_trigger"
+    },
+    "jetlytra:toggle_elytra": {
+      "button": "controlify:button/left_stick"
+    }
+  }
+}
