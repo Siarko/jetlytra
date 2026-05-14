@@ -1,0 +1,32 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "type": "create:mechanical_crafting",
+  "accept_mirrored": true,
+  "pattern": [
+    "L I L",
+    "LCBCL",
+    "ACBCA",
+    "TPSPT",
+    " OOO "
+  ],
+  "key": {
+    "L": { "item": "minecraft:leather" },
+    "I": { "item": "minecraft:item_frame" },
+    "C": { "item": "minecraft:copper_block" },
+    "A": { "item": "create:andesite_alloy" },
+    "B": { "item": "create:basin" },
+    "T": { "item": "jetlytra:thruster" },
+    "O": { "item": "minecraft:obsidian" },
+    "P": { "item": "create:fluid_pipe" },
+    "S": { "item": "create:smart_fluid_pipe" }
+  },
+  "result": {
+    "id": "jetlytra:jetpack",
+    "count": 1
+  }
+}

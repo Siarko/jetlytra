@@ -1,0 +1,30 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "type": "create:mechanical_crafting",
+  "accept_mirrored": true,
+  "pattern": [
+    " AAA ",
+    " CMC ",
+    " CPC ",
+    " CBC ",
+    " OHO "
+  ],
+  "key": {
+    "A": { "item": "create:andesite_alloy" },
+    "C": { "item": "minecraft:copper_block" },
+    "M": { "item": "create:precision_mechanism" },
+    "P": { "item": "create:propeller" },
+    "B": { "item": "create:blaze_burner" },
+    "O": { "item": "minecraft:obsidian" },
+    "H": { "item": "create:chute" }
+  },
+  "result": {
+    "id": "jetlytra:thruster",
+    "count": 1
+  }
+}

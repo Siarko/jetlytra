@@ -103,6 +103,16 @@ public class JetlytraItem extends ArmorItem implements GeoItem {
     }
 
     @Override
+    public boolean isEnchantable(ItemStack stack) {
+        return false;
+    }
+
+    @Override
+    public boolean isBookEnchantable(ItemStack stack, ItemStack book) {
+        return false;
+    }
+
+    @Override
     public boolean isBarVisible(ItemStack stack) {
         FuelData fuel = stack.get(JetlytraItems.FUEL_DATA);
         int fuelCount = (fuel != null) ? fuel.count() : 0;

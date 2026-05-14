@@ -22,6 +22,8 @@ repositories {
     maven { url "https://maven.isxander.dev/releases" }
     maven { url "https://cursemaven.com" }
     maven { url "https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/" }
+    maven { url "https://maven.createmod.net" }
+    maven { url "https://maven.ithundxr.dev/snapshots" }
 }
 
 base {
@@ -81,10 +83,21 @@ configurations {
 
 dependencies {
     // GeckoLib — animated 3D model support
-    implementation "software.bernie.geckolib:geckolib-neoforge-1.21.1:${geckolib_version}"
+    implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
 
-    // Controlify — controller/gamepad support (compile-only; optional at runtime)
+    // Controlify — controller/gamepad support
     compileOnly "curse.maven:controlify-835847:7677324"
+    localRuntime "curse.maven:controlify-835847:7677324"
+
+    // Create — dev runs only (data-pack integration, no Java API usage)
+    localRuntime("net.createmod.ponder:ponder-neoforge:${ponder_version}+mc${minecraft_version}")
+    localRuntime("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") { transitive = false }
+    localRuntime("dev.engine-room.flywheel:flywheel-neoforge-${minecraft_version}:${flywheel_version}")
+    localRuntime("com.tterrag.registrate:Registrate:${registrate_version}")
+
+
+    // JEI — DEV runs
+    localRuntime "curse.maven:jei-238222:${jei_file_id}"
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
