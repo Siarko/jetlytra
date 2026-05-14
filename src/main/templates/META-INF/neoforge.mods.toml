@@ -7,8 +7,7 @@ modId="${mod_id}"
 version="${mod_version}"
 displayName="${mod_name}"
 description='''
-A jetpack mod with dual flight modes: standard thrust and elytra glide.
-Includes Controlify gamepad support.
+A jetpack and elytra mix
 '''
 
 [[mixins]]

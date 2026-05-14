@@ -16,5 +16,12 @@
   "controlify.binding.jetlytra.trigger_thrust": "Alternative Thrust",
   "controlify.binding.jetlytra.trigger_thrust.desc": "Applies thrust while airborne or swimming. On the ground, it's ignored",
   "controlify.binding.jetlytra.toggle_elytra": "Toggle Elytra Mode",
-  "controlify.binding.jetlytra.toggle_elytra.desc": "Toggles elytra glide mode while airborne."
+  "controlify.binding.jetlytra.toggle_elytra.desc": "Toggles elytra glide mode while airborne.",
+  "screen.jetlytra.config": "Jetlytra Config",
+  "screen.jetlytra.hud_config": "HUD Position Editor",
+  "config.jetlytra.show_fuel_percentage": "Fuel Percentage",
+  "config.jetlytra.show_fuel_gauge": "Fuel Gauge",
+  "config.jetlytra.show_fuel_warning": "Fuel Warning",
+  "config.jetlytra.fuel_warning_label": "Warning Level",
+  "config.jetlytra.fuel_warning_level": "Warning: %s%%"
 }
