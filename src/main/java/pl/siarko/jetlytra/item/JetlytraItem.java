@@ -93,6 +93,15 @@ public class JetlytraItem extends ArmorItem implements GeoItem {
                 Component.translatable("item.jetlytra.jetpack.fuel", fuel.count(), fuelName)
                     .withStyle(ChatFormatting.GOLD)
             );
+            fuel.getDefinition().ifPresent(def -> {
+                tooltipComponents.add(
+                        Component.translatable(
+                                "item.jetlytra.jetpack.thrust_time",
+                                        formatTicks(fuel.count() * def.ticksPerUnit()),
+                                        formatTicks(fuel.count() * def.ticksPerUnitHover())
+                                ).withStyle(ChatFormatting.AQUA)
+                );
+            });
         } else {
             tooltipComponents.add(
                 Component.translatable("item.jetlytra.jetpack.no_fuel")
@@ -100,6 +109,13 @@ public class JetlytraItem extends ArmorItem implements GeoItem {
             );
         }
 
+    }
+
+    private static String formatTicks(int ticks) {
+        int totalSeconds = ticks / 20;
+        int minutes = totalSeconds / 60;
+        int seconds = totalSeconds % 60;
+        return minutes > 0 ? minutes + "m " + seconds + "s" : seconds + "s";
     }
 
     @Override

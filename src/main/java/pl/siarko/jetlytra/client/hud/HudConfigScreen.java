@@ -50,7 +50,7 @@ public class HudConfigScreen extends Screen {
         addRenderableWidget(Button.builder(
                 Component.literal("Reset to Default"),
                 btn -> widgets.forEach(HudWidget::resetToDefault))
-                .pos(width / 2 - 60, height - 30)
+                .pos(width / 2 - 60, height - 20)
                 .size(120, 20)
                 .build());
     }

@@ -19,6 +19,7 @@ public record FuelTypeDefinition(
         String displayName,
         Item item,
         int ticksPerUnit,
+        int ticksPerUnitHover,
         float accelerationMultiplier,
         SimpleParticleType exhaustParticle,
         SimpleParticleType trailParticle,
@@ -30,6 +31,7 @@ public record FuelTypeDefinition(
             Codec.STRING.fieldOf("display_name").forGetter(FuelTypeDefinition::displayName),
             BuiltInRegistries.ITEM.byNameCodec().fieldOf("item").forGetter(FuelTypeDefinition::item),
             Codec.INT.fieldOf("ticks_per_unit").forGetter(FuelTypeDefinition::ticksPerUnit),
+            Codec.INT.fieldOf("ticks_per_unit_hover").forGetter(FuelTypeDefinition::ticksPerUnitHover),
             Codec.FLOAT.fieldOf("acceleration_multiplier").forGetter(FuelTypeDefinition::accelerationMultiplier),
             simpleParticleCodec()
                     .optionalFieldOf("exhaust_particle")
@@ -40,7 +42,25 @@ public record FuelTypeDefinition(
             simpleParticleCodec()
                     .optionalFieldOf("boost_particle")
                     .forGetter(d -> java.util.Optional.ofNullable(d.boostParticle()))
-    ).apply(i, (name, item, ticks, accel, exhaust, trail, boost) -> new FuelTypeDefinition(name, item, ticks, accel, exhaust.orElse(null), trail.orElse(null), boost.orElse(null))));
+    ).apply(i, (
+            name,
+            item,
+            ticks,
+            ticksHover,
+            accel,
+            exhaust,
+            trail,
+            boost
+    ) -> new FuelTypeDefinition(
+            name,
+            item,
+            ticks,
+            ticksHover,
+            accel,
+            exhaust.orElse(null),
+            trail.orElse(null),
+            boost.orElse(null)
+    )));
 
     public static final StreamCodec<FriendlyByteBuf, FuelTypeDefinition> STREAM_CODEC = StreamCodec.of(
             FuelTypeDefinition::encode,
@@ -51,6 +71,7 @@ public record FuelTypeDefinition(
         ByteBufCodecs.STRING_UTF8.encode(buf, def.displayName());
         ResourceLocation.STREAM_CODEC.encode(buf, requireRegistryKey(BuiltInRegistries.ITEM.getKey(def.item()), "item", def.item()));
         ByteBufCodecs.VAR_INT.encode(buf, def.ticksPerUnit());
+        ByteBufCodecs.VAR_INT.encode(buf, def.ticksPerUnitHover());
         buf.writeFloat(def.accelerationMultiplier());
         encodeOptionalParticle(buf, def.exhaustParticle());
         encodeOptionalParticle(buf, def.trailParticle());
@@ -72,11 +93,12 @@ public record FuelTypeDefinition(
         String displayName = ByteBufCodecs.STRING_UTF8.decode(buf);
         Item item = BuiltInRegistries.ITEM.get(ResourceLocation.STREAM_CODEC.decode(buf));
         int ticksPerUnit = ByteBufCodecs.VAR_INT.decode(buf);
+        int ticksPerUnitHover = ByteBufCodecs.VAR_INT.decode(buf);
         float accel = buf.readFloat();
         SimpleParticleType exhaust = decodeOptionalParticle(buf);
         SimpleParticleType trail = decodeOptionalParticle(buf);
         SimpleParticleType boost = decodeOptionalParticle(buf);
-        return new FuelTypeDefinition(displayName, item, ticksPerUnit, accel, exhaust, trail, boost);
+        return new FuelTypeDefinition(displayName, item, ticksPerUnit, ticksPerUnitHover, accel, exhaust, trail, boost);
     }
 
     private static SimpleParticleType decodeOptionalParticle(FriendlyByteBuf buf) {

@@ -10,6 +10,7 @@
   "item.jetlytra.jetpack.fuel": "Fuel: %1$sx %2$s",
   "item.jetlytra.jetpack.no_fuel": "No fuel",
   "item.jetlytra.jetpack.elytra_stored": "Elytra: %s",
+  "item.jetlytra.jetpack.thrust_time": "Thr: %s | Hov: %s",
   "item.jetlytra.jetpack_diamond": "Diamond Jetlytra",
   "item.jetlytra.jetpack_netherite": "Netherite Jetlytra",
   "item.jetlytra.thruster": "Jetlytra Thruster",

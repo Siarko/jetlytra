@@ -71,9 +71,9 @@ public class JetpackPhysicsHandler {
     private static boolean drainFuel(ItemStack stack) {
         FuelData fuel = stack.get(JetlytraItems.FUEL_DATA);
         if (fuel == null || fuel.count() <= 0) return false;
-
+        
         int counter = stack.getOrDefault(JetlytraItems.FUEL_TICK_COMPONENT, 0) + 1;
-        if (counter < fuel.getDefinition().map(FuelTypeDefinition::ticksPerUnit).orElse(20)) {
+        if (counter < getTargetTicksPerUnit(stack, fuel)) {
             stack.set(JetlytraItems.FUEL_TICK_COMPONENT, counter);
             return true;
         }
@@ -98,5 +98,16 @@ public class JetpackPhysicsHandler {
             chest.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, false);
             chest.set(JetlytraItems.FUEL_TICK_COMPONENT, 0);
         }
+    }
+
+    private static int getTargetTicksPerUnit(ItemStack stack, FuelData fuel) {
+        FlightState state = stack.getOrDefault(JetlytraItems.FLIGHT_STATE_COMPONENT, FlightState.JETPACK);
+        int ticksPerUnit = fuel.getDefinition()
+                .map(FuelTypeDefinition::ticksPerUnit)
+                .orElse(20);
+        int ticksPerUnitHover = fuel.getDefinition()
+                .map(FuelTypeDefinition::ticksPerUnitHover)
+                .orElse(ticksPerUnit);
+        return (state == FlightState.HOVERING ? ticksPerUnitHover : ticksPerUnit);
     }
 }

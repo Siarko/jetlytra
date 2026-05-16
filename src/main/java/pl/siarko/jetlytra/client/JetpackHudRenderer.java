@@ -27,6 +27,7 @@ public class JetpackHudRenderer {
         if (fuel == null) return;
 
         int percent = Math.round(fuel.count() * 100f / FuelData.MAX_COUNT);
+        boolean thrusting = Boolean.TRUE.equals(chest.get(JetlytraItems.THRUST_ACTIVE_COMPONENT));
 
         GuiGraphics g = event.getGuiGraphics();
         int sw = g.guiWidth();
@@ -48,9 +49,12 @@ public class JetpackHudRenderer {
                     percent);
         }
 
-        if (JetlytraClientConfig.SHOW_FUEL_WARNING.get()
+        if (
+                JetlytraClientConfig.SHOW_FUEL_WARNING.get()
                 && percent <= JetlytraClientConfig.FUEL_WARNING_LEVEL.get()
-                && (System.currentTimeMillis() / 500) % 2 == 0) {
+                && (System.currentTimeMillis() / 500) % 2 == 0
+                && thrusting
+        ) {
             TextHudWidget.render(g, mc.font, "Low Fuel!",
                     (float)(JetlytraClientConfig.FUEL_WARNING_X.get() * sw),
                     (float)(JetlytraClientConfig.FUEL_WARNING_Y.get() * sh),

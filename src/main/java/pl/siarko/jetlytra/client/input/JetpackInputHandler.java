@@ -20,14 +20,16 @@ public class JetpackInputHandler {
 
     // TODO move all these values to server config
     // Jetpack UP acceleration
-    private final double THRUST_ACCEL = 0.15;
-    private final double MAX_THRUST_VEL = 0.8;
+    private final double THRUST_ACCEL = 0.10;
+    private final double MAX_THRUST_VEL = 0.6;
 
-    // Hover mode jump thrust (slower than normal jetpack)
+    private final double THRUST_ACCEL_DOWN = 0.23;
+
+    // Hover mode jump thrust
     private final double HOVER_THRUST_ACCEL = 0.05;
     private final double HOVER_THRUST_MAX = 0.3;
 
-    // When uses jetpack, he gains some boost to movement
+    // Boost to movement when sprinting and jetpacking
     private final double SPRINT_BOOST = 1.1;
 
     private final double ELYTRA_BOOST_ACCEL = 0.1;
@@ -147,7 +149,13 @@ public class JetpackInputHandler {
             player.setDeltaMovement(player.getLookAngle().scale(SWIM_BOOST_MAX * accelFactor));
             particleSpawnType = ParticleSpawnType.BOOSTING;
         } else if (thrusting) {
-            player.setDeltaMovement(deltaMovement.x, Math.min(deltaMovement.y + THRUST_ACCEL * accelFactor, MAX_THRUST_VEL * accelFactor), deltaMovement.z);
+            double verticalAcceleration;
+            if(player.getDeltaMovement().y < 0) {
+                verticalAcceleration = deltaMovement.y + THRUST_ACCEL_DOWN;
+            }else{
+                verticalAcceleration = Math.min(deltaMovement.y + THRUST_ACCEL * accelFactor, MAX_THRUST_VEL * accelFactor);
+            }
+            player.setDeltaMovement(deltaMovement.x, verticalAcceleration, deltaMovement.z);
             player.resetFallDistance();
             particleSpawnType = ParticleSpawnType.THRUSTING;
         }
