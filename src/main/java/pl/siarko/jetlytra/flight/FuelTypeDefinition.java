@@ -31,10 +31,16 @@ public record FuelTypeDefinition(
             BuiltInRegistries.ITEM.byNameCodec().fieldOf("item").forGetter(FuelTypeDefinition::item),
             Codec.INT.fieldOf("ticks_per_unit").forGetter(FuelTypeDefinition::ticksPerUnit),
             Codec.FLOAT.fieldOf("acceleration_multiplier").forGetter(FuelTypeDefinition::accelerationMultiplier),
-            simpleParticleCodec().fieldOf("exhaust_particle").forGetter(FuelTypeDefinition::exhaustParticle),
-            simpleParticleCodec().fieldOf("trail_particle").forGetter(FuelTypeDefinition::trailParticle),
-            simpleParticleCodec().fieldOf("boost_particle").forGetter(FuelTypeDefinition::boostParticle)
-    ).apply(i, FuelTypeDefinition::new));
+            simpleParticleCodec()
+                    .optionalFieldOf("exhaust_particle")
+                    .forGetter(d -> java.util.Optional.ofNullable(d.exhaustParticle())),
+            simpleParticleCodec()
+                    .optionalFieldOf("trail_particle")
+                    .forGetter(d -> java.util.Optional.ofNullable(d.trailParticle())),
+            simpleParticleCodec()
+                    .optionalFieldOf("boost_particle")
+                    .forGetter(d -> java.util.Optional.ofNullable(d.boostParticle()))
+    ).apply(i, (name, item, ticks, accel, exhaust, trail, boost) -> new FuelTypeDefinition(name, item, ticks, accel, exhaust.orElse(null), trail.orElse(null), boost.orElse(null))));
 
     public static final StreamCodec<FriendlyByteBuf, FuelTypeDefinition> STREAM_CODEC = StreamCodec.of(
             FuelTypeDefinition::encode,
@@ -46,9 +52,15 @@ public record FuelTypeDefinition(
         ResourceLocation.STREAM_CODEC.encode(buf, requireRegistryKey(BuiltInRegistries.ITEM.getKey(def.item()), "item", def.item()));
         ByteBufCodecs.VAR_INT.encode(buf, def.ticksPerUnit());
         buf.writeFloat(def.accelerationMultiplier());
-        ResourceLocation.STREAM_CODEC.encode(buf, requireRegistryKey(BuiltInRegistries.PARTICLE_TYPE.getKey(def.exhaustParticle()), "particle", def.exhaustParticle()));
-        ResourceLocation.STREAM_CODEC.encode(buf, requireRegistryKey(BuiltInRegistries.PARTICLE_TYPE.getKey(def.trailParticle()), "particle", def.trailParticle()));
-        ResourceLocation.STREAM_CODEC.encode(buf, requireRegistryKey(BuiltInRegistries.PARTICLE_TYPE.getKey(def.boostParticle()), "particle", def.boostParticle()));
+        encodeOptionalParticle(buf, def.exhaustParticle());
+        encodeOptionalParticle(buf, def.trailParticle());
+        encodeOptionalParticle(buf, def.boostParticle());
+    }
+
+    private static void encodeOptionalParticle(FriendlyByteBuf buf, SimpleParticleType pt) {
+        buf.writeBoolean(pt != null);
+        if (pt != null)
+            ResourceLocation.STREAM_CODEC.encode(buf, requireRegistryKey(BuiltInRegistries.PARTICLE_TYPE.getKey(pt), "particle", pt));
     }
 
     private static ResourceLocation requireRegistryKey(ResourceLocation key, String kind, Object value) {
@@ -61,13 +73,14 @@ public record FuelTypeDefinition(
         Item item = BuiltInRegistries.ITEM.get(ResourceLocation.STREAM_CODEC.decode(buf));
         int ticksPerUnit = ByteBufCodecs.VAR_INT.decode(buf);
         float accel = buf.readFloat();
-        SimpleParticleType exhaust = decodeSimpleParticle(buf);
-        SimpleParticleType trail = decodeSimpleParticle(buf);
-        SimpleParticleType boost = decodeSimpleParticle(buf);
+        SimpleParticleType exhaust = decodeOptionalParticle(buf);
+        SimpleParticleType trail = decodeOptionalParticle(buf);
+        SimpleParticleType boost = decodeOptionalParticle(buf);
         return new FuelTypeDefinition(displayName, item, ticksPerUnit, accel, exhaust, trail, boost);
     }
 
-    private static SimpleParticleType decodeSimpleParticle(FriendlyByteBuf buf) {
+    private static SimpleParticleType decodeOptionalParticle(FriendlyByteBuf buf) {
+        if (!buf.readBoolean()) return null;
         ResourceLocation id = ResourceLocation.STREAM_CODEC.decode(buf);
         ParticleType<?> pt = BuiltInRegistries.PARTICLE_TYPE.get(id);
         if (pt instanceof SimpleParticleType simple) return simple;

@@ -54,8 +54,12 @@ public class JetpackParticleHandler {
         double vx = (rand.nextDouble() - 0.5) * 0.08;
         double vz = (rand.nextDouble() - 0.5) * 0.08;
 
-        mc.level.addParticle(fuelDef.exhaustParticle(), pos.x, pos.y, pos.z, vx, -0.4, vz);
-        mc.level.addParticle(fuelDef.trailParticle(), pos.x, pos.y, pos.z, vx * 0.5, -0.3, vz * 0.5);
+        if (fuelDef.exhaustParticle() != null) {
+            mc.level.addParticle(fuelDef.exhaustParticle(), pos.x, pos.y, pos.z, vx, -0.4, vz);
+        }
+        if (fuelDef.trailParticle() != null) {
+            mc.level.addParticle(fuelDef.trailParticle(), pos.x, pos.y, pos.z, vx * 0.5, -0.3, vz * 0.5);
+        }
     }
 
     private static void spawnBubbleNozzle(Minecraft mc, Player player, Vec3 pos, Vec3 look) {
@@ -76,7 +80,7 @@ public class JetpackParticleHandler {
     }
 
     private static void spawnBoostNozzle(Minecraft mc, Player player, FuelTypeDefinition fuelDef, Vec3 pos, Vec3 look) {
-        if (mc.level == null) return;
+        if (mc.level == null || fuelDef.boostParticle() == null) return;
         var rand = player.getRandom();
         Vec3 exhaust = look.scale(-0.4);
         double vx = exhaust.x + (rand.nextDouble() - 0.5) * 0.08;

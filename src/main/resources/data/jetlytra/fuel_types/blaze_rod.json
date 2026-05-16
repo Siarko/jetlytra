@@ -3,7 +3,7 @@
   "item": "minecraft:blaze_rod",
   "ticks_per_unit": 100,
   "acceleration_multiplier": 0.9,
-  "exhaust_particle": "minecraft:flame",
+  "exhaust_particle": null,
   "trail_particle": "minecraft:campfire_cosy_smoke",
   "boost_particle": "minecraft:flame"
 }
