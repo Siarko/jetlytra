@@ -1,7 +1,7 @@
 {
   "display_name": "Breeze Rod",
   "item": "minecraft:breeze_rod",
-  "ticks_per_unit": 100,
+  "ticks_per_unit": 60,
   "acceleration_multiplier": 1.1,
   "exhaust_particle": "minecraft:small_gust",
   "trail_particle": "minecraft:white_smoke",

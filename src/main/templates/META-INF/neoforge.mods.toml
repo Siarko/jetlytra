@@ -6,9 +6,7 @@ license="${mod_license}"
 modId="${mod_id}"
 version="${mod_version}"
 displayName="${mod_name}"
-description='''
-A jetpack and elytra mix
-'''
+description="${mod_description}"
 
 [[mixins]]
 config="${mod_id}.mixins.json"
@@ -19,7 +17,7 @@ file="META-INF/accesstransformer.cfg"
 [[dependencies.${mod_id}]]
     modId="neoforge"
     type="required"
-    versionRange="[${neo_version},)"
+    versionRange="[21.1,)"
     ordering="NONE"
     side="BOTH"
 

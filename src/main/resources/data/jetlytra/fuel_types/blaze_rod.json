@@ -1,7 +1,7 @@
 {
   "display_name": "Blaze Rod",
   "item": "minecraft:blaze_rod",
-  "ticks_per_unit": 100,
+  "ticks_per_unit": 40,
   "acceleration_multiplier": 0.9,
   "exhaust_particle": null,
   "trail_particle": "minecraft:campfire_cosy_smoke",
