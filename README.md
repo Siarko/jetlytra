@@ -33,7 +33,7 @@ Available keybinds:
 
 Also, for Controlify there are two additional keybinds:
 - Additional thrust key - active only when player is in the air. Works well if you want to use already bound trigger for thrusting
-- 
+- Additional elytra mode key - also working when player is in the air.
 
 ### Placing on the ground
 
