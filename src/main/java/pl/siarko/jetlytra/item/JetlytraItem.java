@@ -114,6 +114,7 @@ public class JetlytraItem extends ArmorItem implements GeoItem {
 
     @Override
     public boolean isBarVisible(ItemStack stack) {
+        if (Boolean.TRUE.equals(stack.get(JetlytraItems.PREVIEW))) return false;
         FuelData fuel = stack.get(JetlytraItems.FUEL_DATA);
         int fuelCount = (fuel != null) ? fuel.count() : 0;
         return fuelCount < FuelData.MAX_COUNT;
