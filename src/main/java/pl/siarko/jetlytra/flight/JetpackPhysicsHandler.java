@@ -8,6 +8,7 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import pl.siarko.jetlytra.item.JetlytraItem;
 import pl.siarko.jetlytra.item.JetlytraItems;
 import pl.siarko.jetlytra.item.StoredElytra;
+import pl.siarko.jetlytra.server.particle.JetpackServerParticleHandler;
 
 
 public class JetpackPhysicsHandler {
@@ -35,8 +36,13 @@ public class JetpackPhysicsHandler {
             player.resetFallDistance();
         }
 
-        if (thrusting && !drainFuel(chest)) {
-            reset(player, chest);
+        if (thrusting) {
+            FuelData fuel = chest.get(JetlytraItems.FUEL_DATA);
+            FuelTypeDefinition fuelDef = fuel != null ? fuel.getDefinition().orElse(null) : null;
+            JetpackServerParticleHandler.spawnExhaustParticles(player, fuelDef, state);
+            if (!drainFuel(chest)) {
+                reset(player, chest);
+            }
         }
 
         if (state == FlightState.ELYTRA && player.tickCount % 20 == 0 && player.getDeltaMovement().lengthSqr() > 0.01) {

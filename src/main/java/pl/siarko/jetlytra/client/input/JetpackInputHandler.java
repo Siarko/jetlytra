@@ -18,6 +18,7 @@ import pl.siarko.jetlytra.network.*;
 
 public class JetpackInputHandler {
 
+    // TODO move all these values to server config
     // Jetpack UP acceleration
     private final double THRUST_ACCEL = 0.15;
     private final double MAX_THRUST_VEL = 0.8;
@@ -27,12 +28,13 @@ public class JetpackInputHandler {
     private final double HOVER_THRUST_MAX = 0.3;
 
     // When uses jetpack, he gains some boost to movement
-    private final double SPRINT_BOOST = 1.08;
+    private final double SPRINT_BOOST = 1.1;
 
-    private final long DOUBLE_TAP_WINDOW_MS = 300;
     private final double ELYTRA_BOOST_ACCEL = 0.1;
     private final double ELYTRA_BOOST_MAX = 1.5;
     private final double SWIM_BOOST_MAX = 0.6;
+    // TODO not this one, this on is client side
+    private final long DOUBLE_TAP_WINDOW_MS = 300;
 
     private long lastSprintPressTime = 0;
     private boolean previousThrustSent = false;
@@ -157,7 +159,7 @@ public class JetpackInputHandler {
         }
 
         chest.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, particleSpawnType != null);
-        if(particleSpawnType != null) {
+        if (particleSpawnType != null) {
             JetpackParticleHandler.spawnExhaustParticles(particleSpawnType, player);
         }
     }
