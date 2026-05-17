@@ -8,6 +8,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import pl.siarko.jetlytra.client.input.integration.ControlifyBridge;
+import pl.siarko.jetlytra.config.JetlytraClientConfig;
 import pl.siarko.jetlytra.client.particle.JetpackParticleHandler;
 import pl.siarko.jetlytra.client.particle.ParticleSpawnType;
 import pl.siarko.jetlytra.flight.FlightState;
@@ -40,6 +41,8 @@ public class JetpackInputHandler {
 
     private long lastSprintPressTime = 0;
     private boolean previousThrustSent = false;
+
+    private boolean wasFalling = false;
 
     private final KeyStateTracker keyStateTracker;
 
@@ -173,10 +176,23 @@ public class JetpackInputHandler {
     }
 
     private boolean thrustKeyActive(Player player, FlightState state) {
+        // We don't want to thrust right away then jump is pressed on the ground.
+        // Quick click of jump key should just allow you to jump one block without triggering jetpack
+        // .2 is a magical player falling speed, just on the edge where it makes sense to start thrusting
+        if(player.getDeltaMovement().y < 0.20) {
+            this.wasFalling = true;
+        }
+        if(player.onGround() && !player.isInWater()) {
+            this.wasFalling = false;
+        }
+        boolean jumpBeforeThrust = JetlytraClientConfig.JUMP_BEFORE_THRUST.get();
+        boolean normalThrust = keyStateTracker.getJump().isActive() &&
+                (state != FlightState.JETPACK || !jumpBeforeThrust || this.wasFalling);
         boolean airborne = !player.onGround() && !player.isInWater();
+
         boolean triggerThrust = (state != FlightState.HOVERING) &&
                 (airborne || player.isSwimming()) &&
                 ControlifyBridge.isTriggerThrusting();
-        return keyStateTracker.getJump().isActive() || triggerThrust;
+        return normalThrust || triggerThrust;
     }
 }
