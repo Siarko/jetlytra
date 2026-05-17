@@ -10,9 +10,9 @@ import pl.siarko.jetlytra.flight.FuelTypeRegistry;
 
 public class JetpackFuelItemHandler implements IItemHandler {
 
-    private final JetpackBlockEntity be;
+    private final JetpackBlockEntityBase be;
 
-    public JetpackFuelItemHandler(JetpackBlockEntity be) {
+    public JetpackFuelItemHandler(JetpackBlockEntityBase be) {
         this.be = be;
     }
 

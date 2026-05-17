@@ -1,14 +1,17 @@
 package pl.siarko.jetlytra.item;
 
 import com.mojang.serialization.Codec;
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ArmorMaterials;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.Unbreakable;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import pl.siarko.jetlytra.Jetlytra;
@@ -18,6 +21,23 @@ import pl.siarko.jetlytra.flight.FuelData;
 import java.util.function.Supplier;
 
 public class JetlytraItems {
+
+    public static final String TIER_NETHERITE = "netherite";
+    public static final String TIER_DIAMOND = "diamond";
+
+    public static final String ITEM_THRUSTER = "thruster";
+    public static final String ITEM_JETPACK = "jetpack";
+    public static final String ITEM_JETPACK_DIAMOND = "jetpack_diamond";
+    public static final String ITEM_JETPACK_NETHERITE = "jetpack_netherite";
+
+    public static final String COMPONENT_JETPACK_ENABLED = "jetpack_enabled";
+    public static final String COMPONENT_FUEL_DATA = "fuel_data";
+    public static final String COMPONENT_FUEL_TICK = "fuel_tick";
+    public static final String COMPONENT_ELYTRA_ITEM = "elytra_item";
+    public static final String COMPONENT_FLIGHT_STATE = "flight_state";
+    public static final String COMPONENT_THRUST_ACTIVE = "thrust_active";
+    public static final String COMPONENT_PREVIEW = "preview";
+
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(
             Registries.ITEM,
             Jetlytra.MODID
@@ -29,7 +49,7 @@ public class JetlytraItems {
     );
 
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> JETPACK_ENABLED =
-            DATA_COMPONENTS.register("jetpack_enabled", () ->
+            DATA_COMPONENTS.register(COMPONENT_JETPACK_ENABLED, () ->
                     DataComponentType.<Boolean>builder()
                             .persistent(Codec.BOOL)
                             .networkSynchronized(ByteBufCodecs.BOOL)
@@ -37,43 +57,43 @@ public class JetlytraItems {
             );
 
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<FuelData>> FUEL_DATA =
-            DATA_COMPONENTS.register("fuel_data", () ->
+            DATA_COMPONENTS.register(COMPONENT_FUEL_DATA, () ->
                     DataComponentType.<FuelData>builder()
                             .persistent(FuelData.CODEC)
                             .networkSynchronized(FuelData.STREAM_CODEC)
                             .build()
             );
 
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> FUEL_TICK_COMPONENT =
+            DATA_COMPONENTS.register(COMPONENT_FUEL_TICK, () ->
+                    DataComponentType.<Integer>builder()
+                            .persistent(Codec.INT)
+                            .build()
+            );
+
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<StoredElytra>> ELYTRA_ITEM =
-            DATA_COMPONENTS.register("elytra_item", () ->
+            DATA_COMPONENTS.register(COMPONENT_ELYTRA_ITEM, () ->
                     DataComponentType.<StoredElytra>builder()
                             .persistent(StoredElytra.CODEC)
                             .build()
             );
 
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<FlightState>> FLIGHT_STATE_COMPONENT =
-            DATA_COMPONENTS.register("flight_state", () ->
+            DATA_COMPONENTS.register(COMPONENT_FLIGHT_STATE, () ->
                     DataComponentType.<FlightState>builder()
                             .networkSynchronized(FlightState.STREAM_CODEC)
                             .build()
             );
 
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> THRUST_ACTIVE_COMPONENT =
-            DATA_COMPONENTS.register("thrust_active", () ->
+            DATA_COMPONENTS.register(COMPONENT_THRUST_ACTIVE, () ->
                     DataComponentType.<Boolean>builder()
                             .networkSynchronized(ByteBufCodecs.BOOL)
                             .build()
             );
 
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> FUEL_TICK_COMPONENT =
-            DATA_COMPONENTS.register("fuel_tick", () ->
-                    DataComponentType.<Integer>builder()
-                            .persistent(Codec.INT)
-                            .build()
-            );
-
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> PREVIEW =
-            DATA_COMPONENTS.register("preview", () ->
+            DATA_COMPONENTS.register(COMPONENT_PREVIEW, () ->
                     DataComponentType.<Boolean>builder()
                             .persistent(Codec.BOOL)
                             .build()
@@ -84,40 +104,68 @@ public class JetlytraItems {
     }
 
     public static final Supplier<Item> THRUSTER = ITEMS.register(
-            "thruster",
+            ITEM_THRUSTER,
             () -> new Item(new Item.Properties())
     );
 
-    public static final Supplier<JetlytraItem> JETPACK = ITEMS.register(
-            "jetpack",
-            () -> new JetlytraItem(ArmorMaterials.IRON, "", new Item.Properties()
-                    .durability(FuelData.MAX_COUNT)
-                    .component(DataComponents.DAMAGE, FuelData.MAX_COUNT)
-                    .component(DataComponents.UNBREAKABLE, new Unbreakable(false)))
+    public static final Supplier<JetlytraItemBase> JETPACK = ITEMS.register(
+            ITEM_JETPACK,
+            () -> getSidedInstance(
+                    FMLEnvironment.dist.isClient(),
+                    ArmorMaterials.IRON,
+                    "",
+                    new Item.Properties()
+                            .durability(FuelData.MAX_COUNT)
+                            .component(DataComponents.DAMAGE, FuelData.MAX_COUNT)
+                            .component(DataComponents.UNBREAKABLE, new Unbreakable(false))
+            )
     );
 
-    public static final Supplier<JetlytraItem> JETPACK_DIAMOND = ITEMS.register(
-            "jetpack_diamond",
-            () -> new JetlytraItem(ArmorMaterials.DIAMOND, "diamond", new Item.Properties()
-                    .durability(FuelData.MAX_COUNT)
-                    .component(DataComponents.DAMAGE, FuelData.MAX_COUNT)
-                    .component(DataComponents.UNBREAKABLE, new Unbreakable(false)))
+    public static final Supplier<JetlytraItemBase> JETPACK_DIAMOND = ITEMS.register(
+            ITEM_JETPACK_DIAMOND,
+            () -> getSidedInstance(
+                    FMLEnvironment.dist.isClient(),
+                    ArmorMaterials.DIAMOND,
+                    TIER_DIAMOND,
+                    new Item.Properties()
+                            .durability(FuelData.MAX_COUNT)
+                            .component(DataComponents.DAMAGE, FuelData.MAX_COUNT)
+                            .component(DataComponents.UNBREAKABLE, new Unbreakable(false))
+            )
     );
 
-    public static final Supplier<JetlytraItem> JETPACK_NETHERITE = ITEMS.register(
-            "jetpack_netherite",
-            () -> new JetlytraItem(ArmorMaterials.NETHERITE, "netherite", new Item.Properties()
-                    .durability(FuelData.MAX_COUNT)
-                    .component(DataComponents.DAMAGE, FuelData.MAX_COUNT)
-                    .component(DataComponents.UNBREAKABLE, new Unbreakable(false))
-                    .fireResistant())
+    public static final Supplier<JetlytraItemBase> JETPACK_NETHERITE = ITEMS.register(
+            ITEM_JETPACK_NETHERITE,
+            () -> getSidedInstance(
+                    FMLEnvironment.dist.isClient(),
+                    ArmorMaterials.NETHERITE,
+                    TIER_NETHERITE,
+                    new Item.Properties()
+                            .durability(FuelData.MAX_COUNT)
+                            .component(DataComponents.DAMAGE, FuelData.MAX_COUNT)
+                            .component(DataComponents.UNBREAKABLE, new Unbreakable(false))
+                            .fireResistant()
+            )
     );
 
-    public static JetlytraItem getItemForTier(String tier) {
+    public static JetlytraItemBase getItemForTier(String tier) {
         return switch (tier) {
-            case "diamond"   -> JETPACK_DIAMOND.get();
-            case "netherite" -> JETPACK_NETHERITE.get();
-            default          -> JETPACK.get();
+            case TIER_DIAMOND -> JETPACK_DIAMOND.get();
+            case TIER_NETHERITE -> JETPACK_NETHERITE.get();
+            default -> JETPACK.get();
         };
+    }
+
+    public static JetlytraItemBase getSidedInstance(
+            boolean isClient,
+            Holder<ArmorMaterial> material,
+            String tier,
+            Item.Properties properties
+    ) {
+        if (isClient) {
+            return new JetlytraItem(material, tier, properties);
+        }else{
+            return new JetlytraItemBase(material, tier, properties);
+        }
     }
 }

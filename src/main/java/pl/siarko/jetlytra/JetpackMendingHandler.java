@@ -5,7 +5,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.neoforged.neoforge.event.entity.player.PlayerXpEvent;
-import pl.siarko.jetlytra.item.JetlytraItem;
+import pl.siarko.jetlytra.item.JetlytraItemBase;
 import pl.siarko.jetlytra.item.JetlytraItems;
 import pl.siarko.jetlytra.item.StoredElytra;
 
@@ -17,7 +17,7 @@ public class JetpackMendingHandler {
         if (event.getAmount() <= 0) return;
 
         ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
-        if (!(chest.getItem() instanceof JetlytraItem)) return;
+        if (!(chest.getItem() instanceof JetlytraItemBase)) return;
 
         StoredElytra stored = chest.get(JetlytraItems.ELYTRA_ITEM);
         if (stored == null || stored.isEmpty()) return;

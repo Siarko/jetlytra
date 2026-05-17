@@ -44,6 +44,7 @@ public class JetpackBlock extends BaseEntityBlock {
                 .mapColor(MapColor.METAL)
                 .strength(1.5f)
                 .noOcclusion());
+
         registerDefaultState(stateDefinition.any().setValue(FACING, Direction.NORTH));
     }
 
@@ -81,7 +82,7 @@ public class JetpackBlock extends BaseEntityBlock {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
-        return new JetpackBlockEntity(pos, state);
+        return JetlytraBlocks.JETPACK_BE.get().create(pos, state);
     }
 
     @Override
@@ -97,62 +98,25 @@ public class JetpackBlock extends BaseEntityBlock {
         if (player.isShiftKeyDown()) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 
         if (stack.getItem() instanceof ElytraItem) {
-            if (level.isClientSide) return ItemInteractionResult.SUCCESS;
-            if (!(level.getBlockEntity(pos) instanceof JetpackBlockEntity be)) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-            if (!be.getElytraItem().isEmpty()) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-            be.setElytraItem(stack.copyWithCount(1));
-            if (!player.isCreative()) stack.shrink(1);
-            return ItemInteractionResult.SUCCESS;
+            return tryAddingElytra(level, player, pos, stack);
         }
 
-        var typeId = FuelTypeRegistry.idFromItem(stack.getItem());
-        if (typeId.isEmpty()) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-        if (level.isClientSide) return ItemInteractionResult.SUCCESS;
-
-        if (!(level.getBlockEntity(pos) instanceof JetpackBlockEntity be)) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-
-        FuelData current = be.getFuelData();
-        ResourceLocation type = typeId.get();
-
-        if (current != null && !current.typeId().equals(type)) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-
-        int currentCount = current != null ? current.count() : 0;
-        int canAdd = FuelData.MAX_COUNT - currentCount;
-        if (canAdd <= 0) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-
-        int toAdd = Math.min(canAdd, stack.getCount());
-        be.setFuelData(new FuelData(type, currentCount + toAdd));
-        if (!player.isCreative()) {
-            stack.shrink(toAdd);
-        }
-        return ItemInteractionResult.SUCCESS;
+        return tryAddingFuel(level, player, pos, stack);
     }
 
     @Override
-    protected @NotNull InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+    protected @NotNull InteractionResult useWithoutItem(
+            @NotNull BlockState state,
+            @NotNull Level level,
+            @NotNull BlockPos pos,
+            Player player,
+            @NotNull BlockHitResult hit
+    ) {
         if (player.isShiftKeyDown()) {
-            if (level.isClientSide) return InteractionResult.SUCCESS;
-            if (!(level.getBlockEntity(pos) instanceof JetpackBlockEntity be)) return InteractionResult.PASS;
-            ItemStack stack = be.createBaseStack();
-            be.writeToItem(stack);
-            level.removeBlock(pos, false);
-            if (!player.getInventory().add(stack)) {
-                player.drop(stack, false);
-            }
-            return InteractionResult.SUCCESS;
+            return tryJetlyrtaBlockPickup(level, player, pos);
         }
 
-        // Non-sneak empty-hand: retrieve stored elytra
-        if (!player.getMainHandItem().isEmpty()) return InteractionResult.PASS;
-        if (level.isClientSide) return InteractionResult.SUCCESS;
-        if (!(level.getBlockEntity(pos) instanceof JetpackBlockEntity be)) return InteractionResult.PASS;
-        ItemStack elytra = be.getElytraItem();
-        if (elytra.isEmpty()) return InteractionResult.PASS;
-        be.setElytraItem(ItemStack.EMPTY);
-        if (!player.getInventory().add(elytra)) {
-            player.drop(elytra, false);
-        }
-        return InteractionResult.SUCCESS;
+        return tryStoredElytraPickup(level, player, pos);
     }
 
     @Override
@@ -162,7 +126,7 @@ public class JetpackBlock extends BaseEntityBlock {
 
     @Override
     public int getAnalogOutputSignal(@NotNull BlockState state, Level level, @NotNull BlockPos pos) {
-        if (!(level.getBlockEntity(pos) instanceof JetpackBlockEntity be)) return 0;
+        if (!(level.getBlockEntity(pos) instanceof JetpackBlockEntityBase be)) return 0;
         FuelData fuel = be.getFuelData();
         if (fuel == null || fuel.count() == 0) return 0;
         if (fuel.count() >= FuelData.MAX_COUNT) return 15;
@@ -177,12 +141,74 @@ public class JetpackBlock extends BaseEntityBlock {
             @NotNull Player player
     ) {
         if (!level.isClientSide && !player.isCreative()) {
-            if (level.getBlockEntity(pos) instanceof JetpackBlockEntity be) {
+            if (level.getBlockEntity(pos) instanceof JetpackBlockEntityBase be) {
                 ItemStack drop = be.createBaseStack();
                 be.writeToItem(drop);
                 popResource(level, pos, drop);
             }
         }
         return super.playerWillDestroy(level, pos, state, player);
+    }
+
+    private ItemInteractionResult tryAddingElytra(Level level, Player player, BlockPos pos, ItemStack stack) {
+        if (level.isClientSide) return ItemInteractionResult.SUCCESS;
+        if (!(level.getBlockEntity(pos) instanceof JetpackBlockEntityBase be)) {
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        }
+        if (!be.getElytraItem().isEmpty()) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        be.setElytraItem(stack.copyWithCount(1));
+        if (!player.isCreative()) stack.shrink(1);
+        return ItemInteractionResult.SUCCESS;
+    }
+
+    private ItemInteractionResult tryAddingFuel(Level level, Player player, BlockPos pos, ItemStack stack) {
+        var typeId = FuelTypeRegistry.idFromItem(stack.getItem());
+        if (typeId.isEmpty()) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        if (level.isClientSide) return ItemInteractionResult.SUCCESS;
+
+        if (!(level.getBlockEntity(pos) instanceof JetpackBlockEntityBase be))
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+
+        FuelData current = be.getFuelData();
+        ResourceLocation type = typeId.get();
+
+        if (current != null && !current.typeId().equals(type))
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+
+        int currentCount = current != null ? current.count() : 0;
+        int canAdd = FuelData.MAX_COUNT - currentCount;
+        if (canAdd <= 0) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+
+        int toAdd = Math.min(canAdd, stack.getCount());
+        be.setFuelData(new FuelData(type, currentCount + toAdd));
+        if (!player.isCreative()) {
+            stack.shrink(toAdd);
+        }
+        return ItemInteractionResult.SUCCESS;
+    }
+
+    private InteractionResult tryJetlyrtaBlockPickup(Level level, Player player, BlockPos pos) {
+        if (level.isClientSide) return InteractionResult.SUCCESS;
+        if (!(level.getBlockEntity(pos) instanceof JetpackBlockEntityBase be)) return InteractionResult.PASS;
+        ItemStack stack = be.createBaseStack();
+        be.writeToItem(stack);
+        level.removeBlock(pos, false);
+        if (!player.getInventory().add(stack)) {
+            player.drop(stack, false);
+        }
+        return InteractionResult.SUCCESS;
+    }
+
+    private InteractionResult tryStoredElytraPickup(Level level, Player player, BlockPos pos) {
+        if (!player.getMainHandItem().isEmpty()) return InteractionResult.PASS;
+        if (level.isClientSide) return InteractionResult.SUCCESS;
+        if (!(level.getBlockEntity(pos) instanceof JetpackBlockEntityBase be)) return InteractionResult.PASS;
+        ItemStack elytra = be.getElytraItem();
+        if (elytra.isEmpty()) return InteractionResult.PASS;
+        be.setElytraItem(ItemStack.EMPTY);
+        if (!player.getInventory().add(elytra)) {
+            player.drop(elytra, false);
+        }
+        return InteractionResult.SUCCESS;
     }
 }

@@ -3,6 +3,8 @@
   "item.jetlytra.jetpack": "Jetlytra",
   "item.jetlytra.jetpack.enabled": "Jetpack: ON",
   "item.jetlytra.jetpack.disabled": "Jetpack: OFF",
+  "message.jetlytra.jetpack.enabled": "Jetpack enabled",
+  "message.jetlytra.jetpack.disabled": "Jetpack disabled",
   "itemGroup.jetlytra.main": "Jetlytra",
   "key.jetlytra.toggle": "Toggle Jetpack",
   "key.categories.jetlytra": "Jetlytra",

@@ -12,10 +12,13 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import pl.siarko.jetlytra.Jetlytra;
 import pl.siarko.jetlytra.flight.FlightState;
-import pl.siarko.jetlytra.item.JetlytraItem;
+import pl.siarko.jetlytra.item.JetlytraItemBase;
 import pl.siarko.jetlytra.item.JetlytraItems;
 
 public record C2SToggleJetpackPacket() implements CustomPacketPayload {
+
+    private static final String LABEL_JETPACK_ENABLED = "message.jetlytra.jetpack.enabled";
+    private static final String LABEL_JETPACK_DISABLED = "message.jetlytra.jetpack.disabled";
 
     public static final Type<C2SToggleJetpackPacket> TYPE =
             new Type<>(ResourceLocation.fromNamespaceAndPath(Jetlytra.MODID, "toggle_jetpack"));
@@ -35,7 +38,7 @@ public record C2SToggleJetpackPacket() implements CustomPacketPayload {
             ServerPlayer player = (ServerPlayer) context.player();
 
             ItemStack stack = player.getItemBySlot(EquipmentSlot.CHEST);
-            if (!(stack.getItem() instanceof JetlytraItem)) return;
+            if (!(stack.getItem() instanceof JetlytraItemBase)) return;
 
             boolean newState = !Boolean.TRUE.equals(stack.get(JetlytraItems.JETPACK_ENABLED));
             stack.set(JetlytraItems.JETPACK_ENABLED, newState);
@@ -46,8 +49,9 @@ public record C2SToggleJetpackPacket() implements CustomPacketPayload {
                 stack.set(JetlytraItems.FUEL_TICK_COMPONENT, 0);
             }
             player.displayClientMessage(
-                Component.translatable(newState ? "item.jetlytra.jetpack.enabled" : "item.jetlytra.jetpack.disabled")
-                    .withStyle(newState ? ChatFormatting.GREEN : ChatFormatting.RED),
+                Component.translatable(newState ? LABEL_JETPACK_ENABLED : LABEL_JETPACK_DISABLED).withStyle(
+                        newState ? ChatFormatting.GREEN : ChatFormatting.RED
+                ),
                 true
             );
         });

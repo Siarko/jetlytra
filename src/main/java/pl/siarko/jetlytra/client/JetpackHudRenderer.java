@@ -10,7 +10,7 @@ import pl.siarko.jetlytra.client.hud.widget.GaugeHudWidget;
 import pl.siarko.jetlytra.client.hud.widget.TextHudWidget;
 import pl.siarko.jetlytra.config.JetlytraClientConfig;
 import pl.siarko.jetlytra.flight.FuelData;
-import pl.siarko.jetlytra.item.JetlytraItem;
+import pl.siarko.jetlytra.item.JetlytraItemBase;
 import pl.siarko.jetlytra.item.JetlytraItems;
 
 public class JetpackHudRenderer {
@@ -21,7 +21,7 @@ public class JetpackHudRenderer {
         if (player == null) return;
 
         ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
-        if (!(chest.getItem() instanceof JetlytraItem)) return;
+        if (!(chest.getItem() instanceof JetlytraItemBase)) return;
 
         FuelData fuel = chest.get(JetlytraItems.FUEL_DATA);
         if (fuel == null) return;

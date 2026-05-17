@@ -5,7 +5,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import pl.siarko.jetlytra.item.JetlytraItem;
+import pl.siarko.jetlytra.item.JetlytraItemBase;
 import pl.siarko.jetlytra.item.JetlytraItems;
 import pl.siarko.jetlytra.item.StoredElytra;
 import pl.siarko.jetlytra.server.particle.JetpackServerParticleHandler;
@@ -18,7 +18,7 @@ public class JetpackPhysicsHandler {
         if (player.level().isClientSide()) return;
 
         ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
-        if (!(chest.getItem() instanceof JetlytraItem)) {
+        if (!(chest.getItem() instanceof JetlytraItemBase)) {
             reset(player, chest);
             return;
         }
@@ -83,17 +83,17 @@ public class JetpackPhysicsHandler {
         int remaining = fuel.count() - 1;
         if (remaining <= 0) {
             stack.remove(JetlytraItems.FUEL_DATA);
-            JetlytraItem.syncFuelDamage(stack);
+            JetlytraItemBase.syncFuelDamage(stack);
             return false;
         }
         stack.set(JetlytraItems.FUEL_DATA, new FuelData(fuel.typeId(), remaining));
-        JetlytraItem.syncFuelDamage(stack);
+        JetlytraItemBase.syncFuelDamage(stack);
         return true;
     }
 
     static void reset(ServerPlayer player, ItemStack chest) {
         player.setNoGravity(false);
-        if (chest.getItem() instanceof JetlytraItem) {
+        if (chest.getItem() instanceof JetlytraItemBase) {
             chest.set(JetlytraItems.FLIGHT_STATE_COMPONENT, FlightState.JETPACK);
             chest.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, false);
             chest.set(JetlytraItems.FUEL_TICK_COMPONENT, 0);

@@ -8,16 +8,18 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
+import org.jetbrains.annotations.NotNull;
 import pl.siarko.jetlytra.Jetlytra;
 import pl.siarko.jetlytra.flight.FlightState;
-import pl.siarko.jetlytra.item.JetlytraItem;
+import pl.siarko.jetlytra.item.JetlytraItemBase;
 import pl.siarko.jetlytra.item.JetlytraItems;
 import pl.siarko.jetlytra.item.StoredElytra;
 
 public record C2SToggleElytraPacket(ToggleType toggleType) implements CustomPacketPayload {
 
-    public static final Type<C2SToggleElytraPacket> TYPE =
-            new Type<>(ResourceLocation.fromNamespaceAndPath(Jetlytra.MODID, "elytra_toggle"));
+    public static final Type<C2SToggleElytraPacket> TYPE = new Type<>(
+            ResourceLocation.fromNamespaceAndPath(Jetlytra.MODID, "elytra_toggle")
+    );
 
     public static final StreamCodec<FriendlyByteBuf, C2SToggleElytraPacket> CODEC = StreamCodec.of(
             (buf, packet) -> buf.writeVarInt(packet.toggleType.ordinal()),
@@ -25,7 +27,7 @@ public record C2SToggleElytraPacket(ToggleType toggleType) implements CustomPack
     );
 
     @Override
-    public Type<? extends CustomPacketPayload> type() {
+    public @NotNull Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 
@@ -33,7 +35,7 @@ public record C2SToggleElytraPacket(ToggleType toggleType) implements CustomPack
         context.enqueueWork(() -> {
             ServerPlayer player = (ServerPlayer) context.player();
             ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
-            if (!(chest.getItem() instanceof JetlytraItem)) return;
+            if (!(chest.getItem() instanceof JetlytraItemBase)) return;
 
             StoredElytra elytra = chest.get(JetlytraItems.ELYTRA_ITEM);
             boolean hasElytra = elytra != null && !elytra.isEmpty()
