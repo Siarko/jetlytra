@@ -9,6 +9,7 @@ import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import pl.siarko.jetlytra.client.hud.widget.GaugeHudWidget;
 import pl.siarko.jetlytra.client.hud.widget.TextHudWidget;
 import pl.siarko.jetlytra.config.JetlytraClientConfig;
+import pl.siarko.jetlytra.flight.FlightState;
 import pl.siarko.jetlytra.flight.FuelData;
 import pl.siarko.jetlytra.item.JetlytraItemBase;
 import pl.siarko.jetlytra.item.JetlytraItems;
@@ -27,7 +28,6 @@ public class JetpackHudRenderer {
         if (fuel == null) return;
 
         int percent = Math.round(fuel.count() * 100f / FuelData.MAX_COUNT);
-        boolean thrusting = Boolean.TRUE.equals(chest.get(JetlytraItems.THRUST_ACTIVE_COMPONENT));
 
         GuiGraphics g = event.getGuiGraphics();
         int sw = g.guiWidth();
@@ -52,8 +52,8 @@ public class JetpackHudRenderer {
         if (
                 JetlytraClientConfig.SHOW_FUEL_WARNING.get()
                 && percent <= JetlytraClientConfig.FUEL_WARNING_LEVEL.get()
-                && (System.currentTimeMillis() / 500) % 2 == 0
-                && thrusting
+                && (System.currentTimeMillis() / 1000) % 2 == 0
+                && Boolean.TRUE.equals(chest.get(JetlytraItems.JETPACK_ENABLED))
         ) {
             TextHudWidget.render(g, mc.font, "Low Fuel!",
                     (float)(JetlytraClientConfig.FUEL_WARNING_X.get() * sw),
