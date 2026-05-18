@@ -24,6 +24,7 @@ repositories {
     maven { url "https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/" }
     maven { url "https://maven.createmod.net" }
     maven { url "https://maven.ithundxr.dev/snapshots" }
+    maven { url "https://maven.theillusivec4.top/" }
 }
 
 base {
@@ -84,6 +85,10 @@ configurations {
 dependencies {
     // GeckoLib — animated 3D model support
     implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
+
+    // Curios — optional back-slot support
+    compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}:api"
+    localRuntime "top.theillusivec4.curios:curios-neoforge:${curios_version}"
 
     // Controlify — controller/gamepad support
     compileOnly "curse.maven:controlify-835847:7677324"

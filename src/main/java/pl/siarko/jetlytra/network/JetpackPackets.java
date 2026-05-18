@@ -12,5 +12,6 @@ public class JetpackPackets {
         registrar.playToServer(C2SCrouchPacket.TYPE, C2SCrouchPacket.CODEC, C2SCrouchPacket::handle);
         registrar.playToServer(C2SToggleElytraPacket.TYPE, C2SToggleElytraPacket.CODEC, C2SToggleElytraPacket::handle);
         registrar.playToClient(S2CFuelTypeSyncPacket.TYPE, S2CFuelTypeSyncPacket.CODEC, S2CFuelTypeSyncPacket::handle);
+        registrar.playToClient(S2CFlightStateSyncPacket.TYPE, S2CFlightStateSyncPacket.CODEC, S2CFlightStateSyncPacket::handle);
     }
 }

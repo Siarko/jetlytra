@@ -3,6 +3,7 @@ package pl.siarko.jetlytra;
 import com.mojang.logging.LogUtils;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.NeoForge;
@@ -12,6 +13,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import pl.siarko.jetlytra.config.JetlytraClientConfig;
 import org.slf4j.Logger;
 import pl.siarko.jetlytra.block.JetlytraBlocks;
+import pl.siarko.jetlytra.compat.curios.JetlytraCuriosCompat;
 import pl.siarko.jetlytra.flight.FuelTypeRegistry;
 import pl.siarko.jetlytra.flight.JetpackPhysicsHandler;
 import pl.siarko.jetlytra.network.S2CFuelTypeSyncPacket;
@@ -27,6 +29,7 @@ public class Jetlytra {
     public Jetlytra(IEventBus modEventBus, ModContainer modContainer) {
         JetlytraItems.ITEMS.register(modEventBus);
         JetlytraItems.DATA_COMPONENTS.register(modEventBus);
+        JetlytraAttachments.ATTACHMENTS.register(modEventBus);
         JetlytraBlocks.BLOCKS.register(modEventBus);
         JetlytraBlocks.BLOCK_ENTITY_TYPES.register(modEventBus);
 
@@ -44,10 +47,13 @@ public class Jetlytra {
             }
         });
         NeoForge.EVENT_BUS.addListener(JetpackPlayerEvents::onPlayerLogin);
-        NeoForge.EVENT_BUS.addListener(JetpackPlayerEvents::onPlayerClone);
         NeoForge.EVENT_BUS.addListener(JetpackPlayerEvents::onEquipmentChange);
         NeoForge.EVENT_BUS.addListener(JetpackPhysicsHandler::onPlayerTick);
         NeoForge.EVENT_BUS.addListener(JetpackMendingHandler::onXpChange);
         modContainer.registerConfig(ModConfig.Type.CLIENT, JetlytraClientConfig.SPEC);
+
+        if (ModList.get().isLoaded("curios")) {
+            JetlytraCuriosCompat.register(modEventBus);
+        }
     }
 }

@@ -5,8 +5,10 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
+import pl.siarko.jetlytra.JetlytraAttachments;
+import pl.siarko.jetlytra.JetlytraSlotHelper;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 import pl.siarko.jetlytra.Jetlytra;
@@ -34,13 +36,13 @@ public record C2SToggleElytraPacket(ToggleType toggleType) implements CustomPack
     public static void handle(C2SToggleElytraPacket packet, IPayloadContext context) {
         context.enqueueWork(() -> {
             ServerPlayer player = (ServerPlayer) context.player();
-            ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
+            ItemStack chest = JetlytraSlotHelper.getWornJetlytra(player);
             if (!(chest.getItem() instanceof JetlytraItemBase)) return;
 
             StoredElytra elytra = chest.get(JetlytraItems.ELYTRA_ITEM);
             boolean hasElytra = elytra != null && !elytra.isEmpty()
                     && elytra.stack().getDamageValue() < elytra.stack().getMaxDamage();
-            FlightState current = chest.getOrDefault(JetlytraItems.FLIGHT_STATE_COMPONENT, FlightState.JETPACK);
+            FlightState current = player.getData(JetlytraAttachments.FLIGHT_STATE);
 
             FlightState next = switch (packet.toggleType) {
                 case TOGGLE -> !current.equals(FlightState.ELYTRA) && hasElytra ? FlightState.ELYTRA : FlightState.JETPACK;
@@ -50,8 +52,11 @@ public record C2SToggleElytraPacket(ToggleType toggleType) implements CustomPack
 
             if (next != current) {
                 player.setNoGravity(false);
+                player.setData(JetlytraAttachments.FLIGHT_STATE, next);
+                player.setData(JetlytraAttachments.THRUST_ACTIVE, false);
                 chest.set(JetlytraItems.FLIGHT_STATE_COMPONENT, next);
                 chest.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, false);
+                PacketDistributor.sendToPlayer(player, new S2CFlightStateSyncPacket(next, false));
             }
         });
     }

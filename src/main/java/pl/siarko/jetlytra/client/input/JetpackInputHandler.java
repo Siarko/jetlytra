@@ -1,12 +1,13 @@
 package pl.siarko.jetlytra.client.input;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
+import pl.siarko.jetlytra.JetlytraSlotHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
+import pl.siarko.jetlytra.client.ClientJetpackState;
 import pl.siarko.jetlytra.client.input.integration.ControlifyBridge;
 import pl.siarko.jetlytra.config.JetlytraClientConfig;
 import pl.siarko.jetlytra.client.particle.JetpackParticleHandler;
@@ -20,24 +21,16 @@ import pl.siarko.jetlytra.network.*;
 public class JetpackInputHandler {
 
     // TODO move all these values to server config
-    // Jetpack UP acceleration
-    private final double THRUST_ACCEL = 0.10;
-    private final double MAX_THRUST_VEL = 0.6;
-
-    private final double THRUST_ACCEL_DOWN = 0.23;
-
-    // Hover mode jump thrust
-    private final double HOVER_THRUST_ACCEL = 0.05;
-    private final double HOVER_THRUST_MAX = 0.3;
-
-    // Boost to movement when sprinting and jetpacking
-    private final double SPRINT_BOOST = 1.1;
-
-    private final double ELYTRA_BOOST_ACCEL = 0.1;
-    private final double ELYTRA_BOOST_MAX = 1.5;
-    private final double SWIM_BOOST_MAX = 0.6;
-    // TODO not this one, this on is client side
-    private final long DOUBLE_TAP_WINDOW_MS = 300;
+    private static final double THRUST_ACCEL = 0.10;
+    private static final double MAX_THRUST_VEL = 0.6;
+    private static final double THRUST_ACCEL_DOWN = 0.23;
+    private static final double HOVER_THRUST_ACCEL = 0.05;
+    private static final double HOVER_THRUST_MAX = 0.3;
+    private static final double SPRINT_BOOST = 1.1;
+    private static final double ELYTRA_BOOST_ACCEL = 0.1;
+    private static final double ELYTRA_BOOST_MAX = 1.5;
+    private static final double SWIM_BOOST_MAX = 0.6;
+    private static final long DOUBLE_TAP_WINDOW_MS = 300;
 
     private long lastSprintPressTime = 0;
     private boolean previousThrustSent = false;
@@ -56,18 +49,16 @@ public class JetpackInputHandler {
         if (player == null) return;
         keyStateTracker.update(mc);
 
-        ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
-        boolean jetpackAvailable = JetlytraItems.isJetpackAvailable(chest);
+        ItemStack jetlytraStack = JetlytraSlotHelper.getWornJetlytra(player);
+        boolean jetpackAvailable = JetlytraItems.isJetpackAvailable(jetlytraStack);
 
-        FlightState state = chest.getOrDefault(JetlytraItems.FLIGHT_STATE_COMPONENT, FlightState.JETPACK);
+        FlightState state = ClientJetpackState.getState();
 
         handleToggleActions(player, state, jetpackAvailable);
 
         sendStateChangePackets(player, state, jetpackAvailable);
         if (jetpackAvailable) {
-            applyPhysics(player, state, chest);
-        } else {
-            chest.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, false);
+            applyPhysics(player, state, jetlytraStack);
         }
     }
 
@@ -76,10 +67,12 @@ public class JetpackInputHandler {
             PacketDistributor.sendToServer(new C2SToggleJetpackPacket());
         }
 
-        while (JetpackKeyMappings.TOGGLE_ELYTRA.consumeClick()) {
-            PacketDistributor.sendToServer(new C2SToggleElytraPacket(ToggleType.TOGGLE));
-        }
         boolean airborne = !player.onGround() && !player.isInWater();
+        while (JetpackKeyMappings.TOGGLE_ELYTRA.consumeClick()) {
+            if(airborne) {
+                PacketDistributor.sendToServer(new C2SToggleElytraPacket(ToggleType.TOGGLE));
+            }
+        }
         if (ControlifyBridge.isElytraToggleJustPressed() && airborne) {
             PacketDistributor.sendToServer(new C2SToggleElytraPacket(ToggleType.TOGGLE));
         }
@@ -121,7 +114,7 @@ public class JetpackInputHandler {
     }
 
     // Applies client-side movement physics for all active flight states.
-    private void applyPhysics(Player player, FlightState state, ItemStack chest) {
+    private void applyPhysics(Player player, FlightState state, ItemStack jetlytraStack) {
         boolean thrustKey = thrustKeyActive(player, state);
         boolean thrusting = state == FlightState.JETPACK && thrustKey;
         boolean hovering = state == FlightState.HOVERING;
@@ -129,7 +122,7 @@ public class JetpackInputHandler {
         boolean swimBoost = player.isSwimming() && thrustKey;
         Vec3 deltaMovement = player.getDeltaMovement();
 
-        FuelData fuelData = chest.get(JetlytraItems.FUEL_DATA);
+        FuelData fuelData = jetlytraStack.get(JetlytraItems.FUEL_DATA);
         float accelFactor = fuelData != null ? fuelData.getDefinition().map(FuelTypeDefinition::accelerationMultiplier).orElse(1.0f) : 1.0f;
 
         ParticleSpawnType particleSpawnType = null;
@@ -153,9 +146,9 @@ public class JetpackInputHandler {
             particleSpawnType = ParticleSpawnType.BOOSTING;
         } else if (thrusting) {
             double verticalAcceleration;
-            if(player.getDeltaMovement().y < 0) {
+            if (player.getDeltaMovement().y < 0) {
                 verticalAcceleration = deltaMovement.y + THRUST_ACCEL_DOWN;
-            }else{
+            } else {
                 verticalAcceleration = Math.min(deltaMovement.y + THRUST_ACCEL * accelFactor, MAX_THRUST_VEL * accelFactor);
             }
             player.setDeltaMovement(deltaMovement.x, verticalAcceleration, deltaMovement.z);
@@ -169,7 +162,7 @@ public class JetpackInputHandler {
             player.setDeltaMovement(boosted.x * SPRINT_BOOST, boosted.y, boosted.z * SPRINT_BOOST);
         }
 
-        chest.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, particleSpawnType != null);
+        ClientJetpackState.setThrustActive(particleSpawnType != null);
         if (particleSpawnType != null) {
             JetpackParticleHandler.spawnExhaustParticles(particleSpawnType, player);
         }

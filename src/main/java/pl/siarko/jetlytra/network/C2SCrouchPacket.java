@@ -5,8 +5,10 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
+import pl.siarko.jetlytra.JetlytraAttachments;
+import pl.siarko.jetlytra.JetlytraSlotHelper;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import pl.siarko.jetlytra.Jetlytra;
 import pl.siarko.jetlytra.flight.FlightState;
@@ -30,20 +32,20 @@ public record C2SCrouchPacket(boolean active) implements CustomPacketPayload {
     public static void handle(C2SCrouchPacket packet, IPayloadContext context) {
         context.enqueueWork(() -> {
             ServerPlayer player = (ServerPlayer) context.player();
-            ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
-            FlightState current = chest.getOrDefault(JetlytraItems.FLIGHT_STATE_COMPONENT, FlightState.JETPACK);
+            ItemStack jetpackStack = JetlytraSlotHelper.getWornJetlytra(player);
+            FlightState current = player.getData(JetlytraAttachments.FLIGHT_STATE);
             FlightState nextState = nextCrouchState(
                     packet.active, current,
-                    JetlytraItems.isJetpackAvailable(chest),
+                    JetlytraItems.isJetpackAvailable(jetpackStack),
                     player.isInWater(), player.onGround());
 
             if (nextState != null) {
-                if (nextState == FlightState.HOVERING) {
-                    chest.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, true);
-                } else if (current == FlightState.HOVERING) {
-                    chest.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, false);
-                }
-                chest.set(JetlytraItems.FLIGHT_STATE_COMPONENT, nextState);
+                boolean nextThrust = (nextState == FlightState.HOVERING);
+                player.setData(JetlytraAttachments.FLIGHT_STATE, nextState);
+                player.setData(JetlytraAttachments.THRUST_ACTIVE, nextThrust);
+                jetpackStack.set(JetlytraItems.FLIGHT_STATE_COMPONENT, nextState);
+                jetpackStack.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, nextThrust);
+                PacketDistributor.sendToPlayer(player, new S2CFlightStateSyncPacket(nextState, nextThrust));
             }
         });
     }

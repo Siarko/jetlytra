@@ -5,10 +5,12 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
+import pl.siarko.jetlytra.JetlytraAttachments;
+import pl.siarko.jetlytra.JetlytraSlotHelper;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import pl.siarko.jetlytra.Jetlytra;
+import pl.siarko.jetlytra.flight.FlightState;
 import pl.siarko.jetlytra.item.JetlytraItems;
 
 public record C2SThrustPacket(boolean active) implements CustomPacketPayload {
@@ -29,9 +31,13 @@ public record C2SThrustPacket(boolean active) implements CustomPacketPayload {
     public static void handle(C2SThrustPacket packet, IPayloadContext context) {
         context.enqueueWork(() -> {
             ServerPlayer player = (ServerPlayer) context.player();
-            ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
+            ItemStack chest = JetlytraSlotHelper.getWornJetlytra(player);
             if (JetlytraItems.isJetpackAvailable(chest)) {
-                chest.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, packet.active);
+                // HOVERING always keeps thrust active; jump key only controls free-flight thrust
+                boolean hovering = player.getData(JetlytraAttachments.FLIGHT_STATE) == FlightState.HOVERING;
+                boolean newThrust = packet.active() || hovering;
+                player.setData(JetlytraAttachments.THRUST_ACTIVE, newThrust);
+                chest.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, newThrust);
             }
         });
     }

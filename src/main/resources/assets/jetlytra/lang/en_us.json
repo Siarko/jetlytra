@@ -31,5 +31,6 @@
   "config.jetlytra.show_fuel_gauge": "Fuel Gauge",
   "config.jetlytra.show_fuel_warning": "Fuel Warning",
   "config.jetlytra.fuel_warning_label": "Warning Level",
-  "config.jetlytra.fuel_warning_level": "Warning: %s%%"
+  "config.jetlytra.fuel_warning_level": "Warning: %s%%",
+  "hud.jetlytra.low_fuel": "Low Fuel!"
 }

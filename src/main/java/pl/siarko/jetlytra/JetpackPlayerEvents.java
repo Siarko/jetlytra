@@ -2,31 +2,28 @@ package pl.siarko.jetlytra;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.event.entity.living.LivingEquipmentChangeEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 import pl.siarko.jetlytra.flight.FlightState;
 import pl.siarko.jetlytra.item.JetlytraItemBase;
 import pl.siarko.jetlytra.item.JetlytraItems;
+import pl.siarko.jetlytra.network.S2CFlightStateSyncPacket;
 
 public class JetpackPlayerEvents {
 
-    public static void onPlayerClone(PlayerEvent.Clone event) {
-        Player clone = event.getEntity();
-        ItemStack stack = clone.getItemBySlot(EquipmentSlot.CHEST);
+    public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        player.setData(JetlytraAttachments.FLIGHT_STATE, FlightState.JETPACK);
+        player.setData(JetlytraAttachments.THRUST_ACTIVE, false);
+        player.setData(JetlytraAttachments.FUEL_TICK, 0);
+        ItemStack stack = JetlytraSlotHelper.getWornJetlytra(player);
         if (stack.getItem() instanceof JetlytraItemBase) {
             stack.set(JetlytraItems.FLIGHT_STATE_COMPONENT, FlightState.JETPACK);
             stack.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, false);
         }
-    }
-
-    public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)) return;
-        ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
-        if (!(chest.getItem() instanceof JetlytraItemBase)) return;
-        chest.set(JetlytraItems.FLIGHT_STATE_COMPONENT, FlightState.JETPACK);
-        chest.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, false);
+        PacketDistributor.sendToPlayer(player, new S2CFlightStateSyncPacket(FlightState.JETPACK, false));
     }
 
     public static void onEquipmentChange(LivingEquipmentChangeEvent event) {
@@ -40,9 +37,9 @@ public class JetpackPlayerEvents {
         if (wasJetpack == isJetpack) return;
 
         player.setNoGravity(false);
-        if (isJetpack) {
-            event.getTo().set(JetlytraItems.FLIGHT_STATE_COMPONENT, FlightState.JETPACK);
-            event.getTo().set(JetlytraItems.THRUST_ACTIVE_COMPONENT, false);
-        }
+        player.setData(JetlytraAttachments.FLIGHT_STATE, FlightState.JETPACK);
+        player.setData(JetlytraAttachments.THRUST_ACTIVE, false);
+        player.setData(JetlytraAttachments.FUEL_TICK, 0);
+        PacketDistributor.sendToPlayer(player, new S2CFlightStateSyncPacket(FlightState.JETPACK, false));
     }
 }

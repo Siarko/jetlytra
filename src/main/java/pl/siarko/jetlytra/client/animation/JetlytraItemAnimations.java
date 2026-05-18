@@ -11,6 +11,8 @@ import pl.siarko.jetlytra.flight.FuelData;
 import pl.siarko.jetlytra.item.JetlytraItem;
 import pl.siarko.jetlytra.item.JetlytraItems;
 
+import java.util.Objects;
+
 public class JetlytraItemAnimations {
 
     private static final RawAnimation INIT_STATE = RawAnimation.begin().then("init_state", Animation.LoopType.HOLD_ON_LAST_FRAME);
@@ -25,9 +27,10 @@ public class JetlytraItemAnimations {
     public static AnimationController<JetlytraItem> wings(JetlytraItem item) {
         return new AnimationController<>(item, "wing_controller", 0, state -> {
             RawAnimation current = state.getController().getCurrentRawAnimation();
-            FlightState flightState = state.getData(DataTickets.ITEMSTACK)
-                    .getOrDefault(JetlytraItems.FLIGHT_STATE_COMPONENT, FlightState.JETPACK);
-            boolean elytraActive = flightState == FlightState.ELYTRA;
+            boolean elytraActive = Objects.requireNonNull(state.getData(DataTickets.ITEMSTACK)).getOrDefault(
+                    JetlytraItems.FLIGHT_STATE_COMPONENT,
+                    FlightState.JETPACK
+            ) == FlightState.ELYTRA;
 
             if (current == null) {
                 return state.setAndContinue(elytraActive ? WINGS_OPEN_STATE : INIT_STATE);
@@ -44,7 +47,7 @@ public class JetlytraItemAnimations {
 
     public static AnimationController<JetlytraItem> boost(JetlytraItem item) {
         return new AnimationController<>(item, "boost_controller", 0, state -> {
-            boolean thrustActive = state.getData(DataTickets.ITEMSTACK)
+            boolean thrustActive = Objects.requireNonNull(state.getData(DataTickets.ITEMSTACK))
                     .getOrDefault(JetlytraItems.THRUST_ACTIVE_COMPONENT, false);
             return thrustActive ? state.setAndContinue(BOOST) : PlayState.STOP;
         });

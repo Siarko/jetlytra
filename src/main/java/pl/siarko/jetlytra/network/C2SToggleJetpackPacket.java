@@ -7,8 +7,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
+import pl.siarko.jetlytra.JetlytraAttachments;
+import pl.siarko.jetlytra.JetlytraSlotHelper;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import pl.siarko.jetlytra.Jetlytra;
 import pl.siarko.jetlytra.flight.FlightState;
@@ -37,16 +39,19 @@ public record C2SToggleJetpackPacket() implements CustomPacketPayload {
         context.enqueueWork(() -> {
             ServerPlayer player = (ServerPlayer) context.player();
 
-            ItemStack stack = player.getItemBySlot(EquipmentSlot.CHEST);
+            ItemStack stack = JetlytraSlotHelper.getWornJetlytra(player);
             if (!(stack.getItem() instanceof JetlytraItemBase)) return;
 
             boolean newState = !Boolean.TRUE.equals(stack.get(JetlytraItems.JETPACK_ENABLED));
             stack.set(JetlytraItems.JETPACK_ENABLED, newState);
             if (!newState) {
                 player.setNoGravity(false);
+                player.setData(JetlytraAttachments.FLIGHT_STATE, FlightState.JETPACK);
+                player.setData(JetlytraAttachments.THRUST_ACTIVE, false);
+                player.setData(JetlytraAttachments.FUEL_TICK, 0);
                 stack.set(JetlytraItems.FLIGHT_STATE_COMPONENT, FlightState.JETPACK);
                 stack.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, false);
-                stack.set(JetlytraItems.FUEL_TICK_COMPONENT, 0);
+                PacketDistributor.sendToPlayer(player, new S2CFlightStateSyncPacket(FlightState.JETPACK, false));
             }
             player.displayClientMessage(
                 Component.translatable(newState ? LABEL_JETPACK_ENABLED : LABEL_JETPACK_DISABLED).withStyle(

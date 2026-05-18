@@ -2,8 +2,8 @@ package pl.siarko.jetlytra.client.particle;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
+import pl.siarko.jetlytra.JetlytraSlotHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import pl.siarko.jetlytra.flight.FuelData;
@@ -16,7 +16,7 @@ public class JetpackParticleHandler {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return;
 
-        ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
+        ItemStack chest = JetlytraSlotHelper.getWornJetlytra(player);
         FuelData fuelData = chest.get(JetlytraItems.FUEL_DATA);
         if (fuelData == null) return;
         FuelTypeDefinition fuelDef = fuelData.getDefinition().orElse(null);

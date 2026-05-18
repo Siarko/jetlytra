@@ -32,7 +32,6 @@ public class JetlytraItems {
 
     public static final String COMPONENT_JETPACK_ENABLED = "jetpack_enabled";
     public static final String COMPONENT_FUEL_DATA = "fuel_data";
-    public static final String COMPONENT_FUEL_TICK = "fuel_tick";
     public static final String COMPONENT_ELYTRA_ITEM = "elytra_item";
     public static final String COMPONENT_FLIGHT_STATE = "flight_state";
     public static final String COMPONENT_THRUST_ACTIVE = "thrust_active";
@@ -64,13 +63,6 @@ public class JetlytraItems {
                             .build()
             );
 
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> FUEL_TICK_COMPONENT =
-            DATA_COMPONENTS.register(COMPONENT_FUEL_TICK, () ->
-                    DataComponentType.<Integer>builder()
-                            .persistent(Codec.INT)
-                            .build()
-            );
-
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<StoredElytra>> ELYTRA_ITEM =
             DATA_COMPONENTS.register(COMPONENT_ELYTRA_ITEM, () ->
                     DataComponentType.<StoredElytra>builder()
@@ -78,9 +70,13 @@ public class JetlytraItems {
                             .build()
             );
 
+    // Rendering-only components: authoritative state lives in JetlytraAttachments (server)
+    // and ClientJetpackState (client). These are written server-side on every state change
+    // so that nearby players receive them via vanilla equipment sync and Curios NBT sync.
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<FlightState>> FLIGHT_STATE_COMPONENT =
             DATA_COMPONENTS.register(COMPONENT_FLIGHT_STATE, () ->
                     DataComponentType.<FlightState>builder()
+                            .persistent(FlightState.CODEC)
                             .networkSynchronized(FlightState.STREAM_CODEC)
                             .build()
             );
@@ -88,6 +84,7 @@ public class JetlytraItems {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> THRUST_ACTIVE_COMPONENT =
             DATA_COMPONENTS.register(COMPONENT_THRUST_ACTIVE, () ->
                     DataComponentType.<Boolean>builder()
+                            .persistent(Codec.BOOL)
                             .networkSynchronized(ByteBufCodecs.BOOL)
                             .build()
             );
@@ -164,7 +161,7 @@ public class JetlytraItems {
     ) {
         if (isClient) {
             return new JetlytraItem(material, tier, properties);
-        }else{
+        } else {
             return new JetlytraItemBase(material, tier, properties);
         }
     }

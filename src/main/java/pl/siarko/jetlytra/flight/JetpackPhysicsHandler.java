@@ -1,13 +1,16 @@
 package pl.siarko.jetlytra.flight;
 
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
+import pl.siarko.jetlytra.JetlytraAttachments;
+import pl.siarko.jetlytra.JetlytraSlotHelper;
 import pl.siarko.jetlytra.item.JetlytraItemBase;
 import pl.siarko.jetlytra.item.JetlytraItems;
 import pl.siarko.jetlytra.item.StoredElytra;
+import pl.siarko.jetlytra.network.S2CFlightStateSyncPacket;
 import pl.siarko.jetlytra.server.particle.JetpackServerParticleHandler;
 
 
@@ -17,36 +20,36 @@ public class JetpackPhysicsHandler {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         if (player.level().isClientSide()) return;
 
-        ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
-        if (!(chest.getItem() instanceof JetlytraItemBase)) {
-            reset(player, chest);
+        ItemStack jetpackStack = JetlytraSlotHelper.getWornJetlytra(player);
+        if (!(jetpackStack.getItem() instanceof JetlytraItemBase)) {
+            reset(player, jetpackStack);
             return;
         }
 
-        FlightState state = chest.getOrDefault(JetlytraItems.FLIGHT_STATE_COMPONENT, FlightState.JETPACK);
+        FlightState state = player.getData(JetlytraAttachments.FLIGHT_STATE);
 
         if (state != FlightState.JETPACK && player.onGround()) {
-            reset(player, chest);
+            reset(player, jetpackStack);
             return;
         }
 
         player.setNoGravity(state == FlightState.HOVERING);
-        boolean thrusting = Boolean.TRUE.equals(chest.get(JetlytraItems.THRUST_ACTIVE_COMPONENT));
+        boolean thrusting = player.getData(JetlytraAttachments.THRUST_ACTIVE);
         if (state == FlightState.HOVERING || (state == FlightState.JETPACK && thrusting)) {
             player.resetFallDistance();
         }
 
         if (thrusting) {
-            FuelData fuel = chest.get(JetlytraItems.FUEL_DATA);
+            FuelData fuel = jetpackStack.get(JetlytraItems.FUEL_DATA);
             FuelTypeDefinition fuelDef = fuel != null ? fuel.getDefinition().orElse(null) : null;
             JetpackServerParticleHandler.spawnExhaustParticles(player, fuelDef, state);
-            if (!drainFuel(chest)) {
-                reset(player, chest);
+            if (!drainFuel(player, jetpackStack)) {
+                reset(player, jetpackStack);
             }
         }
 
         if (state == FlightState.ELYTRA && player.tickCount % 20 == 0 && player.getDeltaMovement().lengthSqr() > 0.01) {
-            applyElytraDamage(player, chest);
+            applyElytraDamage(player, jetpackStack);
         }
     }
 
@@ -68,18 +71,18 @@ public class JetpackPhysicsHandler {
         }
     }
 
-    private static boolean drainFuel(ItemStack stack) {
+    private static boolean drainFuel(ServerPlayer player, ItemStack stack) {
         FuelData fuel = stack.get(JetlytraItems.FUEL_DATA);
         if (fuel == null || fuel.count() <= 0) return false;
-        
-        int counter = stack.getOrDefault(JetlytraItems.FUEL_TICK_COMPONENT, 0) + 1;
-        if (counter < getTargetTicksPerUnit(stack, fuel)) {
-            stack.set(JetlytraItems.FUEL_TICK_COMPONENT, counter);
+
+        int counter = player.getData(JetlytraAttachments.FUEL_TICK) + 1;
+        if (counter < getTargetTicksPerUnit(player, fuel)) {
+            player.setData(JetlytraAttachments.FUEL_TICK, counter);
             return true;
         }
 
         // Full unit elapsed — drain one unit
-        stack.set(JetlytraItems.FUEL_TICK_COMPONENT, 0);
+        player.setData(JetlytraAttachments.FUEL_TICK, 0);
         int remaining = fuel.count() - 1;
         if (remaining <= 0) {
             stack.remove(JetlytraItems.FUEL_DATA);
@@ -91,17 +94,20 @@ public class JetpackPhysicsHandler {
         return true;
     }
 
-    static void reset(ServerPlayer player, ItemStack chest) {
+    static void reset(ServerPlayer player, ItemStack stack) {
         player.setNoGravity(false);
-        if (chest.getItem() instanceof JetlytraItemBase) {
-            chest.set(JetlytraItems.FLIGHT_STATE_COMPONENT, FlightState.JETPACK);
-            chest.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, false);
-            chest.set(JetlytraItems.FUEL_TICK_COMPONENT, 0);
+        player.setData(JetlytraAttachments.FLIGHT_STATE, FlightState.JETPACK);
+        player.setData(JetlytraAttachments.THRUST_ACTIVE, false);
+        player.setData(JetlytraAttachments.FUEL_TICK, 0);
+        if (stack.getItem() instanceof JetlytraItemBase) {
+            stack.set(JetlytraItems.FLIGHT_STATE_COMPONENT, FlightState.JETPACK);
+            stack.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, false);
         }
+        PacketDistributor.sendToPlayer(player, new S2CFlightStateSyncPacket(FlightState.JETPACK, false));
     }
 
-    private static int getTargetTicksPerUnit(ItemStack stack, FuelData fuel) {
-        FlightState state = stack.getOrDefault(JetlytraItems.FLIGHT_STATE_COMPONENT, FlightState.JETPACK);
+    private static int getTargetTicksPerUnit(ServerPlayer player, FuelData fuel) {
+        FlightState state = player.getData(JetlytraAttachments.FLIGHT_STATE);
         int ticksPerUnit = fuel.getDefinition()
                 .map(FuelTypeDefinition::ticksPerUnit)
                 .orElse(20);
