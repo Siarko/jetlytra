@@ -45,7 +45,7 @@ public record C2SCrouchPacket(boolean active) implements CustomPacketPayload {
                 player.setData(JetlytraAttachments.THRUST_ACTIVE, nextThrust);
                 jetpackStack.set(JetlytraItems.FLIGHT_STATE_COMPONENT, nextState);
                 jetpackStack.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, nextThrust);
-                PacketDistributor.sendToPlayer(player, new S2CFlightStateSyncPacket(nextState, nextThrust));
+                PacketDistributor.sendToPlayer(player, new S2CFlightStateSyncPacket(nextState));
             }
         });
     }

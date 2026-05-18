@@ -51,7 +51,7 @@ public record C2SToggleJetpackPacket() implements CustomPacketPayload {
                 player.setData(JetlytraAttachments.FUEL_TICK, 0);
                 stack.set(JetlytraItems.FLIGHT_STATE_COMPONENT, FlightState.JETPACK);
                 stack.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, false);
-                PacketDistributor.sendToPlayer(player, new S2CFlightStateSyncPacket(FlightState.JETPACK, false));
+                PacketDistributor.sendToPlayer(player, new S2CFlightStateSyncPacket(FlightState.JETPACK));
             }
             player.displayClientMessage(
                 Component.translatable(newState ? LABEL_JETPACK_ENABLED : LABEL_JETPACK_DISABLED).withStyle(

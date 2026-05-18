@@ -23,7 +23,7 @@ public class JetpackPlayerEvents {
             stack.set(JetlytraItems.FLIGHT_STATE_COMPONENT, FlightState.JETPACK);
             stack.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, false);
         }
-        PacketDistributor.sendToPlayer(player, new S2CFlightStateSyncPacket(FlightState.JETPACK, false));
+        PacketDistributor.sendToPlayer(player, new S2CFlightStateSyncPacket(FlightState.JETPACK));
     }
 
     public static void onEquipmentChange(LivingEquipmentChangeEvent event) {
@@ -40,6 +40,6 @@ public class JetpackPlayerEvents {
         player.setData(JetlytraAttachments.FLIGHT_STATE, FlightState.JETPACK);
         player.setData(JetlytraAttachments.THRUST_ACTIVE, false);
         player.setData(JetlytraAttachments.FUEL_TICK, 0);
-        PacketDistributor.sendToPlayer(player, new S2CFlightStateSyncPacket(FlightState.JETPACK, false));
+        PacketDistributor.sendToPlayer(player, new S2CFlightStateSyncPacket(FlightState.JETPACK));
     }
 }

@@ -56,7 +56,7 @@ public record C2SToggleElytraPacket(ToggleType toggleType) implements CustomPack
                 player.setData(JetlytraAttachments.THRUST_ACTIVE, false);
                 chest.set(JetlytraItems.FLIGHT_STATE_COMPONENT, next);
                 chest.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, false);
-                PacketDistributor.sendToPlayer(player, new S2CFlightStateSyncPacket(next, false));
+                PacketDistributor.sendToPlayer(player, new S2CFlightStateSyncPacket(next));
             }
         });
     }

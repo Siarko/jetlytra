@@ -103,7 +103,7 @@ public class JetpackPhysicsHandler {
             stack.set(JetlytraItems.FLIGHT_STATE_COMPONENT, FlightState.JETPACK);
             stack.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, false);
         }
-        PacketDistributor.sendToPlayer(player, new S2CFlightStateSyncPacket(FlightState.JETPACK, false));
+        PacketDistributor.sendToPlayer(player, new S2CFlightStateSyncPacket(FlightState.JETPACK));
     }
 
     private static int getTargetTicksPerUnit(ServerPlayer player, FuelData fuel) {

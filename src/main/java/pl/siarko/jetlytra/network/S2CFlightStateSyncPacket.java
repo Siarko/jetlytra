@@ -9,17 +9,14 @@ import pl.siarko.jetlytra.Jetlytra;
 import pl.siarko.jetlytra.client.ClientJetpackState;
 import pl.siarko.jetlytra.flight.FlightState;
 
-public record S2CFlightStateSyncPacket(FlightState state, boolean thrustActive) implements CustomPacketPayload {
+public record S2CFlightStateSyncPacket(FlightState state) implements CustomPacketPayload {
 
     public static final Type<S2CFlightStateSyncPacket> TYPE =
             new Type<>(ResourceLocation.fromNamespaceAndPath(Jetlytra.MODID, "flight_state_sync"));
 
     public static final StreamCodec<FriendlyByteBuf, S2CFlightStateSyncPacket> CODEC = StreamCodec.of(
-            (buf, packet) -> {
-                FlightState.STREAM_CODEC.encode(buf, packet.state);
-                buf.writeBoolean(packet.thrustActive);
-            },
-            buf -> new S2CFlightStateSyncPacket(FlightState.STREAM_CODEC.decode(buf), buf.readBoolean())
+            (buf, packet) -> FlightState.STREAM_CODEC.encode(buf, packet.state),
+            buf -> new S2CFlightStateSyncPacket(FlightState.STREAM_CODEC.decode(buf))
     );
 
     @Override
@@ -28,9 +25,6 @@ public record S2CFlightStateSyncPacket(FlightState state, boolean thrustActive) 
     }
 
     public static void handle(S2CFlightStateSyncPacket packet, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            ClientJetpackState.setState(packet.state());
-            ClientJetpackState.setThrustActive(packet.thrustActive());
-        });
+        context.enqueueWork(() -> ClientJetpackState.setState(packet.state()));
     }
 }
