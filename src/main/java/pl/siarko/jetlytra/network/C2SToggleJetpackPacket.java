@@ -22,8 +22,9 @@ public record C2SToggleJetpackPacket() implements CustomPacketPayload {
     private static final String LABEL_JETPACK_ENABLED = "message.jetlytra.jetpack.enabled";
     private static final String LABEL_JETPACK_DISABLED = "message.jetlytra.jetpack.disabled";
 
-    public static final Type<C2SToggleJetpackPacket> TYPE =
-            new Type<>(ResourceLocation.fromNamespaceAndPath(Jetlytra.MODID, "toggle_jetpack"));
+    public static final Type<C2SToggleJetpackPacket> TYPE = new Type<>(
+            ResourceLocation.fromNamespaceAndPath(Jetlytra.MODID, "toggle_jetpack")
+    );
 
     public static final StreamCodec<FriendlyByteBuf, C2SToggleJetpackPacket> CODEC = StreamCodec.of(
             (buf, packet) -> {},

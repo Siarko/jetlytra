@@ -34,8 +34,8 @@ public class JetpackInputHandler {
     private static final long DOUBLE_TAP_WINDOW_MS = 300;
 
     private long lastSprintPressTime = 0;
+    private boolean hoverToggled = false;
     private boolean previousThrustSent = false;
-
     private boolean wasFalling = false;
 
     private final KeyStateTracker keyStateTracker;
@@ -68,6 +68,11 @@ public class JetpackInputHandler {
             PacketDistributor.sendToServer(new C2SToggleJetpackPacket());
         }
 
+        while (JetpackKeyMappings.TOGGLE_HOVER.consumeClick()) {
+            this.hoverToggled = !hoverToggled;
+            PacketDistributor.sendToServer(new C2SHoverPacket(this.hoverToggled));
+        }
+
         boolean airborne = !player.onGround() && !player.isInWater();
         while (JetpackKeyMappings.TOGGLE_ELYTRA.consumeClick()) {
             if(airborne) {
@@ -96,8 +101,8 @@ public class JetpackInputHandler {
             PacketDistributor.sendToServer(new C2SThrustPacket(thrustNow));
         }
 
-        if (keyStateTracker.getCrouch().changed()) {
-            PacketDistributor.sendToServer(new C2SCrouchPacket(keyStateTracker.getCrouch().isActive()));
+        if (keyStateTracker.getCrouch().changed() && !hoverToggled) {
+            PacketDistributor.sendToServer(new C2SHoverPacket(keyStateTracker.getCrouch().isActive()));
         }
 
         KeyState sprint = keyStateTracker.getSprint();

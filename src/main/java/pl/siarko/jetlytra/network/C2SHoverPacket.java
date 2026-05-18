@@ -14,14 +14,14 @@ import pl.siarko.jetlytra.Jetlytra;
 import pl.siarko.jetlytra.flight.FlightState;
 import pl.siarko.jetlytra.item.JetlytraItems;
 
-public record C2SCrouchPacket(boolean active) implements CustomPacketPayload {
+public record C2SHoverPacket(boolean active) implements CustomPacketPayload {
 
-    public static final Type<C2SCrouchPacket> TYPE =
-            new Type<>(ResourceLocation.fromNamespaceAndPath(Jetlytra.MODID, "crouch"));
+    public static final Type<C2SHoverPacket> TYPE =
+            new Type<>(ResourceLocation.fromNamespaceAndPath(Jetlytra.MODID, "hover"));
 
-    public static final StreamCodec<FriendlyByteBuf, C2SCrouchPacket> CODEC = StreamCodec.of(
+    public static final StreamCodec<FriendlyByteBuf, C2SHoverPacket> CODEC = StreamCodec.of(
             (buf, packet) -> buf.writeBoolean(packet.active),
-            buf -> new C2SCrouchPacket(buf.readBoolean())
+            buf -> new C2SHoverPacket(buf.readBoolean())
     );
 
     @Override
@@ -29,12 +29,12 @@ public record C2SCrouchPacket(boolean active) implements CustomPacketPayload {
         return TYPE;
     }
 
-    public static void handle(C2SCrouchPacket packet, IPayloadContext context) {
+    public static void handle(C2SHoverPacket packet, IPayloadContext context) {
         context.enqueueWork(() -> {
             ServerPlayer player = (ServerPlayer) context.player();
             ItemStack jetpackStack = JetlytraSlotHelper.getWornJetlytra(player);
             FlightState current = player.getData(JetlytraAttachments.FLIGHT_STATE);
-            FlightState nextState = nextCrouchState(
+            FlightState nextState = nextHoverState(
                     packet.active, current,
                     JetlytraItems.isJetpackAvailable(jetpackStack),
                     player.isInWater(), player.onGround());
@@ -50,8 +50,13 @@ public record C2SCrouchPacket(boolean active) implements CustomPacketPayload {
         });
     }
 
-    private static FlightState nextCrouchState(boolean active, FlightState current,
-                                               boolean jetpackAvailable, boolean inWater, boolean onGround) {
+    private static FlightState nextHoverState(
+            boolean active,
+            FlightState current,
+            boolean jetpackAvailable,
+            boolean inWater,
+            boolean onGround
+    ) {
         if (!active) {
             return current == FlightState.HOVERING ? FlightState.JETPACK : null;
         }

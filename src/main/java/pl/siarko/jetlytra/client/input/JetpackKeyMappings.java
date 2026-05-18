@@ -13,6 +13,13 @@ public class JetpackKeyMappings {
             "key.categories.jetlytra"
     );
 
+    public static final KeyMapping TOGGLE_HOVER = new KeyMapping(
+            "key.jetlytra.toggle_hover",
+            InputConstants.Type.KEYSYM,
+            InputConstants.KEY_V,
+            "key.categories.jetlytra"
+    );
+
     public static final KeyMapping TOGGLE_ELYTRA = new KeyMapping(
             "key.jetlytra.toggle_elytra",
             InputConstants.Type.KEYSYM,
@@ -22,6 +29,7 @@ public class JetpackKeyMappings {
 
     public static void register(RegisterKeyMappingsEvent event) {
         event.register(TOGGLE_JETPACK);
+        event.register(TOGGLE_HOVER);
         event.register(TOGGLE_ELYTRA);
     }
 }
