@@ -12,6 +12,7 @@ import pl.siarko.jetlytra.client.input.integration.ControlifyBridge;
 import pl.siarko.jetlytra.config.JetlytraClientConfig;
 import pl.siarko.jetlytra.client.particle.JetpackParticleHandler;
 import pl.siarko.jetlytra.client.particle.ParticleSpawnType;
+import pl.siarko.jetlytra.config.ClientServerConfig;
 import pl.siarko.jetlytra.flight.FlightState;
 import pl.siarko.jetlytra.flight.FuelData;
 import pl.siarko.jetlytra.flight.FuelTypeDefinition;
@@ -20,17 +21,7 @@ import pl.siarko.jetlytra.network.*;
 
 public class JetpackInputHandler {
 
-    // TODO move all these values to server config
-    private static final double THRUST_ACCEL = 0.10;
-    private static final double MAX_THRUST_VEL = 0.6;
-    private static final double THRUST_ACCEL_DOWN = 0.23;
-    private static final double HOVER_THRUST_ACCEL = 0.05;
-    private static final double HOVER_THRUST_MAX = 0.3;
-    private static final double SPRINT_BOOST_ACCEL = 0.05;
-    private static final double SPRINT_BOOST_MAX = 0.8;
-    private static final double ELYTRA_BOOST_ACCEL = 0.1;
-    private static final double ELYTRA_BOOST_MAX = 1.5;
-    private static final double SWIM_BOOST_MAX = 0.6;
+
     private static final long DOUBLE_TAP_WINDOW_MS = 300;
 
     private long lastSprintPressTime = 0;
@@ -174,13 +165,13 @@ public class JetpackInputHandler {
     }
 
     private ParticleSpawnType applySwimBoost(Player player, float accelFactor) {
-        player.setDeltaMovement(player.getLookAngle().scale(SWIM_BOOST_MAX * accelFactor));
+        player.setDeltaMovement(player.getLookAngle().scale(ClientServerConfig.swimBoostMax * accelFactor));
         return ParticleSpawnType.BOOSTING;
     }
 
     private ParticleSpawnType applyHover(Player player, boolean thrustKey) {
         Vec3 deltaMovement = player.getDeltaMovement();
-        double targetY = thrustKey ? Math.min(deltaMovement.y + HOVER_THRUST_ACCEL, HOVER_THRUST_MAX) : 0;
+        double targetY = thrustKey ? Math.min(deltaMovement.y + ClientServerConfig.hoverThrustAccel, ClientServerConfig.hoverThrustMax) : 0;
         player.setDeltaMovement(deltaMovement.x, targetY, deltaMovement.z);
         player.resetFallDistance();
         return thrustKey ? ParticleSpawnType.THRUSTING : ParticleSpawnType.HOVERING;
@@ -190,9 +181,9 @@ public class JetpackInputHandler {
         Vec3 deltaMovement = player.getDeltaMovement();
         double verticalAcceleration;
         if (player.getDeltaMovement().y < 0) {
-            verticalAcceleration = deltaMovement.y + THRUST_ACCEL_DOWN;
+            verticalAcceleration = deltaMovement.y + ClientServerConfig.thrustAccelDown;
         } else {
-            verticalAcceleration = Math.min(deltaMovement.y + THRUST_ACCEL * accelFactor, MAX_THRUST_VEL * accelFactor);
+            verticalAcceleration = Math.min(deltaMovement.y + ClientServerConfig.thrustAccel * accelFactor, ClientServerConfig.maxThrustVel * accelFactor);
         }
         player.setDeltaMovement(deltaMovement.x, verticalAcceleration, deltaMovement.z);
         player.resetFallDistance();
@@ -202,11 +193,11 @@ public class JetpackInputHandler {
     private ParticleSpawnType applyElytraBoost(Player player, float accelFactor) {
         Vec3 look = player.getLookAngle();
         Vec3 ev = player.getDeltaMovement();
-        double boostMax = ELYTRA_BOOST_MAX * accelFactor;
+        double boostMax = ClientServerConfig.elytraBoostMax * accelFactor;
         player.setDeltaMovement(
-                ev.x + look.x * ELYTRA_BOOST_ACCEL * accelFactor + (look.x * boostMax - ev.x) * 0.5,
-                ev.y + look.y * ELYTRA_BOOST_ACCEL * accelFactor + (look.y * boostMax - ev.y) * 0.5,
-                ev.z + look.z * ELYTRA_BOOST_ACCEL * accelFactor + (look.z * boostMax - ev.z) * 0.5
+                ev.x + look.x * ClientServerConfig.elytraBoostAccel * accelFactor + (look.x * boostMax - ev.x) * 0.5,
+                ev.y + look.y * ClientServerConfig.elytraBoostAccel * accelFactor + (look.y * boostMax - ev.y) * 0.5,
+                ev.z + look.z * ClientServerConfig.elytraBoostAccel * accelFactor + (look.z * boostMax - ev.z) * 0.5
         );
         return ParticleSpawnType.BOOSTING;
     }
@@ -215,10 +206,10 @@ public class JetpackInputHandler {
         Vec3 look = player.getLookAngle();
         Vec3 lookH = new Vec3(look.x, 0, look.z).normalize();
         Vec3 current = player.getDeltaMovement();
-        double newX = current.x + lookH.x * SPRINT_BOOST_ACCEL;
-        double newZ = current.z + lookH.z * SPRINT_BOOST_ACCEL;
+        double newX = current.x + lookH.x * ClientServerConfig.sprintBoostAccel;
+        double newZ = current.z + lookH.z * ClientServerConfig.sprintBoostAccel;
         double currentSpeed = Math.sqrt(newX * newX + newZ * newZ);
-        if (currentSpeed < SPRINT_BOOST_MAX) {
+        if (currentSpeed < ClientServerConfig.sprintBoostMax) {
             player.setDeltaMovement(newX, current.y, newZ);
         }
     }

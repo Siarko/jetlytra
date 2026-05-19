@@ -6,11 +6,15 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import pl.siarko.jetlytra.config.JetlytraClientConfig;
+import pl.siarko.jetlytra.config.JetlytraServerConfig;
+import pl.siarko.jetlytra.network.S2CServerConfigSyncPacket;
 import org.slf4j.Logger;
 import pl.siarko.jetlytra.block.JetlytraBlocks;
 import pl.siarko.jetlytra.compat.curios.JetlytraCuriosCompat;
@@ -51,6 +55,16 @@ public class Jetlytra {
         NeoForge.EVENT_BUS.addListener(JetpackPhysicsHandler::onPlayerTick);
         NeoForge.EVENT_BUS.addListener(JetpackMendingHandler::onXpChange);
         modContainer.registerConfig(ModConfig.Type.CLIENT, JetlytraClientConfig.SPEC);
+        modContainer.registerConfig(ModConfig.Type.SERVER, JetlytraServerConfig.SPEC);
+
+        modEventBus.addListener((ModConfigEvent.Reloading e) -> {
+            if (!e.getConfig().getSpec().equals(JetlytraServerConfig.SPEC)) return;
+            var server = ServerLifecycleHooks.getCurrentServer();
+            if (server == null) return;
+            S2CServerConfigSyncPacket sync = S2CServerConfigSyncPacket.fromServerConfig();
+            server.getPlayerList().getPlayers()
+                    .forEach(p -> PacketDistributor.sendToPlayer(p, sync));
+        });
 
         if (ModList.get().isLoaded("curios")) {
             JetlytraCuriosCompat.register(modEventBus);

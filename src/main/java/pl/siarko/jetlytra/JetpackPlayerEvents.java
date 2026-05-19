@@ -10,6 +10,7 @@ import pl.siarko.jetlytra.flight.FlightState;
 import pl.siarko.jetlytra.item.JetlytraItemBase;
 import pl.siarko.jetlytra.item.JetlytraItems;
 import pl.siarko.jetlytra.network.S2CFlightStateSyncPacket;
+import pl.siarko.jetlytra.network.S2CServerConfigSyncPacket;
 
 public class JetpackPlayerEvents {
 
@@ -24,6 +25,7 @@ public class JetpackPlayerEvents {
             stack.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, false);
         }
         PacketDistributor.sendToPlayer(player, new S2CFlightStateSyncPacket(FlightState.JETPACK));
+        PacketDistributor.sendToPlayer(player, S2CServerConfigSyncPacket.fromServerConfig());
     }
 
     public static void onEquipmentChange(LivingEquipmentChangeEvent event) {
