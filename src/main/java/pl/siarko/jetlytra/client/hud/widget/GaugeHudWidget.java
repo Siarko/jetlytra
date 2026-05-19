@@ -43,32 +43,38 @@ public class GaugeHudWidget extends HudWidget {
     }
 
     public static void render(GuiGraphics g, float cx, float cy, float scale, int percent) {
-        // The active fill zone excludes the fixed top/bottom offset rows.
-        // Scissor runs from the bottom of the active zone upward by the proportional fill amount.
-        int scLeft    = (int)(cx - GAUGE_W / 2f * scale);
-        int scRight   = (int)(cx + GAUGE_W / 2f * scale);
-        int activeBot = (int)(cy + (GAUGE_H / 2f - FILL_OFFSET_BOTTOM) * scale);
-        int activeTop = (int)(cy - (GAUGE_H / 2f - FILL_OFFSET_TOP)   * scale);
-        int activeH   = activeBot - activeTop;
-        int scBot     = activeBot;
-        int scTop     = scBot - Math.max(0, (int)(activeH * percent / 100f));
+        int xpos = -GAUGE_W / 2;
+        int ypos = -GAUGE_H / 2;
+
+        // Active fill zone excludes the fixed top/bottom decorative rows.
+        int gaugeHeight = GAUGE_H - FILL_OFFSET_TOP - FILL_OFFSET_BOTTOM;
+        int fillHeight = (int)(gaugeHeight * percent / 100f);
+
+        // Scissor clips from the bottom of the active zone upward by the fill amount.
+        // Coordinates must be in GUI screen-space (not local PoseStack space), so apply
+        // the same translate+scale manually before passing to enableScissor.
+        float localFillBottom = ypos + GAUGE_H - FILL_OFFSET_BOTTOM;
+        float localFillTop = localFillBottom - fillHeight;
+        int screenLeft   = (int)(cx + xpos              * scale);
+        int screenRight  = (int)(cx + (xpos + GAUGE_W)  * scale);
+        int screenTop    = (int)(cy + localFillTop       * scale);
+        int screenBottom = (int)(cy + localFillBottom    * scale);
 
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
 
+        System.out.println(scale);
         g.pose().pushPose();
         g.pose().translate(cx, cy, 0);
         g.pose().scale(scale, scale, 1f);
-        // Fill drawn first, bg overlaid on top (bg has transparency)
-        g.blit(GAUGE_BG, -GAUGE_W / 2, -GAUGE_H / 2, 0, 0, GAUGE_W, GAUGE_H, GAUGE_W, GAUGE_H);
-        if (scTop < scBot) {
-            g.enableScissor(scLeft, scTop, scRight, scBot);
-            g.blit(GAUGE_FILL, -GAUGE_W / 2, -GAUGE_H / 2, 0, 0, GAUGE_W, GAUGE_H, GAUGE_W, GAUGE_H);
-            g.disableScissor();
-        }
+
+        g.blit(GAUGE_BG, xpos, ypos, 0, 0, GAUGE_W, GAUGE_H, GAUGE_W, GAUGE_H);
+        g.enableScissor(screenLeft, screenTop, screenRight, screenBottom);
+        g.blit(GAUGE_FILL, xpos, ypos, 0, 0, GAUGE_W, GAUGE_H, GAUGE_W, GAUGE_H);
+        g.disableScissor();
+
 
         g.pose().popPose();
-
         RenderSystem.disableBlend();
     }
 }

@@ -1,4 +1,4 @@
-package pl.siarko.jetlytra.client;
+package pl.siarko.jetlytra.client.hud;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -10,7 +10,6 @@ import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import pl.siarko.jetlytra.client.hud.widget.GaugeHudWidget;
 import pl.siarko.jetlytra.client.hud.widget.TextHudWidget;
 import pl.siarko.jetlytra.config.JetlytraClientConfig;
-import pl.siarko.jetlytra.flight.FlightState;
 import pl.siarko.jetlytra.flight.FuelData;
 import pl.siarko.jetlytra.item.JetlytraItemBase;
 import pl.siarko.jetlytra.item.JetlytraItems;
@@ -35,21 +34,25 @@ public class JetpackHudRenderer {
         GuiGraphics g = event.getGuiGraphics();
         int sw = g.guiWidth();
         int sh = g.guiHeight();
-
+        
         if (JetlytraClientConfig.SHOW_FUEL_PERCENTAGE.get()) {
-            TextHudWidget.render(g, mc.font, percent + "%",
+            TextHudWidget.render(
+                    g, mc.font, percent + "%",
                     (float)(JetlytraClientConfig.FUEL_PERCENT_X.get() * sw),
                     (float)(JetlytraClientConfig.FUEL_PERCENT_Y.get() * sh),
                     JetlytraClientConfig.FUEL_PERCENT_SCALE.get().floatValue(),
-                    0xFFFFFF);
+                    0xFFFFFF
+            );
         }
 
         if (JetlytraClientConfig.SHOW_FUEL_GAUGE.get()) {
-            GaugeHudWidget.render(g,
+            GaugeHudWidget.render(
+                    g,
                     (float)(JetlytraClientConfig.FUEL_GAUGE_X.get() * sw),
                     (float)(JetlytraClientConfig.FUEL_GAUGE_Y.get() * sh),
                     JetlytraClientConfig.FUEL_GAUGE_SCALE.get().floatValue(),
-                    percent);
+                    percent
+            );
         }
 
         if (
@@ -58,11 +61,13 @@ public class JetpackHudRenderer {
                 && (System.currentTimeMillis() / 1000) % 2 == 0
                 && Boolean.TRUE.equals(chest.get(JetlytraItems.JETPACK_ENABLED))
         ) {
-            TextHudWidget.render(g, mc.font, I18n.get(LABEL_LOW_FUEL),
+            TextHudWidget.render(
+                    g, mc.font, I18n.get(LABEL_LOW_FUEL),
                     (float)(JetlytraClientConfig.FUEL_WARNING_X.get() * sw),
                     (float)(JetlytraClientConfig.FUEL_WARNING_Y.get() * sh),
                     JetlytraClientConfig.FUEL_WARNING_SCALE.get().floatValue(),
-                    0xFF4444);
+                    0xFF4444
+            );
         }
     }
 }

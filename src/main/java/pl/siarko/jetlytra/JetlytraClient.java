@@ -15,7 +15,7 @@ import pl.siarko.jetlytra.client.tooltip.ElytraTooltipData;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
 import pl.siarko.jetlytra.block.JetlytraBlocks;
-import pl.siarko.jetlytra.client.JetpackHudRenderer;
+import pl.siarko.jetlytra.client.hud.JetpackHudRenderer;
 import pl.siarko.jetlytra.client.hud.JetlytraConfigScreen;
 import pl.siarko.jetlytra.client.input.JetpackInputHandler;
 import pl.siarko.jetlytra.client.input.JetpackKeyMappings;
