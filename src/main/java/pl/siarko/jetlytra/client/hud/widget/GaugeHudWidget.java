@@ -34,15 +34,20 @@ public class GaugeHudWidget extends HudWidget {
     public int[] box(int sw, int sh) {
         int gw = (int)(GAUGE_W * scale);
         int gh = (int)(GAUGE_H * scale);
-        return new int[]{ cx(sw) - gw / 2, cy(sh) - gh / 2, gw, gh };
+        int clampedCx = (int) clampCenter(cx(sw), gw / 2f, sw);
+        int clampedCy = (int) clampCenter(cy(sh), gh / 2f, sh);
+        return new int[]{ clampedCx - gw / 2, clampedCy - gh / 2, gw, gh };
     }
 
     @Override
     public void renderContent(GuiGraphics g, int sw, int sh) {
-        render(g, cx(sw), cy(sh), (float) scale, PREVIEW_PERCENT);
+        render(g, cx(sw), cy(sh), (float) scale, PREVIEW_PERCENT, sw, sh);
     }
 
-    public static void render(GuiGraphics g, float cx, float cy, float scale, int percent) {
+    public static void render(GuiGraphics g, float cx, float cy, float scale, int percent, int sw, int sh) {
+        cx = clampCenter(cx, GAUGE_W * scale / 2f, sw);
+        cy = clampCenter(cy, GAUGE_H * scale / 2f, sh);
+
         int xpos = -GAUGE_W / 2;
         int ypos = -GAUGE_H / 2;
 
@@ -52,7 +57,7 @@ public class GaugeHudWidget extends HudWidget {
 
         // Scissor clips from the bottom of the active zone upward by the fill amount.
         // Coordinates must be in GUI screen-space (not local PoseStack space), so apply
-        // the same translate+scale manually before passing to enableScissor.
+        // the same translate+scale manually before passing to enableScissor. :/
         float localFillBottom = ypos + GAUGE_H - FILL_OFFSET_BOTTOM;
         float localFillTop = localFillBottom - fillHeight;
         int screenLeft   = (int)(cx + xpos              * scale);
@@ -63,7 +68,6 @@ public class GaugeHudWidget extends HudWidget {
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
 
-        System.out.println(scale);
         g.pose().pushPose();
         g.pose().translate(cx, cy, 0);
         g.pose().scale(scale, scale, 1f);
@@ -72,7 +76,6 @@ public class GaugeHudWidget extends HudWidget {
         g.enableScissor(screenLeft, screenTop, screenRight, screenBottom);
         g.blit(GAUGE_FILL, xpos, ypos, 0, 0, GAUGE_W, GAUGE_H, GAUGE_W, GAUGE_H);
         g.disableScissor();
-
 
         g.pose().popPose();
         RenderSystem.disableBlend();

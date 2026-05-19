@@ -21,6 +21,11 @@ public abstract class HudWidget {
     public int cx(int sw) { return (int)(normX * sw); }
     public int cy(int sh) { return (int)(normY * sh); }
 
+    /** Clamps a centered widget so its edges don't exceed the screen boundary. */
+    protected static float clampCenter(float pos, float halfSize, float limit) {
+        return Math.max(halfSize, Math.min(limit - halfSize, pos));
+    }
+
     /** Content bounds in screen space: {x, y, w, h} */
     public abstract int[] box(int sw, int sh);
     public abstract void renderContent(GuiGraphics g, int sw, int sh);

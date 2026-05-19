@@ -23,16 +23,20 @@ public class TextHudWidget extends HudWidget {
     public int[] box(int sw, int sh) {
         int w = (int)(font.width(text) * scale);
         int h = (int)(font.lineHeight * scale);
-        return new int[]{ cx(sw) - w / 2, cy(sh) - h / 2, w, h };
+        int clampedCx = (int) clampCenter(cx(sw), w / 2f, sw);
+        int clampedCy = (int) clampCenter(cy(sh), h / 2f, sh);
+        return new int[]{ clampedCx - w / 2, clampedCy - h / 2, w, h };
     }
 
     @Override
     public void renderContent(GuiGraphics g, int sw, int sh) {
-        render(g, font, text, cx(sw), cy(sh), (float) scale, color);
+        render(g, font, text, cx(sw), cy(sh), (float) scale, color, sw, sh);
     }
 
     public static void render(GuiGraphics g, Font font, String text,
-                              float cx, float cy, float scale, int color) {
+                              float cx, float cy, float scale, int color, int sw, int sh) {
+        cx = clampCenter(cx, font.width(text) * scale / 2f, sw);
+        cy = clampCenter(cy, font.lineHeight * scale / 2f, sh);
         g.pose().pushPose();
         g.pose().translate(cx, cy, 0);
         g.pose().scale(scale, scale, 1f);

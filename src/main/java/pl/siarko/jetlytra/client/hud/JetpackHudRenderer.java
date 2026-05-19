@@ -41,7 +41,7 @@ public class JetpackHudRenderer {
                     (float)(JetlytraClientConfig.FUEL_PERCENT_X.get() * sw),
                     (float)(JetlytraClientConfig.FUEL_PERCENT_Y.get() * sh),
                     JetlytraClientConfig.FUEL_PERCENT_SCALE.get().floatValue(),
-                    0xFFFFFF
+                    0xFFFFFF, sw, sh
             );
         }
 
@@ -51,7 +51,7 @@ public class JetpackHudRenderer {
                     (float)(JetlytraClientConfig.FUEL_GAUGE_X.get() * sw),
                     (float)(JetlytraClientConfig.FUEL_GAUGE_Y.get() * sh),
                     JetlytraClientConfig.FUEL_GAUGE_SCALE.get().floatValue(),
-                    percent
+                    percent, sw, sh
             );
         }
 
@@ -66,7 +66,7 @@ public class JetpackHudRenderer {
                     (float)(JetlytraClientConfig.FUEL_WARNING_X.get() * sw),
                     (float)(JetlytraClientConfig.FUEL_WARNING_Y.get() * sh),
                     JetlytraClientConfig.FUEL_WARNING_SCALE.get().floatValue(),
-                    0xFF4444
+                    0xFF4444, sw, sh
             );
         }
     }
