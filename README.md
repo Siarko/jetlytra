@@ -39,6 +39,8 @@ Also, for Controlify there are two additional keybinds:
 
 ### Placing on the ground
 
+<img src="docs/images/basic_variant_placed.png">
+
 To refuel/modify, you need to hold jetlytra in hand and crouch+rclick on the block. 
 This will place jetlytra as a block on the ground.
 
@@ -47,6 +49,8 @@ In this state, you can right click on it with the fuel to refuel it or with elyt
 To pick it up, crouch+rclick again or break it with anything to get item back.
 
 ### Elytra
+
+<img src="docs/images/wings_open.png">
 
 When you craft jetlytra item, it only works as a jetpack. 
 If you want elytra flight, you need to place jetlytra on the ground and right click on it with elytra in hand.
@@ -81,6 +85,8 @@ Fuel is used when thrust is active.
 
 ### GUI
 
+<img src="docs/images/gui.png">
+
 There are a few elements that you can configure on the HUD:
 - Fuel percentage
 - Fuel gauge
@@ -93,6 +99,8 @@ All configuration options are available in the `Mods -> Jetlytra -> Config`
 > fuel level when it's triggered. It will only appear when jetpack is enabled 
 
 ### Variants
+
+<img src="docs/images/variants_on_armorstands.png">
 
 There are 3 variants of jetlytra:
 - Jetlytra - standard type, provides Iron level armor
