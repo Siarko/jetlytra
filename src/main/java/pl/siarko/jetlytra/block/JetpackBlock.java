@@ -39,6 +39,9 @@ public class JetpackBlock extends BaseEntityBlock {
 
     private static final MapCodec<JetpackBlock> CODEC = simpleCodec(p -> new JetpackBlock());
 
+    private static final int REFUEL_DOUBLE_CLICK_TIME = 250;
+    private long lastRefuelTime = 0;
+
     public JetpackBlock() {
         super(Properties.of()
                 .mapColor(MapColor.METAL)
@@ -95,6 +98,8 @@ public class JetpackBlock extends BaseEntityBlock {
             @NotNull InteractionHand hand,
             @NotNull BlockHitResult hit
     ) {
+
+        if (level.isClientSide) return ItemInteractionResult.SUCCESS;
         if (player.isShiftKeyDown()) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 
         if (stack.getItem() instanceof ElytraItem) {
@@ -112,8 +117,14 @@ public class JetpackBlock extends BaseEntityBlock {
             Player player,
             @NotNull BlockHitResult hit
     ) {
+        if (level.isClientSide) return InteractionResult.SUCCESS;
         if (player.isShiftKeyDown()) {
             return tryJetlyrtaBlockPickup(level, player, pos);
+        }
+
+        if (System.currentTimeMillis() - lastRefuelTime < REFUEL_DOUBLE_CLICK_TIME) {
+            lastRefuelTime = 0;
+            return tryBulkRefuel(level, player, pos);
         }
 
         return tryStoredElytraPickup(level, player, pos);
@@ -151,7 +162,6 @@ public class JetpackBlock extends BaseEntityBlock {
     }
 
     private ItemInteractionResult tryAddingElytra(Level level, Player player, BlockPos pos, ItemStack stack) {
-        if (level.isClientSide) return ItemInteractionResult.SUCCESS;
         if (!(level.getBlockEntity(pos) instanceof JetpackBlockEntityBase be)) {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
@@ -164,7 +174,6 @@ public class JetpackBlock extends BaseEntityBlock {
     private ItemInteractionResult tryAddingFuel(Level level, Player player, BlockPos pos, ItemStack stack) {
         var typeId = FuelTypeRegistry.idFromItem(stack.getItem());
         if (typeId.isEmpty()) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-        if (level.isClientSide) return ItemInteractionResult.SUCCESS;
 
         if (!(level.getBlockEntity(pos) instanceof JetpackBlockEntityBase be))
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
@@ -172,23 +181,50 @@ public class JetpackBlock extends BaseEntityBlock {
         FuelData current = be.getFuelData();
         ResourceLocation type = typeId.get();
 
-        if (current != null && !current.typeId().equals(type))
+        if (current != null && !current.typeId().equals(type)){
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        }
 
         int currentCount = current != null ? current.count() : 0;
         int canAdd = FuelData.MAX_COUNT - currentCount;
-        if (canAdd <= 0) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        if (canAdd <= 0) {
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        }
 
         int toAdd = Math.min(canAdd, stack.getCount());
         be.setFuelData(new FuelData(type, currentCount + toAdd));
         if (!player.isCreative()) {
             stack.shrink(toAdd);
         }
+        this.lastRefuelTime = System.currentTimeMillis();
         return ItemInteractionResult.SUCCESS;
     }
 
+    private InteractionResult tryBulkRefuel(Level level, Player player, BlockPos pos) {
+        if (!(level.getBlockEntity(pos) instanceof JetpackBlockEntityBase be)) return InteractionResult.PASS;
+        FuelData current = be.getFuelData();
+        if (current == null || current.count() >= FuelData.MAX_COUNT) return InteractionResult.PASS;
+
+        int available = FuelData.MAX_COUNT - current.count();
+        int added = 0;
+        for (int i = 0; i < player.getInventory().getContainerSize() && available > 0; i++) {
+            ItemStack slot = player.getInventory().getItem(i);
+            if (slot.isEmpty()) continue;
+            var typeId = FuelTypeRegistry.idFromItem(slot.getItem());
+            if (typeId.isEmpty() || !typeId.get().equals(current.typeId())) continue;
+            int toAdd = Math.min(available, slot.getCount());
+            if (!player.isCreative()) slot.shrink(toAdd);
+            added += toAdd;
+            available -= toAdd;
+        }
+        if (added > 0) {
+            be.setFuelData(new FuelData(current.typeId(), current.count() + added));
+            return InteractionResult.SUCCESS;
+        }
+        return InteractionResult.PASS;
+    }
+
     private InteractionResult tryJetlyrtaBlockPickup(Level level, Player player, BlockPos pos) {
-        if (level.isClientSide) return InteractionResult.SUCCESS;
         if (!(level.getBlockEntity(pos) instanceof JetpackBlockEntityBase be)) return InteractionResult.PASS;
         ItemStack stack = be.createBaseStack();
         be.writeToItem(stack);
@@ -201,7 +237,6 @@ public class JetpackBlock extends BaseEntityBlock {
 
     private InteractionResult tryStoredElytraPickup(Level level, Player player, BlockPos pos) {
         if (!player.getMainHandItem().isEmpty()) return InteractionResult.PASS;
-        if (level.isClientSide) return InteractionResult.SUCCESS;
         if (!(level.getBlockEntity(pos) instanceof JetpackBlockEntityBase be)) return InteractionResult.PASS;
         ItemStack elytra = be.getElytraItem();
         if (elytra.isEmpty()) return InteractionResult.PASS;

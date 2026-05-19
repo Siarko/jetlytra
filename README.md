@@ -64,7 +64,11 @@ You can hover mouse on the jetlytra item to see if elytra is still there and how
 ### Fuel
 
 To refuel, first place jetlytra on the ground. Then, when you right click on it with fuel item in hand, it will consume
-the entire held stack. You can also add fuel from the top side with hopper/any other item input mechanics.
+the entire held stack.
+
+**If you double click with fuel - it will take all available fuel items from your inventory.**
+
+You can also add fuel from the top side with hopper/any other item input mechanics.
 
 Jetpack block will emit analog redstone signal depending on the fuel level. 
 - 0 - 0% fuel
