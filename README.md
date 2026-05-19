@@ -2,6 +2,7 @@
 
 # Jetlyrta mod
 
+## What is this
 This is a minecraft mod that implements a special wearable jetpack. Jetpack that can be equiped with elytra wings.
 
 It improves building experience by allowing you to hover in the air but also improves exploration - no more swapping between
@@ -10,7 +11,7 @@ elytra and jetpack.
 ### Dependencies
 
 - NeoForge 21.1 (for mod loading)
-- GeckoLib 4.7 (for model/animation rendering)
+- GeckoLib 4.7 (for model/animation rendering) - **not required on dedicated server**
 
 ### How it works
 
@@ -19,16 +20,17 @@ Jetlytra can work in a few modes:
 - Hover mode - crouching will suspend you in the air
 - Elytra mode - double click sprint key or use a dedicated keybind to open wings
 
-Additionaly:
+**Additionaly:**
 - Jetpack can be toggled with a keybind (elytra will still work)
-- When jetpack if off, double tapping jump key will also activate wings
+- When jetpack if off, double tapping jump key will activate wings
 - Jump key while swimming will boost you forward
 - Jump key in hover mode will slowly move you upwards
 - Jump key in elytra mode will add thrust - no need for fireworks (they work too)
 - Crouching in elytra mode will deactivate elytra and put you in hover mode
 
-Available keybinds:
+**Available keybinds:**
 - Jetpack toggle button
+- Hover mode toggle button (crouching won't affect hover mode)
 - Elytra mode toggle (activate elytra flight any time)
 
 Also, for Controlify there are two additional keybinds:
@@ -77,6 +79,19 @@ You can add your own/modify existing with a data pack.
 
 Fuel is used when thrust is active.
 
+### GUI
+
+There are a few elements that you can configure on the HUD:
+- Fuel percentage
+- Fuel gauge
+- Low fuel level warning
+
+All configuration options are available in the `Mods -> Jetlytra -> Config`
+
+> [!TIP]
+> All of these can be toggled, moved around and scaled to your liking. For warning level, you can adjust the exact 
+> fuel level when it's triggered. It will only appear when jetpack is enabled 
+
 ### Variants
 
 There are 3 variants of jetlytra:
@@ -88,9 +103,6 @@ None of these can be enchanted. But also none of them break.
 
 ### Compatibilities
 
-- Create (dedicated mechanical crafting recipes, replaces vanilla ones)
-- Controlify (Gamepad controls)
-
-### Future plans
-
-- Add Curios support 
+- Create - dedicated mechanical crafting recipes, replaces vanilla ones
+- Curios - Basic jetlytra variant is wearable in "back" slot
+- Controlify - Gamepad controls
