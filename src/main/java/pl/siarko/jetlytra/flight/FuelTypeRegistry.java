@@ -3,7 +3,7 @@ package pl.siarko.jetlytra.flight;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.DynamicOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
@@ -14,6 +14,7 @@ import pl.siarko.jetlytra.Jetlytra;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 public class FuelTypeRegistry extends SimpleJsonResourceReloadListener {
 
@@ -28,10 +29,12 @@ public class FuelTypeRegistry extends SimpleJsonResourceReloadListener {
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> map, ResourceManager manager, ProfilerFiller profiler) {
         Map<ResourceLocation, FuelTypeDefinition> newDefs = new HashMap<>();
+        DynamicOps<JsonElement> ops = makeConditionalOps();
         for (Map.Entry<ResourceLocation, JsonElement> entry : map.entrySet()) {
-            FuelTypeDefinition.CODEC.parse(JsonOps.INSTANCE, entry.getValue())
+            FuelTypeDefinition.CONDITIONAL_CODEC.parse(ops, entry.getValue())
                     .resultOrPartial(err -> Jetlytra.LOGGER.error("Failed to parse fuel type {}: {}", entry.getKey(), err))
-                    .ifPresent(def -> newDefs.put(entry.getKey(), def));
+                    .flatMap(Function.identity())
+                    .ifPresent(wc -> newDefs.put(entry.getKey(), wc.carrier()));
         }
         definitions = Map.copyOf(newDefs);
     }

@@ -3,6 +3,8 @@ package pl.siarko.jetlytra.flight;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.neoforged.neoforge.common.conditions.ConditionalOps;
+import net.neoforged.neoforge.common.conditions.WithConditions;
 import com.mojang.logging.LogUtils;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -27,7 +29,7 @@ public record FuelTypeDefinition(
 ) {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public static final Codec<FuelTypeDefinition> CODEC = RecordCodecBuilder.create(i -> i.group(
+    public static final Codec<FuelTypeDefinition> DIRECT_CODEC = RecordCodecBuilder.create(i -> i.group(
             Codec.STRING.fieldOf("display_name").forGetter(FuelTypeDefinition::displayName),
             BuiltInRegistries.ITEM.byNameCodec().fieldOf("item").forGetter(FuelTypeDefinition::item),
             Codec.INT.fieldOf("ticks_per_unit").forGetter(FuelTypeDefinition::ticksPerUnit),
@@ -61,6 +63,9 @@ public record FuelTypeDefinition(
             trail.orElse(null),
             boost.orElse(null)
     )));
+
+    public static final Codec<java.util.Optional<WithConditions<FuelTypeDefinition>>> CONDITIONAL_CODEC =
+            ConditionalOps.createConditionalCodecWithConditions(DIRECT_CODEC);
 
     public static final StreamCodec<FriendlyByteBuf, FuelTypeDefinition> STREAM_CODEC = StreamCodec.of(
             FuelTypeDefinition::encode,

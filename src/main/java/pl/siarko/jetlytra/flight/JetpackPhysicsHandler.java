@@ -75,6 +75,12 @@ public class JetpackPhysicsHandler {
         FuelData fuel = stack.get(JetlytraItems.FUEL_DATA);
         if (fuel == null || fuel.count() <= 0) return false;
 
+        if (fuel.getDefinition().isEmpty()) {
+            stack.remove(JetlytraItems.FUEL_DATA);
+            JetlytraItemBase.syncFuelDamage(stack);
+            return false;
+        }
+
         int counter = player.getData(JetlytraAttachments.FUEL_TICK) + 1;
         if (counter < getTargetTicksPerUnit(player, fuel)) {
             player.setData(JetlytraAttachments.FUEL_TICK, counter);
