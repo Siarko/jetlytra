@@ -1,0 +1,10 @@
+{
+  "display_name": "Firework Rocket",
+  "item": "minecraft:firework_rocket",
+  "ticks_per_unit": 20,
+  "ticks_per_unit_hover": 40,
+  "acceleration_multiplier": 1,
+  "exhaust_particle": "minecraft:firework",
+  "trail_particle": "minecraft:firework",
+  "boost_particle": "minecraft:firework"
+}
