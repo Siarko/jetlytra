@@ -97,7 +97,7 @@ public class JetlytraItems {
             );
 
     public static boolean isJetpackAvailable(ItemStack stack) {
-        return Boolean.TRUE.equals(stack.get(JETPACK_ENABLED)) && stack.has(FUEL_DATA);
+        return stack.getOrDefault(JETPACK_ENABLED, true) && stack.has(FUEL_DATA);
     }
 
     public static final Supplier<Item> THRUSTER = ITEMS.register(

@@ -59,7 +59,7 @@ public class JetpackHudRenderer {
                 JetlytraClientConfig.SHOW_FUEL_WARNING.get()
                 && percent <= JetlytraClientConfig.FUEL_WARNING_LEVEL.get()
                 && (System.currentTimeMillis() / 1000) % 2 == 0
-                && Boolean.TRUE.equals(chest.get(JetlytraItems.JETPACK_ENABLED))
+                && chest.getOrDefault(JetlytraItems.JETPACK_ENABLED, true)
         ) {
             TextHudWidget.render(
                     g, mc.font, I18n.get(LABEL_LOW_FUEL),

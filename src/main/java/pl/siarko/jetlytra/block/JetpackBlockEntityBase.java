@@ -31,7 +31,7 @@ public class JetpackBlockEntityBase extends BlockEntity {
 
     private final JetpackFuelItemHandler itemHandler = new JetpackFuelItemHandler(this);
 
-    private boolean jetpackEnabled = false;
+    private boolean jetpackEnabled = true;
 
     @Nullable
     private FuelData fuelData = null;
@@ -45,7 +45,7 @@ public class JetpackBlockEntityBase extends BlockEntity {
     }
 
     public void readFromItem(ItemStack stack) {
-        jetpackEnabled = Boolean.TRUE.equals(stack.get(JetlytraItems.JETPACK_ENABLED));
+        jetpackEnabled = stack.getOrDefault(JetlytraItems.JETPACK_ENABLED, true);
         fuelData = stack.get(JetlytraItems.FUEL_DATA);
         StoredElytra stored = stack.get(JetlytraItems.ELYTRA_ITEM);
         elytraItem = (stored != null && !stored.isEmpty()) ? stored.stack().copy() : ItemStack.EMPTY;

@@ -163,7 +163,7 @@ public class JetlytraItemBase extends ArmorItem {
     }
 
     private void addTooltipJetpackStateInfo(List<Component> tooltipComponents, ItemStack stack) {
-        boolean enabled = Boolean.TRUE.equals(stack.get(JetlytraItems.JETPACK_ENABLED));
+        boolean enabled = stack.getOrDefault(JetlytraItems.JETPACK_ENABLED, true);
         tooltipComponents.add(
                 Component.translatable(enabled ? TOOLTIP_LABEL_JETPACK_ENABLED : TOOLTIP_LABEL_JETPACK_DISABLED)
                         .withStyle(enabled ? ChatFormatting.GREEN : ChatFormatting.RED)

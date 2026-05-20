@@ -43,7 +43,7 @@ public record C2SToggleJetpackPacket() implements CustomPacketPayload {
             ItemStack stack = JetlytraSlotHelper.getWornJetlytra(player);
             if (!(stack.getItem() instanceof JetlytraItemBase)) return;
 
-            boolean newState = !Boolean.TRUE.equals(stack.get(JetlytraItems.JETPACK_ENABLED));
+            boolean newState = !stack.getOrDefault(JetlytraItems.JETPACK_ENABLED, true);
             stack.set(JetlytraItems.JETPACK_ENABLED, newState);
             if (!newState) {
                 player.setNoGravity(false);
