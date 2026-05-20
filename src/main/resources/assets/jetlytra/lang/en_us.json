@@ -61,5 +61,7 @@
   "config.jetlytra.sprint_boost_accel": "Sprint Boost",
   "config.jetlytra.sprint_boost_accel.tooltip": "Horizontal movement speed boost applied when thrusting and sprinting - only applied when thrusting",
   "config.jetlytra.sprint_boost_max": "Sprint Boost Limit",
-  "config.jetlytra.sprint_boost_max.tooltip": "Top speed to which movement boost is applied"
+  "config.jetlytra.sprint_boost_max.tooltip": "Top speed to which movement boost is applied",
+  "tooltip.jetlytra.block.no_fuel": "No Fuel",
+  "tooltip.jetlytra.block.fuel_count": "%s / %s"
 }

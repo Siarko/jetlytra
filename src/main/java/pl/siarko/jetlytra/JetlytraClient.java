@@ -15,6 +15,7 @@ import pl.siarko.jetlytra.client.tooltip.ElytraTooltipData;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
 import pl.siarko.jetlytra.block.JetlytraBlocks;
+import pl.siarko.jetlytra.client.hud.JetpackBlockTooltipRenderer;
 import pl.siarko.jetlytra.client.hud.JetpackHudRenderer;
 import pl.siarko.jetlytra.client.hud.JetlytraConfigScreen;
 import pl.siarko.jetlytra.client.input.JetpackInputHandler;
@@ -32,6 +33,8 @@ public class JetlytraClient {
         NeoForge.EVENT_BUS.addListener(jetpackInputHandler::onClientTick);
         NeoForge.EVENT_BUS.addListener((ClientPlayerNetworkEvent.LoggingOut event) -> keyStateTracker.reset());
         NeoForge.EVENT_BUS.addListener(JetpackHudRenderer::onRenderHud);
+        NeoForge.EVENT_BUS.addListener(JetpackBlockTooltipRenderer::onRenderLevel);
+        NeoForge.EVENT_BUS.addListener(JetpackBlockTooltipRenderer::onRenderHud);
         modEventBus.addListener(JetlytraClient::onRegisterRenderers);
         modContainer.registerExtensionPoint(
                 IConfigScreenFactory.class,
