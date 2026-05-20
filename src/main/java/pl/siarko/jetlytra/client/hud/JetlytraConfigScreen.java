@@ -9,10 +9,13 @@ import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.network.PacketDistributor;
 import pl.siarko.jetlytra.client.hud.config.ThrustAccelSlider;
+import pl.siarko.jetlytra.config.BlockTooltipMode;
 import pl.siarko.jetlytra.client.hud.config.WarningLevelSlider;
 import pl.siarko.jetlytra.config.ClientServerConfig;
 import pl.siarko.jetlytra.config.JetlytraClientConfig;
 import pl.siarko.jetlytra.network.C2SServerConfigChangePacket;
+
+import java.util.function.DoubleConsumer;
 
 public class JetlytraConfigScreen extends Screen {
 
@@ -31,10 +34,19 @@ public class JetlytraConfigScreen extends Screen {
 
     @Override
     protected void init() {
-        ConfigOptionsList list = addRenderableWidget(
-                new ConfigOptionsList(minecraft, width, height - 68, 32));
+        ConfigOptionsList list = addRenderableWidget(new ConfigOptionsList(
+                minecraft, width, height - 68, 32
+        ));
 
-        // ── Client Config ──────────────────────────────────────────────────────
+        addClientConfigWidgets(list);
+
+        addServerConfigWidgets(list);
+
+        addRenderableWidget(Button.builder(Component.literal("Done"), btn -> onClose())
+                .bounds(width / 2 - 100, height - 27, 200, 20).build());
+    }
+
+    private void addClientConfigWidgets(ConfigOptionsList list) {
         list.addText(sectionHeader("screen.jetlytra.section.client_config"), true);
         list.addText(sectionLabel("screen.jetlytra.section.hud"), false);
         list.addWidget(label("config.jetlytra.show_fuel_percentage"),
@@ -44,6 +56,8 @@ public class JetlytraConfigScreen extends Screen {
         list.addWidget(label("config.jetlytra.show_fuel_warning"),
                 toggleButton(JetlytraClientConfig.SHOW_FUEL_WARNING,
                         () -> warnSlider.active = JetlytraClientConfig.SHOW_FUEL_WARNING.get()));
+        list.addWidget(label("config.jetlytra.show_block_tooltip"),
+                cycleBlockTooltipButton());
 
         warnSlider = new WarningLevelSlider(0, 0, SLIDER_W, ROW_H, JetlytraClientConfig.FUEL_WARNING_LEVEL.get());
         warnSlider.active = JetlytraClientConfig.SHOW_FUEL_WARNING.get();
@@ -64,8 +78,9 @@ public class JetlytraConfigScreen extends Screen {
         list.addWidget(label("config.jetlytra.jump_before_thrust"),
                 toggleButton(JetlytraClientConfig.JUMP_BEFORE_THRUST, null,
                         "config.jetlytra.jump_before_thrust.tooltip"));
+    }
 
-        // ── Server Config ──────────────────────────────────────────────────────
+    private void addServerConfigWidgets(ConfigOptionsList list) {
         list.addText(sectionHeader("screen.jetlytra.section.server_config"), true);
         Component serverTarget = minecraft.getCurrentServer() != null
                 ? Component.literal(minecraft.getCurrentServer().name)
@@ -76,53 +91,108 @@ public class JetlytraConfigScreen extends Screen {
         boolean isOp = minecraft.player == null || minecraft.player.hasPermissions(2);
 
         list.addText(sectionLabel("screen.jetlytra.section.jetpack_mode"), false);
-        list.addWidget(label("config.jetlytra.thrust_accel"),
-                serverSlider(0.01, 1.0, ClientServerConfig.thrustAccel,
-                        v -> ClientServerConfig.thrustAccel = v, isOp, null));
-        list.addWidget(label("config.jetlytra.max_thrust_vel"),
-                serverSlider(0.1, 5.0, ClientServerConfig.maxThrustVel,
-                        v -> ClientServerConfig.maxThrustVel = v, isOp, null));
-        list.addWidget(label("config.jetlytra.thrust_accel_down"),
-                serverSlider(0.01, 1.0, ClientServerConfig.thrustAccelDown,
-                        v -> ClientServerConfig.thrustAccelDown = v, isOp,
-                        "config.jetlytra.thrust_accel_down.tooltip"));
+        list.addWidget(
+                label("config.jetlytra.thrust_accel"),
+                serverSlider(0.01, 1.0, ClientServerConfig.thrustAccel, v -> ClientServerConfig.thrustAccel = v, isOp, null)
+        );
+        list.addWidget(
+                label("config.jetlytra.max_thrust_vel"),
+                serverSlider(0.1, 5.0, ClientServerConfig.maxThrustVel, v -> ClientServerConfig.maxThrustVel = v, isOp, null)
+        );
+        list.addWidget(
+                label("config.jetlytra.thrust_accel_down"),
+                serverSlider(
+                        0.01,
+                        1.0,
+                        ClientServerConfig.thrustAccelDown,
+                        v -> ClientServerConfig.thrustAccelDown = v,
+                        isOp,
+                        "config.jetlytra.thrust_accel_down.tooltip"
+                )
+        );
 
         list.addText(sectionLabel("screen.jetlytra.section.hover_mode"), false);
-        list.addWidget(label("config.jetlytra.hover_thrust_accel"),
-                serverSlider(0.01, 0.5, ClientServerConfig.hoverThrustAccel,
-                        v -> ClientServerConfig.hoverThrustAccel = v, isOp,
-                        "config.jetlytra.hover_thrust_accel.tooltip"));
-        list.addWidget(label("config.jetlytra.hover_thrust_max"),
-                serverSlider(0.01, 2.0, ClientServerConfig.hoverThrustMax,
-                        v -> ClientServerConfig.hoverThrustMax = v, isOp,
-                        "config.jetlytra.hover_thrust_max.tooltip"));
+        list.addWidget(
+                label("config.jetlytra.hover_thrust_accel"),
+                serverSlider(
+                        0.01,
+                        0.5,
+                        ClientServerConfig.hoverThrustAccel,
+                        v -> ClientServerConfig.hoverThrustAccel = v,
+                        isOp,
+                        "config.jetlytra.hover_thrust_accel.tooltip"
+                )
+        );
+        list.addWidget(
+                label("config.jetlytra.hover_thrust_max"),
+                serverSlider(
+                        0.01,
+                        2.0,
+                        ClientServerConfig.hoverThrustMax,
+                        v -> ClientServerConfig.hoverThrustMax = v,
+                        isOp,
+                        "config.jetlytra.hover_thrust_max.tooltip"
+                )
+        );
 
         list.addText(sectionLabel("screen.jetlytra.section.elytra_mode"), false);
-        list.addWidget(label("config.jetlytra.elytra_boost_accel"),
-                serverSlider(0.01, 0.5, ClientServerConfig.elytraBoostAccel,
-                        v -> ClientServerConfig.elytraBoostAccel = v, isOp,
-                        "config.jetlytra.elytra_boost_accel.tooltip"));
-        list.addWidget(label("config.jetlytra.elytra_boost_max"),
-                serverSlider(0.1, 5.0, ClientServerConfig.elytraBoostMax,
-                        v -> ClientServerConfig.elytraBoostMax = v, isOp,
-                        "config.jetlytra.elytra_boost_max.tooltip"));
+        list.addWidget(
+                label("config.jetlytra.elytra_boost_accel"),
+                serverSlider(
+                        0.01,
+                        0.5,
+                        ClientServerConfig.elytraBoostAccel,
+                        v -> ClientServerConfig.elytraBoostAccel = v,
+                        isOp,
+                        "config.jetlytra.elytra_boost_accel.tooltip"
+                )
+        );
+        list.addWidget(
+                label("config.jetlytra.elytra_boost_max"),
+                serverSlider(
+                        0.1,
+                        5.0,
+                        ClientServerConfig.elytraBoostMax,
+                        v -> ClientServerConfig.elytraBoostMax = v,
+                        isOp,
+                        "config.jetlytra.elytra_boost_max.tooltip"
+                )
+        );
 
         list.addText(sectionLabel("screen.jetlytra.section.other"), false);
-        list.addWidget(label("config.jetlytra.swim_boost_max"),
-                serverSlider(0.1, 5.0, ClientServerConfig.swimBoostMax,
-                        v -> ClientServerConfig.swimBoostMax = v, isOp,
-                        "config.jetlytra.swim_boost_max.tooltip"));
-        list.addWidget(label("config.jetlytra.sprint_boost_accel"),
-                serverSlider(0.01, 0.5, ClientServerConfig.sprintBoostAccel,
-                        v -> ClientServerConfig.sprintBoostAccel = v, isOp,
-                        "config.jetlytra.sprint_boost_accel.tooltip"));
-        list.addWidget(label("config.jetlytra.sprint_boost_max"),
-                serverSlider(0.1, 5.0, ClientServerConfig.sprintBoostMax,
-                        v -> ClientServerConfig.sprintBoostMax = v, isOp,
-                        "config.jetlytra.sprint_boost_max.tooltip"));
-
-        addRenderableWidget(Button.builder(Component.literal("Done"), btn -> onClose())
-                .bounds(width / 2 - 100, height - 27, 200, 20).build());
+        list.addWidget(
+                label("config.jetlytra.swim_boost_max"),
+                serverSlider(
+                        0.1,
+                        5.0,
+                        ClientServerConfig.swimBoostMax,
+                        v -> ClientServerConfig.swimBoostMax = v,
+                        isOp,
+                        "config.jetlytra.swim_boost_max.tooltip"
+                )
+        );
+        list.addWidget(
+                label("config.jetlytra.sprint_boost_accel"),
+                serverSlider(
+                        0.01,
+                        0.5,
+                        ClientServerConfig.sprintBoostAccel,
+                        v -> ClientServerConfig.sprintBoostAccel = v,
+                        isOp,
+                        "config.jetlytra.sprint_boost_accel.tooltip"
+                )
+        );
+        list.addWidget(
+                label("config.jetlytra.sprint_boost_max"),
+                serverSlider(
+                        0.1,
+                        5.0,
+                        ClientServerConfig.sprintBoostMax,
+                        v -> ClientServerConfig.sprintBoostMax = v,
+                        isOp,
+                        "config.jetlytra.sprint_boost_max.tooltip"
+                )
+        );
     }
 
     @Override
@@ -130,8 +200,6 @@ public class JetlytraConfigScreen extends Screen {
         super.render(g, mouseX, mouseY, partialTick);
         g.drawCenteredString(font, TITLE, width / 2, 15, 0xFFFFFF);
     }
-
-    // ── Component factories ────────────────────────────────────────────────────
 
     private static Component sectionHeader(String key) {
         return Component.translatable(key).withStyle(ChatFormatting.WHITE, ChatFormatting.BOLD);
@@ -145,10 +213,14 @@ public class JetlytraConfigScreen extends Screen {
         return Component.translatable(key);
     }
 
-    // ── Widget factories ───────────────────────────────────────────────────────
-
-    private ThrustAccelSlider serverSlider(double min, double max, double initial,
-            java.util.function.DoubleConsumer onSet, boolean active, String tooltipKey) {
+    private ThrustAccelSlider serverSlider(
+            double min,
+            double max,
+            double initial,
+            DoubleConsumer onSet,
+            boolean active,
+            String tooltipKey
+    ) {
         ThrustAccelSlider slider = new ThrustAccelSlider(0, 0, SLIDER_W, ROW_H, min, max, initial, val -> {
             onSet.accept(val);
             sendServerConfig();
@@ -193,13 +265,46 @@ public class JetlytraConfigScreen extends Screen {
         return builder.build();
     }
 
+    private Button cycleBlockTooltipButton() {
+        BlockTooltipMode[] modes = BlockTooltipMode.values();
+        BlockTooltipMode initial = JetlytraClientConfig.BLOCK_TOOLTIP_MODE.get();
+        Button btn = Button.builder(blockTooltipModeLabel(initial), b -> {
+            BlockTooltipMode current = JetlytraClientConfig.BLOCK_TOOLTIP_MODE.get();
+            BlockTooltipMode next = modes[(current.ordinal() + 1) % modes.length];
+            JetlytraClientConfig.BLOCK_TOOLTIP_MODE.set(next);
+            JetlytraClientConfig.SPEC.save();
+            b.setMessage(blockTooltipModeLabel(next));
+            b.setTooltip(blockTooltipModeTooltip(next));
+        }).size(TOGGLE_W, ROW_H).build();
+        btn.setTooltip(blockTooltipModeTooltip(initial));
+        return btn;
+    }
+
+    private static Tooltip blockTooltipModeTooltip(BlockTooltipMode mode) {
+        return switch (mode) {
+            case OFF -> null;
+            case DYNAMIC -> Tooltip.create(Component.translatable("config.jetlytra.show_block_tooltip.dynamic.tooltip"));
+            case STATIC -> Tooltip.create(Component.translatable("config.jetlytra.show_block_tooltip.static.tooltip"));
+        };
+    }
+
+    private static Component blockTooltipModeLabel(BlockTooltipMode mode) {
+        return switch (mode) {
+            case OFF -> Component.literal("Off").withColor(0xFF5555);
+            case DYNAMIC -> Component.literal("Dynamic").withColor(0x55FF55);
+            case STATIC -> Component.literal("Static").withColor(0xFFAA00);
+        };
+    }
+
     private static Component toggleLabel(boolean on) {
-        return on ? Component.literal("ON").withColor(0x55FF55)
-                  : Component.literal("OFF").withColor(0xFF5555);
+        return on
+                ? Component.literal("ON").withColor(0x55FF55)
+                : Component.literal("OFF").withColor(0xFF5555);
     }
 
     @Override
     public void onClose() {
+        if(minecraft == null) return;
         minecraft.setScreen(parent);
     }
 }

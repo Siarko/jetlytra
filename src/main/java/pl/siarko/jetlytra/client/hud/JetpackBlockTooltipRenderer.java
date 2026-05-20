@@ -17,6 +17,8 @@ import org.joml.Vector4f;
 import pl.siarko.jetlytra.block.JetpackBlock;
 import pl.siarko.jetlytra.block.JetpackBlockEntityBase;
 import pl.siarko.jetlytra.client.tooltip.ElytraTooltipData;
+import pl.siarko.jetlytra.config.BlockTooltipMode;
+import pl.siarko.jetlytra.config.JetlytraClientConfig;
 import pl.siarko.jetlytra.flight.FuelData;
 import pl.siarko.jetlytra.flight.FuelTypeDefinition;
 
@@ -40,9 +42,11 @@ public class JetpackBlockTooltipRenderer {
     }
 
     public static void onRenderHud(RenderGuiEvent.Post event) {
+        BlockTooltipMode mode = JetlytraClientConfig.BLOCK_TOOLTIP_MODE.get();
+        if (mode == BlockTooltipMode.OFF) return;
+
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null) return;
-        if (capturedMVP == null || capturedCameraPos == null) return;
         if (!(mc.hitResult instanceof BlockHitResult bhr)) return;
 
         BlockPos pos = bhr.getBlockPos();
@@ -54,16 +58,24 @@ public class JetpackBlockTooltipRenderer {
         int sw = g.guiWidth();
         int sh = g.guiHeight();
 
-        AABB box = state.getShape(mc.level, pos).bounds().move(pos);
-        float[] edge = projectBoxRightEdge(box, sw, sh);
-        if (edge == null) return;
-
         ItemStack elytra = be.getElytraItem();
         Optional<net.minecraft.world.inventory.tooltip.TooltipComponent> elytraTooltip =
                 elytra.isEmpty() ? Optional.empty() : Optional.of(new ElytraTooltipData(elytra));
+        List<Component> lines = buildTooltip(be.getCustomName(), be.getFuelData());
 
-        g.renderTooltip(mc.font, buildTooltip(be.getCustomName(), be.getFuelData()), elytraTooltip,
-                (int) edge[0] + 4, (int) edge[1]);
+        if (mode == BlockTooltipMode.STATIC) {
+            int x = (int)(JetlytraClientConfig.BLOCK_TOOLTIP_X.get() * sw);
+            int y = (int)(JetlytraClientConfig.BLOCK_TOOLTIP_Y.get() * sh);
+            g.renderTooltip(mc.font, lines, elytraTooltip, x, y);
+            return;
+        }
+
+        // DYNAMIC — project bounding box to screen
+        if (capturedMVP == null || capturedCameraPos == null) return;
+        AABB box = state.getShape(mc.level, pos).bounds().move(pos);
+        float[] edge = projectBoxRightEdge(box, sw, sh);
+        if (edge == null) return;
+        g.renderTooltip(mc.font, lines, elytraTooltip, (int) edge[0] + 4, (int) edge[1]);
     }
 
     // Returns [maxScreenX, midScreenY] of the projected AABB corners, or null if all are behind the camera.

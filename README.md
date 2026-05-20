@@ -41,10 +41,11 @@ Also, for Controlify there are two additional keybinds:
 
 <img src="docs/images/basic_variant_placed.png">
 
-To refuel/modify, you need to hold jetlytra in hand and crouch+rclick on the block. 
-This will place jetlytra as a block on the ground.
+To refuel/modify, you need to hold Jetlytra in hand and crouch+rclick on the block. 
+This will place Jetlytra as a block on the ground.
 
-In this state, you can right click on it with the fuel to refuel it or with elytra to add/remove elytra
+If you look at the block, tooltip will be displayed, giving you more info about the state of the Jetlytra
+<img src="docs/images/block_tooltip.png">
 
 To pick it up, crouch+rclick again or break it with anything to get item back.
 
@@ -52,18 +53,18 @@ To pick it up, crouch+rclick again or break it with anything to get item back.
 
 <img src="docs/images/wings_open.png">
 
-When you craft jetlytra item, it only works as a jetpack. 
-If you want elytra flight, you need to place jetlytra on the ground and right click on it with elytra in hand.
+When you craft Jetlytra item, it only works as a jetpack. 
+If you want elytra flight, you need to place Jetlytra on the ground and right click on it with elytra in hand.
 Elytra will be a part of jetpack and will allow you to fly. Don't worry, you can get it back by right clicking again.
 
 Elytra added to the jetpack will take damage during flight - just as normal one does.
 Unbreaking enchantment is respected. If your elytra is enchanted with mending, it will be repaired just as if you're wearing it (no need to take it out of jetpack for repair)
 
-You can hover mouse on the jetlytra item to see if elytra is still there and how damaged it is.
+You can hover mouse on the Jetlytra item to see if elytra is still there and how damaged it is.
 
 ### Fuel
 
-To refuel, first place jetlytra on the ground. Then, when you right click on it with fuel item in hand, it will consume
+To refuel, first place Jetlytra on the ground. Then, when you right click on it with fuel item in hand, it will consume
 the entire held stack.
 
 **If you double click with fuel - it will take all available fuel items from your inventory.**
@@ -75,9 +76,10 @@ Jetpack block will emit analog redstone signal depending on the fuel level.
 - 1-14 - 1% to 99% fuel
 - 15 - 100% fuel
 
-By default, there are two types of fuel:
+By default, there are three types of fuel:
 - Blaze rods
 - Breeze rods
+- Firework rocket (all flight times have the same properties)
 
 Jetpack can hold up to 9 stacks of one type of fuel. If you add one type, you can only add more fuel of the same type.
 Add 1 stack of blaze rods - you can only add more blaze rods (until all are used up).
@@ -92,9 +94,11 @@ Fuel is used when thrust is active.
 <img src="docs/images/gui.png">
 
 There are a few elements that you can configure on the HUD:
+- Block Tooltip
 - Fuel percentage
 - Fuel gauge
 - Low fuel level warning
+
 
 All configuration options are available in the `Mods -> Jetlytra -> Config`
 
@@ -106,7 +110,7 @@ All configuration options are available in the `Mods -> Jetlytra -> Config`
 
 <img src="docs/images/variants_on_armorstands.png">
 
-There are 3 variants of jetlytra:
+There are 3 variants of Jetlytra:
 - Jetlytra - standard type, provides Iron level armor
 - Diamond Jetlytra - provides Diamond level protection
 - Netherite Jetlytra - provides Netherite level protection (+ fireproof)
@@ -116,5 +120,5 @@ None of these can be enchanted. But also none of them break.
 ### Compatibilities
 
 - Create - dedicated mechanical crafting recipes, replaces vanilla ones
-- Curios - Basic jetlytra variant is wearable in "back" slot
+- Curios - Basic Jetlytra variant is wearable in "back" slot
 - Controlify - Gamepad controls

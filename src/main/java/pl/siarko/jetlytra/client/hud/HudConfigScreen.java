@@ -4,9 +4,11 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import pl.siarko.jetlytra.client.hud.widget.BlockTooltipHudWidget;
 import pl.siarko.jetlytra.client.hud.widget.GaugeHudWidget;
 import pl.siarko.jetlytra.client.hud.widget.HudWidget;
 import pl.siarko.jetlytra.client.hud.widget.TextHudWidget;
+import pl.siarko.jetlytra.config.BlockTooltipMode;
 import pl.siarko.jetlytra.config.JetlytraClientConfig;
 
 import java.util.ArrayList;
@@ -15,8 +17,9 @@ import java.util.List;
 public class HudConfigScreen extends Screen {
 
     private static final Component TITLE = Component.translatable("screen.jetlytra.hud_config");
-    private static final Component INSTRUCTIONS =
-            Component.literal("Drag widget to move — drag corner to resize — ESC to save");
+    private static final Component INSTRUCTIONS = Component.literal(
+            "Drag widget to move — drag corner to resize — ESC to save"
+    );
 
     private final Screen parent;
     private final List<HudWidget> widgets = new ArrayList<>();
@@ -46,6 +49,14 @@ public class HudConfigScreen extends Screen {
             widgets.add(new TextHudWidget(font, "Low Fuel!", 0xFFFF4444,
                     JetlytraClientConfig.FUEL_WARNING_X, JetlytraClientConfig.FUEL_WARNING_Y,
                     JetlytraClientConfig.FUEL_WARNING_SCALE));
+
+        if (JetlytraClientConfig.BLOCK_TOOLTIP_MODE.get() == BlockTooltipMode.STATIC)
+            widgets.add(
+                    new BlockTooltipHudWidget(
+                            JetlytraClientConfig.BLOCK_TOOLTIP_X,
+                            JetlytraClientConfig.BLOCK_TOOLTIP_Y
+                    )
+            );
 
         addRenderableWidget(Button.builder(
                 Component.literal("Reset to Default"),

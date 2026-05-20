@@ -62,6 +62,12 @@
   "config.jetlytra.sprint_boost_accel.tooltip": "Horizontal movement speed boost applied when thrusting and sprinting - only applied when thrusting",
   "config.jetlytra.sprint_boost_max": "Sprint Boost Limit",
   "config.jetlytra.sprint_boost_max.tooltip": "Top speed to which movement boost is applied",
+  "config.jetlytra.show_block_tooltip": "Block Tooltip",
+  "config.jetlytra.show_block_tooltip.dynamic.tooltip": "Tooltip follows the block's bounding box in world space.",
+  "config.jetlytra.show_block_tooltip.static.tooltip": "Tooltip appears at a fixed screen position, configurable in the HUD editor.",
+  "config.jetlytra.block_tooltip.off": "Off",
+  "config.jetlytra.block_tooltip.dynamic": "Dynamic",
+  "config.jetlytra.block_tooltip.static": "Static",
   "tooltip.jetlytra.block.no_fuel": "No Fuel",
   "tooltip.jetlytra.block.fuel_count": "%s / %s"
 }

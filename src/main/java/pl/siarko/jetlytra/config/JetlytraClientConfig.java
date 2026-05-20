@@ -23,6 +23,11 @@ public class JetlytraClientConfig {
     public static final ModConfigSpec.DoubleValue FUEL_GAUGE_Y;
     public static final ModConfigSpec.DoubleValue FUEL_GAUGE_SCALE;
 
+    // Block tooltip
+    public static final ModConfigSpec.EnumValue<BlockTooltipMode> BLOCK_TOOLTIP_MODE;
+    public static final ModConfigSpec.DoubleValue BLOCK_TOOLTIP_X;
+    public static final ModConfigSpec.DoubleValue BLOCK_TOOLTIP_Y;
+
     // Fuel warning widget
     public static final ModConfigSpec.BooleanValue SHOW_FUEL_WARNING;
     public static final ModConfigSpec.IntValue FUEL_WARNING_LEVEL;
@@ -53,6 +58,15 @@ public class JetlytraClientConfig {
         FUEL_GAUGE_X = builder.defineInRange("x", 0.01, 0.0, 1.0);
         FUEL_GAUGE_Y = builder.defineInRange("y", 0.03, 0.0, 1.0);
         FUEL_GAUGE_SCALE = builder.defineInRange("scale", 0.5, 0.25, 4.0);
+        builder.pop();
+
+        builder.push("blockTooltip");
+        BLOCK_TOOLTIP_MODE = builder.comment("Block tooltip display mode: OFF, DYNAMIC (attached to block), STATIC (fixed position)")
+                .defineEnum("mode", BlockTooltipMode.DYNAMIC);
+        BLOCK_TOOLTIP_X = builder.comment("Static tooltip center X (0.0 = left, 1.0 = right)")
+                .defineInRange("x", 0.0, 0.0, 1.0);
+        BLOCK_TOOLTIP_Y = builder.comment("Static tooltip center Y (0.0 = top, 1.0 = bottom)")
+                .defineInRange("y", 0.0, 0.0, 1.0);
         builder.pop();
 
         builder.push("fuelWarning");
