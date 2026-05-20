@@ -2,8 +2,11 @@ package pl.siarko.jetlytra.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -24,6 +27,7 @@ public class JetpackBlockEntityBase extends BlockEntity {
     public static final String TAG_TIER = "tier";
     public static final String TAG_FUEL_DATA = "fuel_data";
     public static final String TAG_ELYTRA_ITEM = "elytra_item";
+    public static final String TAG_CUSTOM_NAME = "CustomName";
 
     private final JetpackFuelItemHandler itemHandler = new JetpackFuelItemHandler(this);
 
@@ -33,6 +37,8 @@ public class JetpackBlockEntityBase extends BlockEntity {
     private FuelData fuelData = null;
     private ItemStack elytraItem = ItemStack.EMPTY;
     private String tier = "";
+    @Nullable
+    private Component customName = null;
 
     public JetpackBlockEntityBase(BlockPos pos, BlockState state) {
         super(JetlytraBlocks.JETPACK_BE.get(), pos, state);
@@ -44,6 +50,7 @@ public class JetpackBlockEntityBase extends BlockEntity {
         StoredElytra stored = stack.get(JetlytraItems.ELYTRA_ITEM);
         elytraItem = (stored != null && !stored.isEmpty()) ? stored.stack().copy() : ItemStack.EMPTY;
         if (stack.getItem() instanceof JetlytraItemBase item) tier = item.getTier();
+        customName = stack.get(DataComponents.CUSTOM_NAME);
         setChanged();
     }
 
@@ -71,6 +78,11 @@ public class JetpackBlockEntityBase extends BlockEntity {
             stack.set(JetlytraItems.ELYTRA_ITEM, new StoredElytra(elytraItem.copy()));
         } else {
             stack.remove(JetlytraItems.ELYTRA_ITEM);
+        }
+        if (customName != null) {
+            stack.set(DataComponents.CUSTOM_NAME, customName);
+        } else {
+            stack.remove(DataComponents.CUSTOM_NAME);
         }
     }
 
@@ -106,6 +118,11 @@ public class JetpackBlockEntityBase extends BlockEntity {
         if (!elytraItem.isEmpty()) {
             tag.put(TAG_ELYTRA_ITEM, elytraItem.save(registries));
         }
+        if (customName != null) {
+            ComponentSerialization.CODEC.encodeStart(
+                    registries.createSerializationContext(NbtOps.INSTANCE), customName
+            ).result().ifPresent(t -> tag.put(TAG_CUSTOM_NAME, t));
+        }
     }
 
     @Override
@@ -121,6 +138,16 @@ public class JetpackBlockEntityBase extends BlockEntity {
         elytraItem = tag.contains(TAG_ELYTRA_ITEM, CompoundTag.TAG_COMPOUND)
                 ? ItemStack.parseOptional(registries, tag.getCompound(TAG_ELYTRA_ITEM))
                 : ItemStack.EMPTY;
+        customName = tag.contains(TAG_CUSTOM_NAME)
+                ? ComponentSerialization.CODEC.parse(
+                        registries.createSerializationContext(NbtOps.INSTANCE), tag.get(TAG_CUSTOM_NAME)
+                  ).result().orElse(null)
+                : null;
+    }
+
+    @Nullable
+    public Component getCustomName() {
+        return customName;
     }
 
     @Override
