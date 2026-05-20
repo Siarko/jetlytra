@@ -4,6 +4,8 @@
 
 ## What is this
 This is a minecraft mod that implements a special wearable jetpack. Jetpack that can be equiped with elytra wings.
+Goal was to create a jetpack that will satisfy my own needs, but in the end, it's highly customizable so it will probably 
+satisfy your needs too.
 
 It improves building experience by allowing you to hover in the air but also improves exploration - no more swapping between
 elytra and jetpack.
@@ -17,21 +19,23 @@ elytra and jetpack.
 
 Jetlytra can work in a few modes:
 - Jetpack mode - press jump and you're off to the skies
-- Hover mode - crouching will suspend you in the air
+- Hover mode - will suspend you in the air
 - Elytra mode - double click sprint key or use a dedicated keybind to open wings
 
-**Additionaly:**
+### Features
+
 - Jetpack can be toggled with a keybind (elytra will still work)
-- When jetpack if off, double tapping jump key will activate wings
+- When jetpack if off, taping jump key when falling will open wings (like vanilla)
 - Jump key while swimming will boost you forward
 - Jump key in hover mode will slowly move you upwards
 - Jump key in elytra mode will add thrust - no need for fireworks (they work too)
 - Crouching in elytra mode will deactivate elytra and put you in hover mode
+- Different thrust particles for fuel types 
 
 **Available keybinds:**
 - Jetpack toggle button
 - Hover mode toggle button (crouching won't affect hover mode)
-- Elytra mode toggle (activate elytra flight any time)
+- Elytra mode toggle (activate elytra flight (almost) any time)
 
 Also, for Controlify there are two additional keybinds:
 - Additional thrust key - active only when player is in the air. Works well if you want to use already bound trigger for thrusting
