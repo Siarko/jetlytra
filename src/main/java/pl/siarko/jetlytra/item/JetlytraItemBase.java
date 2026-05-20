@@ -1,6 +1,7 @@
 package pl.siarko.jetlytra.item;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -33,6 +34,8 @@ public class JetlytraItemBase extends ArmorItem {
     private static final String TOOLTIP_LABEL_FUEL = "item.jetlytra.jetpack.fuel";
     private static final String TOOLTIP_LABEL_NO_FUEL = "item.jetlytra.jetpack.no_fuel";
     private static final String TOOLTIP_LABEL_THRUST_TIME = "item.jetlytra.jetpack.thrust_time";
+    private static final String TOOLTIP_LABEL_SHOW_TIP = "item.jetlytra.jetpack.show_tip";
+    private static final String TOOLTIP_LABEL_PLACEMENT_TIP = "item.jetlytra.jetpack.placement_tip";
 
     private final String tier;
 
@@ -77,29 +80,20 @@ public class JetlytraItemBase extends ArmorItem {
             List<Component> tooltipComponents,
             @NotNull TooltipFlag tooltipFlag
     ) {
-        boolean enabled = Boolean.TRUE.equals(stack.get(JetlytraItems.JETPACK_ENABLED));
-        tooltipComponents.add(
-                Component.translatable(enabled ? TOOLTIP_LABEL_JETPACK_ENABLED : TOOLTIP_LABEL_JETPACK_DISABLED)
-                        .withStyle(enabled ? ChatFormatting.GREEN : ChatFormatting.RED)
-        );
-
         FuelData fuel = stack.get(JetlytraItems.FUEL_DATA);
-        if (fuel != null) {
-            String fuelName = fuel.getDefinition().map(FuelTypeDefinition::displayName).orElse("?");
+        addTooltipFuelInfo(tooltipComponents, fuel);
+
+        addTooltipJetpackStateInfo(tooltipComponents, stack);
+
+        tooltipComponents.add(Component.empty());
+        if(Screen.hasShiftDown()){
+            addTooltipFuelTime(tooltipComponents, fuel);
             tooltipComponents.add(
-                    Component.translatable(TOOLTIP_LABEL_FUEL, fuel.count(), fuelName)
-                            .withStyle(ChatFormatting.GOLD)
+                    Component.translatable(TOOLTIP_LABEL_PLACEMENT_TIP).withStyle(ChatFormatting.DARK_GRAY)
             );
-            fuel.getDefinition().ifPresent(def -> tooltipComponents.add(
-                    Component.translatable(
-                            TOOLTIP_LABEL_THRUST_TIME,
-                            formatTicks(fuel.count() * def.ticksPerUnit()),
-                            formatTicks(fuel.count() * def.ticksPerUnitHover())
-                    ).withStyle(ChatFormatting.AQUA)
-            ));
-        } else {
+        }else{
             tooltipComponents.add(
-                    Component.translatable(TOOLTIP_LABEL_NO_FUEL).withStyle(ChatFormatting.DARK_GRAY)
+                    Component.translatable(TOOLTIP_LABEL_SHOW_TIP, "SHIFT").withStyle(ChatFormatting.AQUA)
             );
         }
     }
@@ -140,5 +134,39 @@ public class JetlytraItemBase extends ArmorItem {
         StoredElytra stored = stack.get(JetlytraItems.ELYTRA_ITEM);
         if (stored == null || stored.isEmpty()) return Optional.empty();
         return Optional.of(new ElytraTooltipData(stored.stack()));
+    }
+
+    private void addTooltipFuelInfo(List<Component> tooltipComponents, FuelData fuel) {
+        if (fuel != null) {
+            String fuelName = fuel.getDefinition().map(FuelTypeDefinition::displayName).orElse("?");
+            tooltipComponents.add(
+                    Component.translatable(TOOLTIP_LABEL_FUEL, fuel.count(), fuelName)
+                            .withStyle(ChatFormatting.GOLD)
+            );
+        } else {
+            tooltipComponents.add(
+                    Component.translatable(TOOLTIP_LABEL_NO_FUEL).withStyle(ChatFormatting.DARK_GRAY)
+            );
+        }
+    }
+
+    private void addTooltipFuelTime(List<Component> tooltipComponents, FuelData fuel) {
+        if (fuel != null) {
+            fuel.getDefinition().ifPresent(def -> tooltipComponents.add(
+                    Component.translatable(
+                            TOOLTIP_LABEL_THRUST_TIME,
+                            formatTicks(fuel.count() * def.ticksPerUnit()),
+                            formatTicks(fuel.count() * def.ticksPerUnitHover())
+                    ).withStyle(ChatFormatting.AQUA)
+            ));
+        }
+    }
+
+    private void addTooltipJetpackStateInfo(List<Component> tooltipComponents, ItemStack stack) {
+        boolean enabled = Boolean.TRUE.equals(stack.get(JetlytraItems.JETPACK_ENABLED));
+        tooltipComponents.add(
+                Component.translatable(enabled ? TOOLTIP_LABEL_JETPACK_ENABLED : TOOLTIP_LABEL_JETPACK_DISABLED)
+                        .withStyle(enabled ? ChatFormatting.GREEN : ChatFormatting.RED)
+        );
     }
 }
