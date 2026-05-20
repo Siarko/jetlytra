@@ -46,7 +46,7 @@ public class JetpackBlockTooltipRenderer {
         if (mode == BlockTooltipMode.OFF) return;
 
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.level == null) return;
+        if (mc.player == null || mc.level == null || mc.screen != null) return;
         if (!(mc.hitResult instanceof BlockHitResult bhr)) return;
 
         BlockPos pos = bhr.getBlockPos();
