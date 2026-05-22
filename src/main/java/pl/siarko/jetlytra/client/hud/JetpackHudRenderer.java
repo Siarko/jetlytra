@@ -27,9 +27,11 @@ public class JetpackHudRenderer {
         if (!(chest.getItem() instanceof JetlytraItemBase)) return;
 
         FuelData fuel = chest.get(JetlytraItems.FUEL_DATA);
-        if (fuel == null) return;
+        int percent = 0;
+        if (fuel != null) {
+            percent = Math.round(fuel.count() * 100f / FuelData.MAX_COUNT);
+        }
 
-        int percent = Math.round(fuel.count() * 100f / FuelData.MAX_COUNT);
 
         GuiGraphics g = event.getGuiGraphics();
         int sw = g.guiWidth();
