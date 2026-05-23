@@ -31,13 +31,11 @@ public record C2SThrustPacket(boolean active) implements CustomPacketPayload {
     public static void handle(C2SThrustPacket packet, IPayloadContext context) {
         context.enqueueWork(() -> {
             ServerPlayer player = (ServerPlayer) context.player();
-            ItemStack chest = JetlytraSlotHelper.getWornJetlytra(player);
-            if (JetlytraItems.isJetpackAvailable(chest)) {
-                // HOVERING always keeps thrust active; jump key only controls free-flight thrust
+            ItemStack itemStack = JetlytraSlotHelper.getWornJetlytra(player);
+            if (JetlytraItems.isJetpackAvailable(itemStack)) {
                 boolean hovering = player.getData(JetlytraAttachments.FLIGHT_STATE) == FlightState.HOVERING;
-                boolean newThrust = packet.active() || hovering;
-                player.setData(JetlytraAttachments.THRUST_ACTIVE, newThrust);
-                chest.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, newThrust);
+                player.setData(JetlytraAttachments.THRUST_ACTIVE, packet.active());
+                itemStack.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, packet.active() || hovering);
             }
         });
     }

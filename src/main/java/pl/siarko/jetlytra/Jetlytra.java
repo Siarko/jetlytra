@@ -59,11 +59,11 @@ public class Jetlytra {
 
         modEventBus.addListener((ModConfigEvent.Reloading e) -> {
             if (!e.getConfig().getSpec().equals(JetlytraServerConfig.SPEC)) return;
+            JetpackPhysicsHandler.onServerConfigReload();
             var server = ServerLifecycleHooks.getCurrentServer();
             if (server == null) return;
             S2CServerConfigSyncPacket sync = S2CServerConfigSyncPacket.fromServerConfig();
-            server.getPlayerList().getPlayers()
-                    .forEach(p -> PacketDistributor.sendToPlayer(p, sync));
+            server.getPlayerList().getPlayers().forEach(p -> PacketDistributor.sendToPlayer(p, sync));
         });
 
         if (ModList.get().isLoaded("curios")) {

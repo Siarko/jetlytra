@@ -37,14 +37,15 @@ public record C2SHoverPacket(boolean active) implements CustomPacketPayload {
             FlightState nextState = nextHoverState(
                     packet.active, current,
                     JetlytraItems.isJetpackAvailable(jetpackStack),
-                    player.isInWater(), player.onGround());
+                    player.isInWater(), player.onGround()
+            );
 
             if (nextState != null) {
-                boolean nextThrust = (nextState == FlightState.HOVERING);
+                boolean hovering = (nextState == FlightState.HOVERING);
                 player.setData(JetlytraAttachments.FLIGHT_STATE, nextState);
-                player.setData(JetlytraAttachments.THRUST_ACTIVE, nextThrust);
+                player.setData(JetlytraAttachments.THRUST_ACTIVE, false);
                 jetpackStack.set(JetlytraItems.FLIGHT_STATE_COMPONENT, nextState);
-                jetpackStack.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, nextThrust);
+                jetpackStack.set(JetlytraItems.THRUST_ACTIVE_COMPONENT, hovering);
                 PacketDistributor.sendToPlayer(player, new S2CFlightStateSyncPacket(nextState));
             }
         });

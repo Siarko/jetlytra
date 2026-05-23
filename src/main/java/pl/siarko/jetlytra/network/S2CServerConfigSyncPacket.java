@@ -7,8 +7,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 import pl.siarko.jetlytra.Jetlytra;
-import pl.siarko.jetlytra.config.ClientServerConfig;
 import pl.siarko.jetlytra.config.JetlytraServerConfig;
+import pl.siarko.jetlytra.config.ServerPhysicsConfig;
 
 public record S2CServerConfigSyncPacket(
         double thrustAccel,
@@ -49,16 +49,16 @@ public record S2CServerConfigSyncPacket(
 
     public static void handle(S2CServerConfigSyncPacket p, IPayloadContext ctx) {
         ctx.enqueueWork(() -> {
-            ClientServerConfig.thrustAccel    = p.thrustAccel();
-            ClientServerConfig.maxThrustVel   = p.maxThrustVel();
-            ClientServerConfig.thrustAccelDown = p.thrustAccelDown();
-            ClientServerConfig.hoverThrustAccel = p.hoverThrustAccel();
-            ClientServerConfig.hoverThrustMax  = p.hoverThrustMax();
-            ClientServerConfig.elytraBoostAccel = p.elytraBoostAccel();
-            ClientServerConfig.elytraBoostMax  = p.elytraBoostMax();
-            ClientServerConfig.swimBoostMax    = p.swimBoostMax();
-            ClientServerConfig.sprintBoostAccel = p.sprintBoostAccel();
-            ClientServerConfig.sprintBoostMax  = p.sprintBoostMax();
+            ServerPhysicsConfig.physics.setThrustAccel(p.thrustAccel());
+            ServerPhysicsConfig.physics.setMaxThrustVel(p.maxThrustVel());
+            ServerPhysicsConfig.physics.setThrustAccelDown(p.thrustAccelDown());
+            ServerPhysicsConfig.physics.setHoverThrustAccel(p.hoverThrustAccel());
+            ServerPhysicsConfig.physics.setHoverThrustMax(p.hoverThrustMax());
+            ServerPhysicsConfig.physics.setElytraBoostAccel(p.elytraBoostAccel());
+            ServerPhysicsConfig.physics.setElytraBoostMax(p.elytraBoostMax());
+            ServerPhysicsConfig.physics.setSwimBoostMax(p.swimBoostMax());
+            ServerPhysicsConfig.physics.setSprintBoostAccel(p.sprintBoostAccel());
+            ServerPhysicsConfig.physics.setSprintBoostMax(p.sprintBoostMax());
         });
     }
 

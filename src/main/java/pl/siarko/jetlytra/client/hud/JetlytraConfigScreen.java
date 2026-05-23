@@ -11,7 +11,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import pl.siarko.jetlytra.client.hud.config.ThrustAccelSlider;
 import pl.siarko.jetlytra.config.BlockTooltipMode;
 import pl.siarko.jetlytra.client.hud.config.WarningLevelSlider;
-import pl.siarko.jetlytra.config.ClientServerConfig;
+import pl.siarko.jetlytra.config.ServerPhysicsConfig;
 import pl.siarko.jetlytra.config.JetlytraClientConfig;
 import pl.siarko.jetlytra.network.C2SServerConfigChangePacket;
 
@@ -93,19 +93,19 @@ public class JetlytraConfigScreen extends Screen {
         list.addText(sectionLabel("screen.jetlytra.section.jetpack_mode"), false);
         list.addWidget(
                 label("config.jetlytra.thrust_accel"),
-                serverSlider(0.01, 1.0, ClientServerConfig.thrustAccel, v -> ClientServerConfig.thrustAccel = v, isOp, null)
+                serverSlider(0.01, 1.0, ServerPhysicsConfig.physics.thrustAccel(), ServerPhysicsConfig.physics::setThrustAccel, isOp, null)
         );
         list.addWidget(
                 label("config.jetlytra.max_thrust_vel"),
-                serverSlider(0.1, 5.0, ClientServerConfig.maxThrustVel, v -> ClientServerConfig.maxThrustVel = v, isOp, null)
+                serverSlider(0.1, 5.0, ServerPhysicsConfig.physics.maxThrustVel(), ServerPhysicsConfig.physics::setMaxThrustVel, isOp, null)
         );
         list.addWidget(
                 label("config.jetlytra.thrust_accel_down"),
                 serverSlider(
                         0.01,
                         1.0,
-                        ClientServerConfig.thrustAccelDown,
-                        v -> ClientServerConfig.thrustAccelDown = v,
+                        ServerPhysicsConfig.physics.thrustAccelDown(),
+                        ServerPhysicsConfig.physics::setThrustAccelDown,
                         isOp,
                         "config.jetlytra.thrust_accel_down.tooltip"
                 )
@@ -117,8 +117,8 @@ public class JetlytraConfigScreen extends Screen {
                 serverSlider(
                         0.01,
                         0.5,
-                        ClientServerConfig.hoverThrustAccel,
-                        v -> ClientServerConfig.hoverThrustAccel = v,
+                        ServerPhysicsConfig.physics.hoverThrustAccel(),
+                        ServerPhysicsConfig.physics::setHoverThrustAccel,
                         isOp,
                         "config.jetlytra.hover_thrust_accel.tooltip"
                 )
@@ -128,8 +128,8 @@ public class JetlytraConfigScreen extends Screen {
                 serverSlider(
                         0.01,
                         2.0,
-                        ClientServerConfig.hoverThrustMax,
-                        v -> ClientServerConfig.hoverThrustMax = v,
+                        ServerPhysicsConfig.physics.hoverThrustMax(),
+                        ServerPhysicsConfig.physics::setHoverThrustMax,
                         isOp,
                         "config.jetlytra.hover_thrust_max.tooltip"
                 )
@@ -141,8 +141,8 @@ public class JetlytraConfigScreen extends Screen {
                 serverSlider(
                         0.01,
                         0.5,
-                        ClientServerConfig.elytraBoostAccel,
-                        v -> ClientServerConfig.elytraBoostAccel = v,
+                        ServerPhysicsConfig.physics.elytraBoostAccel(),
+                        ServerPhysicsConfig.physics::setElytraBoostAccel,
                         isOp,
                         "config.jetlytra.elytra_boost_accel.tooltip"
                 )
@@ -152,8 +152,8 @@ public class JetlytraConfigScreen extends Screen {
                 serverSlider(
                         0.1,
                         5.0,
-                        ClientServerConfig.elytraBoostMax,
-                        v -> ClientServerConfig.elytraBoostMax = v,
+                        ServerPhysicsConfig.physics.elytraBoostMax(),
+                        ServerPhysicsConfig.physics::setElytraBoostMax,
                         isOp,
                         "config.jetlytra.elytra_boost_max.tooltip"
                 )
@@ -165,8 +165,8 @@ public class JetlytraConfigScreen extends Screen {
                 serverSlider(
                         0.1,
                         5.0,
-                        ClientServerConfig.swimBoostMax,
-                        v -> ClientServerConfig.swimBoostMax = v,
+                        ServerPhysicsConfig.physics.swimBoostMax(),
+                        ServerPhysicsConfig.physics::setSwimBoostMax,
                         isOp,
                         "config.jetlytra.swim_boost_max.tooltip"
                 )
@@ -176,8 +176,8 @@ public class JetlytraConfigScreen extends Screen {
                 serverSlider(
                         0.01,
                         0.5,
-                        ClientServerConfig.sprintBoostAccel,
-                        v -> ClientServerConfig.sprintBoostAccel = v,
+                        ServerPhysicsConfig.physics.sprintBoostAccel(),
+                        ServerPhysicsConfig.physics::setSprintBoostAccel,
                         isOp,
                         "config.jetlytra.sprint_boost_accel.tooltip"
                 )
@@ -187,8 +187,8 @@ public class JetlytraConfigScreen extends Screen {
                 serverSlider(
                         0.1,
                         5.0,
-                        ClientServerConfig.sprintBoostMax,
-                        v -> ClientServerConfig.sprintBoostMax = v,
+                        ServerPhysicsConfig.physics.sprintBoostMax(),
+                        ServerPhysicsConfig.physics::setSprintBoostMax,
                         isOp,
                         "config.jetlytra.sprint_boost_max.tooltip"
                 )
@@ -236,16 +236,16 @@ public class JetlytraConfigScreen extends Screen {
 
     private void sendServerConfig() {
         PacketDistributor.sendToServer(new C2SServerConfigChangePacket(
-                ClientServerConfig.thrustAccel,
-                ClientServerConfig.maxThrustVel,
-                ClientServerConfig.thrustAccelDown,
-                ClientServerConfig.hoverThrustAccel,
-                ClientServerConfig.hoverThrustMax,
-                ClientServerConfig.elytraBoostAccel,
-                ClientServerConfig.elytraBoostMax,
-                ClientServerConfig.swimBoostMax,
-                ClientServerConfig.sprintBoostAccel,
-                ClientServerConfig.sprintBoostMax
+                ServerPhysicsConfig.physics.thrustAccel(),
+                ServerPhysicsConfig.physics.maxThrustVel(),
+                ServerPhysicsConfig.physics.thrustAccelDown(),
+                ServerPhysicsConfig.physics.hoverThrustAccel(),
+                ServerPhysicsConfig.physics.hoverThrustMax(),
+                ServerPhysicsConfig.physics.elytraBoostAccel(),
+                ServerPhysicsConfig.physics.elytraBoostMax(),
+                ServerPhysicsConfig.physics.swimBoostMax(),
+                ServerPhysicsConfig.physics.sprintBoostAccel(),
+                ServerPhysicsConfig.physics.sprintBoostMax()
         ));
     }
 
