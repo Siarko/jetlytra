@@ -100,8 +100,8 @@ dependencies {
     localRuntime("dev.engine-room.flywheel:flywheel-neoforge-${minecraft_version}:${flywheel_version}")
     localRuntime("com.tterrag.registrate:Registrate:${registrate_version}")
 
-
-    // JEI — DEV runs
+    // JEI — compile against API, include at runtime for dev runs
+    compileOnly "curse.maven:jei-238222:${jei_file_id}"
     localRuntime "curse.maven:jei-238222:${jei_file_id}"
 }
 

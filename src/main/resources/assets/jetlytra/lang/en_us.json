@@ -69,5 +69,10 @@
   "config.jetlytra.block_tooltip.dynamic": "Dynamic",
   "config.jetlytra.block_tooltip.static": "Static",
   "tooltip.jetlytra.block.no_fuel": "No Fuel",
-  "tooltip.jetlytra.block.fuel_count": "%s / %s"
+  "tooltip.jetlytra.block.fuel_count": "%s / %s",
+
+  "jei.jetlytra.fuel": "Jetlytra Fuel",
+  "jei.jetlytra.fuel.thrust": "Thrust: %s",
+  "jei.jetlytra.fuel.hover": "Hover:  %s",
+  "jei.jetlytra.fuel.speed": "Speed:  %s"
 }

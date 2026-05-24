@@ -7,6 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 import pl.siarko.jetlytra.Jetlytra;
+import pl.siarko.jetlytra.compat.jei.JeiIntegration;
 import pl.siarko.jetlytra.flight.FuelTypeDefinition;
 import pl.siarko.jetlytra.flight.FuelTypeRegistry;
 
@@ -48,6 +49,9 @@ public record S2CFuelTypeSyncPacket(Map<ResourceLocation, FuelTypeDefinition> de
     }
 
     public static void handle(S2CFuelTypeSyncPacket packet, IPayloadContext context) {
-        context.enqueueWork(() -> FuelTypeRegistry.applyClientSync(packet.definitions()));
+        context.enqueueWork(() -> {
+            FuelTypeRegistry.applyClientSync(packet.definitions());
+            JeiIntegration.notifyFuelTypesUpdated();
+        });
     }
 }

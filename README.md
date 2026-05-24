@@ -19,8 +19,8 @@ elytra and jetpack.
 
 Jetlytra can work in a few modes:
 - Jetpack mode - press jump and you're off to the skies
-- Hover mode - will suspend you in the air
-- Elytra mode - double click sprint key or use a dedicated keybind to open wings
+- Hover mode - will suspend you in the air (using less fuel)
+- Elytra mode - Elytra flight
 
 ### Features
 
@@ -91,7 +91,9 @@ Add 1 stack of blaze rods - you can only add more blaze rods (until all are used
 Each fuel type causes different particles and different thrust speeds.
 You can add your own/modify existing with a data pack.
 
-Fuel is used when thrust is active.
+There's a JEI integration that will let you check available fuel types and their properties.
+
+<img src="docs/images/jei_fuel_category.png">
 
 ### GUI
 
@@ -126,3 +128,4 @@ None of these can be enchanted. But also none of them break.
 - Create - dedicated mechanical crafting recipes, replaces vanilla ones
 - Curios - Basic Jetlytra variant is wearable in "back" slot
 - Controlify - Gamepad controls
+- JEI - Crafting, Fuel info
