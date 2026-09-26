@@ -1,0 +1,35 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read version from gradle.properties
+        id: ver
+        run: |
+          echo "mod_id=$(grep '^mod_id' gradle.properties | cut -d= -f2)" >> $GITHUB_OUTPUT
+          echo "mc_version=$(grep '^minecraft_version' gradle.properties | cut -d= -f2)" >> $GITHUB_OUTPUT
+          echo "mod_version=$(grep '^mod_version' gradle.properties | cut -d= -f2)" >> $GITHUB_OUTPUT
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Build
+        run: ./gradlew build
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.ver.outputs.mod_id }}-${{ steps.ver.outputs.mc_version }}-${{ steps.ver.outputs.mod_version }}
+          path: build/libs/*.jar
+          retention-days: 14
