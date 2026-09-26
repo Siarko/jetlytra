@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      mod_version: ${{ steps.ver.outputs.mod_version }}
+      artifact_name: ${{ steps.ver.outputs.artifact_name }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read version from gradle.properties
+        id: ver
+        run: |
+          MOD_ID=$(grep '^mod_id=' gradle.properties | cut -d= -f2)
+          MC_VERSION=$(grep '^minecraft_version=' gradle.properties | cut -d= -f2)
+          MOD_VERSION=$(grep '^mod_version=' gradle.properties | cut -d= -f2)
+          echo "mod_version=$MOD_VERSION" >> $GITHUB_OUTPUT
+          echo "artifact_name=${MOD_ID}-${MC_VERSION}-${MOD_VERSION}" >> $GITHUB_OUTPUT
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Build
+        run: ./gradlew build
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.ver.outputs.artifact_name }}
+          path: build/libs/*.jar
+          retention-days: 14
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check if tag already exists
+        run: |
+          if git ls-remote --tags origin "refs/tags/v${{ needs.build.outputs.mod_version }}" | grep -q .; then
+            echo "::error::Tag v${{ needs.build.outputs.mod_version }} already exists. Bump mod_version in gradle.properties before publishing."
+            exit 1
+          fi
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.build.outputs.artifact_name }}
+          path: dist
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.build.outputs.mod_version }}
+          files: dist/*.jar
+          generate_release_notes: true
