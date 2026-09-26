@@ -46,6 +46,7 @@ public class JetpackBlockTooltipRenderer {
         if (mode == BlockTooltipMode.OFF) return;
 
         Minecraft mc = Minecraft.getInstance();
+        if (mc.options.hideGui) return;
         if (mc.player == null || mc.level == null || mc.screen != null) return;
         if (!(mc.hitResult instanceof BlockHitResult bhr)) return;
 

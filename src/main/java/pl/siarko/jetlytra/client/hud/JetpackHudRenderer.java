@@ -20,6 +20,7 @@ public class JetpackHudRenderer {
 
     public static void onRenderHud(RenderGuiEvent.Post event) {
         Minecraft mc = Minecraft.getInstance();
+        if (mc.options.hideGui) return;
         Player player = mc.player;
         if (player == null) return;
 
